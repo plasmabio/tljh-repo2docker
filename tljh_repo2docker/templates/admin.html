@@ -1,0 +1,15 @@
+{% extends "templates/admin.html" %}
+
+{% block thead %}
+<th>Image</th>
+{{ super() }}
+{% endblock thead %}
+
+{% block user_row %}
+
+{# TODO: move this td after the call to super() so it's at the end of the table #}
+{# after this PR is merged and a new version released: https://github.com/jupyterhub/jupyterhub/pull/3015 #}
+<td class="col-sm-2">{{ spawner.image }}</td>
+{{ super() }}
+
+{% endblock user_row %}

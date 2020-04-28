@@ -1,0 +1,19 @@
+*.py[co]
+*~
+.cache
+dist
+docs/_build
+docs/build
+.ipynb_checkpoints
+jupyterhub_cookie_secret
+jupyterhub.sqlite
+jupyterhub-proxy.pid
+*.egg-info
+MANIFEST
+
+# IDE
+.vscode
+.idea
+
+# Local TLJH config file
+config.yaml
