@@ -1,2 +1,2 @@
 recursive-include tljh_repo2docker/templates/ *
-recursive-include tljh_plasmabio/static/ *
+recursive-include tljh_repo2docker/static/ *
