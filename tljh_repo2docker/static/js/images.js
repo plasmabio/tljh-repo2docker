@@ -64,8 +64,10 @@ require(["jquery", "bootstrap", "moment", "jhapi", "utils"], function(
     var el = $(this);
     var row = getRow(el);
     var image = row.data("image");
+    var displayName = row.data("display-name");
     var dialog = $("#remove-environment-dialog");
-    dialog.find(".delete-environment").text(image);
+    dialog.find(".delete-environment").attr("data-image", image);
+    dialog.find(".delete-environment").text(displayName);
     dialog.modal();
   });
 
@@ -73,7 +75,7 @@ require(["jquery", "bootstrap", "moment", "jhapi", "utils"], function(
     .find(".remove-button")
     .click(function() {
       var dialog = $("#remove-environment-dialog");
-      var image = dialog.find(".delete-environment").text();
+      var image = dialog.find(".delete-environment").data("image");
       var spinner = $("#removing-environment-dialog");
       spinner.find('.modal-footer').remove();
       spinner.modal();

@@ -22,7 +22,7 @@
     </thead>
     <tbody>
       {% for image in images %}
-      <tr class="image-row" data-image="{{ image.image_name }}">
+      <tr class="image-row" data-image="{{ image.image_name }}" data-display-name="{{ image.display_name }}">
         <td class="repo-col col-sm-3">
           {{ image.display_name }}
         </td>
