@@ -1,3 +1,7 @@
+.images-container {
+  width: 100%;
+}
+
 .table > tbody > tr > td {
   vertical-align: middle;
 }
