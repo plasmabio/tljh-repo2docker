@@ -1,5 +1,6 @@
 import asyncio
 import json
+import re
 import subprocess
 import sys
 
@@ -16,6 +17,8 @@ from tornado.concurrent import run_on_executor
 from tornado.log import app_log
 
 client = docker.from_env()
+
+DISPLAY_NAME_RE = r'^[a-zA-Z0-9-_]+$'
 
 
 def build_image(repo, ref, display_name="", memory=None, cpu=None):
@@ -147,6 +150,9 @@ class BuildHandler(HubAuthenticated, web.RequestHandler):
                 float(cpu)
             except:
                 raise web.HTTPError(400, "CPU Limit must be a number")
+
+        if display_name and not re.match(DISPLAY_NAME_RE, display_name):
+            raise web.HTTPError(400, f"Display Name is restricted to the following characters: {DISPLAY_NAME_RE}")
 
         build_image(repo, ref, display_name, memory, cpu)
         self.set_status(200)

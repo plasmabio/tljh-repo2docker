@@ -26,6 +26,7 @@ require(["jquery", "bootstrap", "moment", "jhapi", "utils"], function(
     var dialog = $("#create-environment-dialog");
     dialog.find(".repo-input").val("");
     dialog.find(".ref-input").val("");
+    dialog.find(".display-name-input").val("");
     dialog.find(".memory-input").val("");
     dialog.find(".cpu-input").val("");
     dialog.modal();
