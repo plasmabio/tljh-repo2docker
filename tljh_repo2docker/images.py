@@ -16,7 +16,7 @@ from jupyterhub.utils import auth_decorator, url_path_join
 from tornado import ioloop, web
 from tornado.options import define, options, parse_command_line
 
-from .builder import BuildHandler, DISPLAY_NAME_RE
+from .builder import BuildHandler
 
 loader = ChoiceLoader(
     [
@@ -112,7 +112,6 @@ class ImagesHandler(HubAuthenticated, web.RequestHandler):
                 images=images,
                 default_mem_limit=self.settings.get("default_mem_limit"),
                 default_cpu_limit=self.settings.get("default_cpu_limit"),
-                display_name_whitelist=DISPLAY_NAME_RE,
                 static_url=self.static_url,
                 login_url=self.hub_auth.login_url,
                 logout_url=logout_url,

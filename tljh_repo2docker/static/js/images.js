@@ -88,4 +88,8 @@ require(["jquery", "bootstrap", "moment", "jhapi", "utils"], function(
         },
       })
     });
+
+  // initialize tooltips
+  $('[data-toggle="tooltip"]').tooltip();
+
 });
