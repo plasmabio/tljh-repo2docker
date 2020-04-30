@@ -76,6 +76,7 @@ def list_containers():
             "repo": container.labels["repo2docker.repo"],
             "ref": container.labels["repo2docker.ref"],
             "image_name": container.labels["repo2docker.build"],
+            "display_name": container.labels["tljh_repo2docker.display_name"],
             "mem_limit": container.labels["tljh_repo2docker.mem_limit"],
             "cpu_limit": container.labels["tljh_repo2docker.cpu_limit"],
             "status": "building",

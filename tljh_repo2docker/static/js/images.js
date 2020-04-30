@@ -26,6 +26,7 @@ require(["jquery", "bootstrap", "moment", "jhapi", "utils"], function(
     var dialog = $("#create-environment-dialog");
     dialog.find(".repo-input").val("");
     dialog.find(".ref-input").val("");
+    dialog.find(".display-name-input").val("");
     dialog.find(".memory-input").val("");
     dialog.find(".cpu-input").val("");
     dialog.modal();
@@ -37,6 +38,7 @@ require(["jquery", "bootstrap", "moment", "jhapi", "utils"], function(
       var dialog = $("#create-environment-dialog");
       var repo = dialog.find(".repo-input").val();
       var ref = dialog.find(".ref-input").val().trim();
+      var displayName = dialog.find(".display-name-input").val().trim();
       var memory = dialog.find(".memory-input").val().trim();
       var cpu = dialog.find(".cpu-input").val().trim();
       var spinner = $("#adding-environment-dialog");
@@ -47,6 +49,7 @@ require(["jquery", "bootstrap", "moment", "jhapi", "utils"], function(
         data: JSON.stringify({
           repo: repo,
           ref: ref,
+          displayName: displayName,
           memory: memory,
           cpu: cpu
         }),
@@ -61,8 +64,10 @@ require(["jquery", "bootstrap", "moment", "jhapi", "utils"], function(
     var el = $(this);
     var row = getRow(el);
     var image = row.data("image");
+    var displayName = row.data("display-name");
     var dialog = $("#remove-environment-dialog");
-    dialog.find(".delete-environment").text(image);
+    dialog.find(".delete-environment").attr("data-image", image);
+    dialog.find(".delete-environment").text(displayName);
     dialog.modal();
   });
 
@@ -70,7 +75,7 @@ require(["jquery", "bootstrap", "moment", "jhapi", "utils"], function(
     .find(".remove-button")
     .click(function() {
       var dialog = $("#remove-environment-dialog");
-      var image = dialog.find(".delete-environment").text();
+      var image = dialog.find(".delete-environment").data("image");
       var spinner = $("#removing-environment-dialog");
       spinner.find('.modal-footer').remove();
       spinner.modal();
@@ -85,4 +90,8 @@ require(["jquery", "bootstrap", "moment", "jhapi", "utils"], function(
         },
       })
     });
+
+  // initialize tooltips
+  $('[data-toggle="tooltip"]').tooltip();
+
 });

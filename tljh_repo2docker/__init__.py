@@ -37,14 +37,15 @@ class TLJHDockerSpawner(DockerSpawner):
 
     def options_form(self, spawner):
         """
-        Override the default form to handle the case when there is only
-        one image.
+        Override the default form to handle the case when there is only one image.
         """
-        images = self.image_whitelist(self)
-        option_t = '<option value="{image}" {selected}>{image}</option>'
+        images = list_images()
+        option_t = '<option value="{image_name}" {selected}>{display_name}</option>'
         options = [
             option_t.format(
-                image=image, selected="selected" if image == self.image else ""
+                image_name=image["image_name"],
+                display_name=image["display_name"],
+                selected="selected" if image["image_name"] == self.image else "",
             )
             for image in images
         ]
@@ -57,9 +58,9 @@ class TLJHDockerSpawner(DockerSpawner):
             options=options
         )
 
-    def start(self):
+    def start(self, *args, **kwargs):
         self.set_limits()
-        return super().start()
+        return super().start(*args, **kwargs)
 
 
 @hookimpl
@@ -76,6 +77,7 @@ def tljh_custom_jupyterhub_config(c):
 
     # spawner
     c.TLJHDockerSpawner.cmd = ["jupyterhub-singleuser"]
+    c.TLJHDockerSpawner.pull_policy = "Never"
 
     # fetch limits from the TLJH config
     tljh_config = load_config()

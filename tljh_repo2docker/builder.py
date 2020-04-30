@@ -1,5 +1,6 @@
 import asyncio
 import json
+import re
 import subprocess
 import sys
 
@@ -17,8 +18,10 @@ from tornado.log import app_log
 
 client = docker.from_env()
 
+DISPLAY_NAME_RE = r'^[a-zA-Z0-9-_]+$'
 
-def build_image(repo, ref, memory=None, cpu=None):
+
+def build_image(repo, ref, display_name="", memory=None, cpu=None):
     """
     Build an image given a repo, ref and limits
     """
@@ -27,6 +30,7 @@ def build_image(repo, ref, memory=None, cpu=None):
         ref = ref[:7]
     name = urlparse(repo).path.strip("/")
     image_name = f"{name}:{ref}"
+    display_name = display_name or f"{name}-{ref}"
 
     # memory is specified in GB
     memory = f"{memory}G" if memory else ""
@@ -34,7 +38,7 @@ def build_image(repo, ref, memory=None, cpu=None):
 
     # add extra labels to set additional image properties
     labels = [
-        f"LABEL tljh_repo2docker.display_name={name}-{ref}",
+        f"LABEL tljh_repo2docker.display_name={display_name}",
         f"LABEL tljh_repo2docker.image_name={image_name}",
         f"LABEL tljh_repo2docker.mem_limit={memory}",
         f"LABEL tljh_repo2docker.cpu_limit={cpu}",
@@ -61,6 +65,7 @@ def build_image(repo, ref, memory=None, cpu=None):
             "repo2docker.repo": repo,
             "repo2docker.ref": ref,
             "repo2docker.build": image_name,
+            "tljh_repo2docker.display_name": display_name,
             "tljh_repo2docker.mem_limit": memory,
             "tljh_repo2docker.cpu_limit": cpu,
         },
@@ -110,7 +115,6 @@ class BuildHandler(HubAuthenticated, web.RequestHandler):
     @web.authenticated
     @run_on_executor
     def delete(self):
-        self.log.debug("Delete an image")
         data = escape.json_decode(self.request.body)
         name = data["name"]
         try:
@@ -125,11 +129,10 @@ class BuildHandler(HubAuthenticated, web.RequestHandler):
     @web.authenticated
     @run_on_executor
     def post(self):
-        self.log.debug("Build user images")
-
         data = escape.json_decode(self.request.body)
         repo = data["repo"]
         ref = data["ref"]
+        display_name = data["displayName"]
         memory = data["memory"]
         cpu = data["cpu"]
 
@@ -148,6 +151,8 @@ class BuildHandler(HubAuthenticated, web.RequestHandler):
             except:
                 raise web.HTTPError(400, "CPU Limit must be a number")
 
-        build_image(repo, ref, memory, cpu)
+        if display_name and not re.match(DISPLAY_NAME_RE, display_name):
+            raise web.HTTPError(400, f"Display Name is restricted to the following characters: {DISPLAY_NAME_RE}")
 
+        build_image(repo, ref, display_name, memory, cpu)
         self.set_status(200)
