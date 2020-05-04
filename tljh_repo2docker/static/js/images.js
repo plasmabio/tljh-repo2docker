@@ -26,7 +26,7 @@ require(["jquery", "bootstrap", "moment", "jhapi", "utils"], function(
     var dialog = $("#create-environment-dialog");
     dialog.find(".repo-input").val("");
     dialog.find(".ref-input").val("");
-    dialog.find(".display-name-input").val("");
+    dialog.find(".name-input").val("");
     dialog.find(".memory-input").val("");
     dialog.find(".cpu-input").val("");
     dialog.modal();
@@ -36,9 +36,9 @@ require(["jquery", "bootstrap", "moment", "jhapi", "utils"], function(
     .find(".save-button")
     .click(function() {
       var dialog = $("#create-environment-dialog");
-      var repo = dialog.find(".repo-input").val();
+      var repo = dialog.find(".repo-input").val().trim();
       var ref = dialog.find(".ref-input").val().trim();
-      var displayName = dialog.find(".display-name-input").val().trim();
+      var name = dialog.find(".name-input").val().trim();
       var memory = dialog.find(".memory-input").val().trim();
       var cpu = dialog.find(".cpu-input").val().trim();
       var spinner = $("#adding-environment-dialog");
@@ -49,7 +49,7 @@ require(["jquery", "bootstrap", "moment", "jhapi", "utils"], function(
         data: JSON.stringify({
           repo: repo,
           ref: ref,
-          displayName: displayName,
+          name: name,
           memory: memory,
           cpu: cpu
         }),
@@ -64,10 +64,10 @@ require(["jquery", "bootstrap", "moment", "jhapi", "utils"], function(
     var el = $(this);
     var row = getRow(el);
     var image = row.data("image");
-    var displayName = row.data("display-name");
+    var name = row.data("display-name");
     var dialog = $("#remove-environment-dialog");
     dialog.find(".delete-environment").attr("data-image", image);
-    dialog.find(".delete-environment").text(displayName);
+    dialog.find(".delete-environment").text(name);
     dialog.modal();
   });
 
