@@ -100,6 +100,9 @@ class SpawnerMixin(Configurable):
     )
 
     def options_from_form(self, formdata):
+        """
+        Add additional image information to the user options.
+        """
         default_options = super().options_from_form(formdata)
         default_options['display_name'] = formdata['display_name'][0]
         return default_options

@@ -1,6 +1,8 @@
 import json
 import os
 
+from concurrent.futures import ThreadPoolExecutor
+
 import docker
 
 from jinja2 import (
@@ -14,6 +16,7 @@ from jupyterhub._data import DATA_FILES_PATH
 from jupyterhub.services.auth import HubAuthenticated
 from jupyterhub.utils import auth_decorator, url_path_join
 from tornado import ioloop, web
+from tornado.concurrent import run_on_executor
 from tornado.options import define, options, parse_command_line
 
 from .builder import BuildHandler
@@ -96,10 +99,14 @@ def admin_only(self):
 
 
 class ImagesHandler(HubAuthenticated, web.RequestHandler):
+
+    executor = ThreadPoolExecutor(max_workers=5)
+
     def static_url(self, path, **kwargs):
         return url_path_join(self.settings.get("static_url"), path)
 
     @admin_only
+    @run_on_executor
     def get(self):
         template = templates.get_template("images.html")
         user = self.get_current_user()
