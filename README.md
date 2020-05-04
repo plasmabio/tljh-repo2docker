@@ -5,7 +5,7 @@ TLJH plugin to build and use Docker images as user environments. The Docker imag
 
 ## Installation
 
-Add `--plugin git+https://github.com/plasmabio/plasmabio@master` to the TLJH installer command to install `tljh-repo2docker`.
+Add `--plugin git+https://github.com/plasmabio/tljh-repo2docker@master` to the TLJH installer command to install `tljh-repo2docker`.
 
 Refer to [The Littlest JupyterHub documentation](http://tljh.jupyter.org/en/latest/topic/customizing-installer.html?highlight=plugins#installing-tljh-plugins)
 for more info on installing TLJH plugins.
