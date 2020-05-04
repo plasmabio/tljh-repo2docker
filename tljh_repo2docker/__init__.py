@@ -1,11 +1,14 @@
 import os
 import sys
 
+from concurrent.futures import ThreadPoolExecutor
+
 from dockerspawner import DockerSpawner
 from jinja2 import Environment, BaseLoader
 from jupyter_client.localinterfaces import public_ips
 from tljh.hooks import hookimpl
 from tljh.configurer import load_config, CONFIG_FILE
+from tornado.ioloop import IOLoop
 from traitlets import default, validate, Unicode
 from traitlets.config import Configurable
 
@@ -17,6 +20,15 @@ CPU_PERIOD = 100_000
 
 
 class SpawnerMixin(Configurable):
+
+    _docker_executor = None
+
+    def _run_in_executor(self, func, *args):
+        cls = self.__class__
+        if cls._docker_executor is None:
+            cls._docker_executor = ThreadPoolExecutor(1)
+        return IOLoop.current().run_in_executor(cls._docker_executor, func, *args)
+
     """
     Mixin for spawners that derive from DockerSpawner, to use local Docker images
     built with tljh-repo2docker.
@@ -87,37 +99,30 @@ class SpawnerMixin(Configurable):
         """
     )
 
-    def image_whitelist(self, spawner):
-        """
-        Retrieve the list of available images
-        """
-        images = list_images()
-        return {image["image_name"]: image["image_name"] for image in images}
-
-    def options_form(self, spawner):
-        """
-        Override the default form to handle the case when there is only one image.
-        """
-        images = list_images()
-        # add memory and cpu limits
-        for image in images:
-            image['mem_limit'] = image['mem_limit'] or spawner.mem_limit
-            image['cpu_limit'] = image['cpu_limit'] or spawner.cpu_limit
-
-        image_form_template = Environment(loader=BaseLoader).from_string(self.image_form_template)
-        return image_form_template.render(image_list=images)
-
     def options_from_form(self, formdata):
         default_options = super().options_from_form(formdata)
         default_options['display_name'] = formdata['display_name'][0]
         return default_options
 
-    def set_limits(self):
+    async def get_options_form(self):
+        """
+        Override the default form to handle the case when there is only one image.
+        """
+        images = await self._run_in_executor(list_images);
+        # add memory and cpu limits
+        for image in images:
+            image['mem_limit'] = image['mem_limit'] or self.mem_limit
+            image['cpu_limit'] = image['cpu_limit'] or self.cpu_limit
+
+        image_form_template = Environment(loader=BaseLoader).from_string(self.image_form_template)
+        return image_form_template.render(image_list=images)
+
+    async def set_limits(self):
         """
         Set the user environment limits if they are defined in the image
         """
         imagename = self.user_options.get("image")
-        image = client.images.get(imagename)
+        image = await self._run_in_executor(client.images.get, imagename)
         mem_limit = image.labels.get("tljh_repo2docker.mem_limit", None)
         cpu_limit = image.labels.get("tljh_repo2docker.cpu_limit", None)
 
@@ -134,7 +139,7 @@ class SpawnerMixin(Configurable):
             }
 
 
-class R2DSpawner(SpawnerMixin, DockerSpawner):
+class Repo2DockerSpawner(SpawnerMixin, DockerSpawner):
     """
     A custom spawner for using local Docker images built with tljh-repo2docker.
     """
@@ -149,7 +154,7 @@ def tljh_custom_jupyterhub_config(c):
     # hub
     c.JupyterHub.hub_ip = public_ips()[0]
     c.JupyterHub.cleanup_servers = False
-    c.JupyterHub.spawner_class = R2DSpawner
+    c.JupyterHub.spawner_class = Repo2DockerSpawner
 
     # add extra templates for the service UI
     c.JupyterHub.template_paths.insert(
