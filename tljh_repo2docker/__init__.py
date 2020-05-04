@@ -16,7 +16,7 @@ from .images import list_images, client
 CPU_PERIOD = 100_000
 
 
-class R2DSpawnerMixin(Configurable):
+class SpawnerMixin(Configurable):
     """
     Mixin for spawners that derive from DockerSpawner, to use local Docker images
     built with tljh-repo2docker.
@@ -134,7 +134,7 @@ class R2DSpawnerMixin(Configurable):
             }
 
 
-class R2DSpawner(R2DSpawnerMixin, DockerSpawner):
+class R2DSpawner(SpawnerMixin, DockerSpawner):
     """
     A custom spawner for using local Docker images built with tljh-repo2docker.
     """
