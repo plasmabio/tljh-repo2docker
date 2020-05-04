@@ -33,7 +33,6 @@ def build_image(repo, ref, name="", memory=None, cpu=None):
     # and sanitize the name of the docker image
     name = name or urlparse(repo).path.strip("/")
     name = name.replace("/", "-")
-    display_name = f"{name}-{ref}"
     image_name = f"{name}:{ref}"
 
     # memory is specified in GB
@@ -42,7 +41,7 @@ def build_image(repo, ref, name="", memory=None, cpu=None):
 
     # add extra labels to set additional image properties
     labels = [
-        f"LABEL tljh_repo2docker.display_name={display_name}",
+        f"LABEL tljh_repo2docker.display_name={name}",
         f"LABEL tljh_repo2docker.image_name={image_name}",
         f"LABEL tljh_repo2docker.mem_limit={memory}",
         f"LABEL tljh_repo2docker.cpu_limit={cpu}",
@@ -69,7 +68,7 @@ def build_image(repo, ref, name="", memory=None, cpu=None):
             "repo2docker.repo": repo,
             "repo2docker.ref": ref,
             "repo2docker.build": image_name,
-            "tljh_repo2docker.display_name": display_name,
+            "tljh_repo2docker.display_name": name,
             "tljh_repo2docker.mem_limit": memory,
             "tljh_repo2docker.cpu_limit": cpu,
         },
@@ -136,7 +135,7 @@ class BuildHandler(HubAuthenticated, web.RequestHandler):
         data = escape.json_decode(self.request.body)
         repo = data["repo"]
         ref = data["ref"]
-        name = data["name"]
+        name = data["name"].lower()
         memory = data["memory"]
         cpu = data["cpu"]
 

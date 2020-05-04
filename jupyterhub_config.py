@@ -23,4 +23,4 @@ tljh_custom_jupyterhub_config(c)
 c.JupyterHub.authenticator_class = DummyAuthenticator
 
 user = getpass.getuser()
-c.Authenticator.admin_users = {user}
+c.Authenticator.admin_users = {user, 'alice'}
