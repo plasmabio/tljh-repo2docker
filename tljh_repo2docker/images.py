@@ -57,7 +57,7 @@ def list_images():
             "status": "built",
         }
         for image in r2d_images
-        if "tljh_repo2docker.display_name" in image.labels
+        if "tljh_repo2docker.image_name" in image.labels
     ]
     return images
 

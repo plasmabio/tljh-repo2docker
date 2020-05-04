@@ -18,19 +18,23 @@ from tornado.log import app_log
 
 client = docker.from_env()
 
-DISPLAY_NAME_RE = r'^[a-zA-Z0-9-_]+$'
+IMAGE_NAME_RE = r'^[a-z0-9-_]+$'
 
 
-def build_image(repo, ref, display_name="", memory=None, cpu=None):
+def build_image(repo, ref, name="", memory=None, cpu=None):
     """
     Build an image given a repo, ref and limits
     """
     ref = ref or "master"
     if len(ref) >= 40:
         ref = ref[:7]
-    name = urlparse(repo).path.strip("/")
+
+    # default to the repo name if no name specified
+    # and sanitize the name of the docker image
+    name = name or urlparse(repo).path.strip("/")
+    name = name.replace("/", "-")
+    display_name = f"{name}-{ref}"
     image_name = f"{name}:{ref}"
-    display_name = display_name or f"{name}-{ref}"
 
     # memory is specified in GB
     memory = f"{memory}G" if memory else ""
@@ -132,7 +136,7 @@ class BuildHandler(HubAuthenticated, web.RequestHandler):
         data = escape.json_decode(self.request.body)
         repo = data["repo"]
         ref = data["ref"]
-        display_name = data["displayName"]
+        name = data["name"]
         memory = data["memory"]
         cpu = data["cpu"]
 
@@ -151,8 +155,8 @@ class BuildHandler(HubAuthenticated, web.RequestHandler):
             except:
                 raise web.HTTPError(400, "CPU Limit must be a number")
 
-        if display_name and not re.match(DISPLAY_NAME_RE, display_name):
-            raise web.HTTPError(400, f"Display Name is restricted to the following characters: {DISPLAY_NAME_RE}")
+        if name and not re.match(IMAGE_NAME_RE, name):
+            raise web.HTTPError(400, f"The name of the environment is restricted to the following characters: {IMAGE_NAME_RE}")
 
-        build_image(repo, ref, display_name, memory, cpu)
+        build_image(repo, ref, name, memory, cpu)
         self.set_status(200)
