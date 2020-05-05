@@ -52,7 +52,6 @@ class SpawnerMixin(Configurable):
         <label for='image-item-{{ loop.index0 }}' class='form-control input-group'>
             <div class='col-md-1'>
                 <input type='radio' name='image' id='image-item-{{ loop.index0 }}' value='{{ image.image_name }}' />
-                <input type='hidden' name='display_name' value='{{ image.display_name }}' />
             </div>
             <div class='col-md-11'>
                 <strong>{{ image.display_name }}</strong>
@@ -99,19 +98,17 @@ class SpawnerMixin(Configurable):
         """
     )
 
-    def options_from_form(self, formdata):
+    async def list_images(self):
         """
-        Add additional image information to the user options.
+        Return the list of available images
         """
-        default_options = super().options_from_form(formdata)
-        default_options['display_name'] = formdata['display_name'][0]
-        return default_options
+        return await self._run_in_executor(list_images);
 
     async def get_options_form(self):
         """
         Override the default form to handle the case when there is only one image.
         """
-        images = await self._run_in_executor(list_images);
+        images = await self.list_images()
         # add memory and cpu limits
         for image in images:
             image['mem_limit'] = image['mem_limit'] or self.mem_limit
