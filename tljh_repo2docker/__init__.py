@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dockerspawner import DockerSpawner
 from jinja2 import Environment, BaseLoader
 from jupyter_client.localinterfaces import public_ips
+from jupyterhub.traitlets import ByteSpecification
 from tljh.hooks import hookimpl
 from tljh.configurer import load_config, CONFIG_FILE
 from tornado.ioloop import IOLoop
@@ -109,10 +110,23 @@ class SpawnerMixin(Configurable):
         Override the default form to handle the case when there is only one image.
         """
         images = await self.list_images()
+
+        # make default limits human readable
+        default_mem_limit = self.mem_limit
+        if isinstance(default_mem_limit, (float, int)):
+            # default memory unit is in GB
+            default_mem_limit /= ByteSpecification.UNIT_SUFFIXES['G']
+            if float(default_mem_limit).is_integer():
+                default_mem_limit = int(default_mem_limit)
+
+        default_cpu_limit = self.cpu_limit
+        if default_cpu_limit and float(default_cpu_limit).is_integer():
+            default_cpu_limit = int(default_cpu_limit)
+
         # add memory and cpu limits
         for image in images:
-            image['mem_limit'] = image['mem_limit'] or self.mem_limit
-            image['cpu_limit'] = image['cpu_limit'] or self.cpu_limit
+            image['mem_limit'] = image['mem_limit'] or default_mem_limit
+            image['cpu_limit'] = image['cpu_limit'] or default_cpu_limit
 
         image_form_template = Environment(loader=BaseLoader).from_string(self.image_form_template)
         return image_form_template.render(image_list=images)
