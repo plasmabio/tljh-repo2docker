@@ -48,7 +48,7 @@ Just like on [Binder](https://mybinder.org), new environments can be added by cl
 
 Once ready, the environments can be selected from the JupyterHub spawn page:
 
-![select-env](https://user-images.githubusercontent.com/591645/80963143-abb9fa80-8e0e-11ea-94c1-ddd7962f7283.png)
+![select-env](https://user-images.githubusercontent.com/591645/81152248-10e22d00-8f82-11ea-9b5f-5831d8f7d085.png)
 
 ### Extra documentation
 
