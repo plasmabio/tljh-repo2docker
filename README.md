@@ -52,9 +52,9 @@ Once ready, the environments can be selected from the JupyterHub spawn page:
 
 ### Extra documentation
 
-`tljh-repo2docker` is currently developed as part of the [PlasmaBio project](https://github.com/plasmabio).
+`tljh-repo2docker` is currently developed as part of the [Plasma project](https://github.com/plasmabio/plasma).
 
-See the [PlasmaBio documentation on user environments](https://docs.plasmabio.org/en/latest/environments/index.html) for more info.
+See the [Plasma documentation on user environments](https://docs.plasmabio.org/en/latest/environments/index.html) for more info.
 
 ## Building JupyterHub-ready images
 
