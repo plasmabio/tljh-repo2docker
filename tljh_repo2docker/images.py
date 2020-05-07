@@ -163,7 +163,7 @@ def make_app(default_mem_limit=None, default_cpu_limit=None):
     static_paths = [
         # JupyterHub static files
         os.path.join(DATA_FILES_PATH, "static"),
-        # The PlasmaBio static files
+        # The tljh-repo2docker static files
         os.path.join(os.path.dirname(__file__), "static"),
     ]
     app_settings = {
