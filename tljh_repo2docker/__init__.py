@@ -8,9 +8,9 @@ from jinja2 import Environment, BaseLoader
 from jupyter_client.localinterfaces import public_ips
 from jupyterhub.traitlets import ByteSpecification
 from tljh.hooks import hookimpl
-from tljh.configurer import load_config, CONFIG_FILE
+from tljh.configurer import load_config
 from tornado.ioloop import IOLoop
-from traitlets import default, validate, Unicode
+from traitlets import Unicode
 from traitlets.config import Configurable
 
 from .images import list_images, client
@@ -96,14 +96,14 @@ class SpawnerMixin(Configurable):
         config=True,
         help="""
         Jinja2 template for constructing the list of images shown to the user.
-        """
+        """,
     )
 
     async def list_images(self):
         """
         Return the list of available images
         """
-        return await self._run_in_executor(list_images);
+        return await self._run_in_executor(list_images)
 
     async def get_options_form(self):
         """
@@ -115,7 +115,7 @@ class SpawnerMixin(Configurable):
         default_mem_limit = self.mem_limit
         if isinstance(default_mem_limit, (float, int)):
             # default memory unit is in GB
-            default_mem_limit /= ByteSpecification.UNIT_SUFFIXES['G']
+            default_mem_limit /= ByteSpecification.UNIT_SUFFIXES["G"]
             if float(default_mem_limit).is_integer():
                 default_mem_limit = int(default_mem_limit)
 
@@ -125,10 +125,12 @@ class SpawnerMixin(Configurable):
 
         # add memory and cpu limits
         for image in images:
-            image['mem_limit'] = image['mem_limit'] or default_mem_limit
-            image['cpu_limit'] = image['cpu_limit'] or default_cpu_limit
+            image["mem_limit"] = image["mem_limit"] or default_mem_limit
+            image["cpu_limit"] = image["cpu_limit"] or default_cpu_limit
 
-        image_form_template = Environment(loader=BaseLoader).from_string(self.image_form_template)
+        image_form_template = Environment(loader=BaseLoader).from_string(
+            self.image_form_template
+        )
         return image_form_template.render(image_list=images)
 
     async def set_limits(self):

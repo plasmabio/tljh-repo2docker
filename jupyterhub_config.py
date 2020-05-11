@@ -4,7 +4,6 @@ and overrides some of the default values from the plugin.
 """
 
 import getpass
-import os
 
 from jupyterhub.auth import DummyAuthenticator
 from tljh.configurer import apply_config, load_config
@@ -23,4 +22,4 @@ tljh_custom_jupyterhub_config(c)
 c.JupyterHub.authenticator_class = DummyAuthenticator
 
 user = getpass.getuser()
-c.Authenticator.admin_users = {user, 'alice'}
+c.Authenticator.admin_users = {user, "alice"}
