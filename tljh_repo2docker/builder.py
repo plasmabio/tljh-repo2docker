@@ -1,12 +1,8 @@
-import asyncio
 import json
 import re
-import subprocess
-import sys
 
 from concurrent.futures import ThreadPoolExecutor
 from http.client import responses
-from threading import Event
 from urllib.parse import urlparse
 
 import docker
@@ -18,7 +14,7 @@ from tornado.log import app_log
 
 client = docker.from_env()
 
-IMAGE_NAME_RE = r'^[a-z0-9-_]+$'
+IMAGE_NAME_RE = r"^[a-z0-9-_]+$"
 
 
 def build_image(repo, ref, name="", memory=None, cpu=None):
@@ -155,7 +151,10 @@ class BuildHandler(HubAuthenticated, web.RequestHandler):
                 raise web.HTTPError(400, "CPU Limit must be a number")
 
         if name and not re.match(IMAGE_NAME_RE, name):
-            raise web.HTTPError(400, f"The name of the environment is restricted to the following characters: {IMAGE_NAME_RE}")
+            raise web.HTTPError(
+                400,
+                f"The name of the environment is restricted to the following characters: {IMAGE_NAME_RE}",
+            )
 
         build_image(repo, ref, name, memory, cpu)
         self.set_status(200)
