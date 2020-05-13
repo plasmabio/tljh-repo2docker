@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 import docker
 
 from jupyterhub.apihandlers import APIHandler
-from tornado.web import authenticated
+from tornado import web
 
 from .executor import DockerExecutor
 
@@ -76,7 +76,7 @@ def build_image(repo, ref, name="", memory=None, cpu=None):
 
 class BuildHandler(APIHandler, DockerExecutor):
 
-    @authenticated
+    @web.authenticated
     async def delete(self):
         data = self.get_json_body()
         name = data["name"]
@@ -90,7 +90,7 @@ class BuildHandler(APIHandler, DockerExecutor):
         self.set_status(200)
         self.finish(json.dumps({"status": "ok"}))
 
-    @authenticated
+    @web.authenticated
     async def post(self):
         data = self.get_json_body()
         repo = data["repo"]
