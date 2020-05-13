@@ -188,7 +188,7 @@ def tljh_custom_jupyterhub_config(c):
     }
 
     # register the handler to manage the user images
-    c.JupyterHub.extra_handlers = [
+    c.JupyterHub.extra_handlers.extend([
         (r"environments", ImagesHandler),
         (r"api/environments", BuildHandler),
         (
@@ -196,7 +196,7 @@ def tljh_custom_jupyterhub_config(c):
             CacheControlStaticFilesHandler,
             {"path": os.path.join(os.path.dirname(__file__), "static")},
         ),
-    ]
+    ])
 
 
 @hookimpl
