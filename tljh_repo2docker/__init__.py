@@ -15,15 +15,15 @@ from traitlets import Unicode
 from traitlets.config import Configurable
 
 from .builder import BuildHandler
-from .executor import DockerExecutor
-from .images import list_images, client, ImagesHandler
+from .executor import Executor
+from .images import list_images, docker_client, ImagesHandler
 
 # Default CPU period
 # See: https://docs.docker.com/config/containers/resource_constraints/#limit-a-containers-access-to-memory#configure-the-default-cfs-scheduler
 CPU_PERIOD = 100_000
 
 
-class SpawnerMixin(Configurable, DockerExecutor):
+class SpawnerMixin(Configurable, Executor):
 
     """
     Mixin for spawners that derive from DockerSpawner, to use local Docker images
@@ -133,7 +133,7 @@ class SpawnerMixin(Configurable, DockerExecutor):
         Set the user environment limits if they are defined in the image
         """
         imagename = self.user_options.get("image")
-        image = await self._run_in_executor(client.images.get, imagename)
+        image = await self._run_in_executor(docker_client.images.get, imagename)
         mem_limit = image.labels.get("tljh_repo2docker.mem_limit", None)
         cpu_limit = image.labels.get("tljh_repo2docker.cpu_limit", None)
 

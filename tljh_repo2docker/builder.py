@@ -8,9 +8,9 @@ import docker
 from jupyterhub.apihandlers import APIHandler
 from tornado import web
 
-from .executor import DockerExecutor
+from .executor import Executor
 
-client = docker.from_env()
+docker_client = docker.from_env()
 
 IMAGE_NAME_RE = r"^[a-z0-9-_]+$"
 
@@ -55,7 +55,7 @@ def build_image(repo, ref, name="", memory=None, cpu=None):
         "\n".join(labels),
         repo,
     ]
-    client.containers.run(
+    docker_client.containers.run(
         "jupyter/repo2docker:master",
         cmd,
         labels={
@@ -74,14 +74,14 @@ def build_image(repo, ref, name="", memory=None, cpu=None):
     )
 
 
-class BuildHandler(APIHandler, DockerExecutor):
+class BuildHandler(APIHandler, Executor):
 
     @web.authenticated
     async def delete(self):
         data = self.get_json_body()
         name = data["name"]
         try:
-            await self._run_in_executor(client.images.remove, name)
+            await self._run_in_executor(docker_client.images.remove, name)
         except docker.errors.ImageNotFound:
             raise web.HTTPError(400, f"Image {name} does not exist")
         except docker.errors.APIError as e:

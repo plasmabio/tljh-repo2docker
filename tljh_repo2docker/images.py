@@ -1,17 +1,12 @@
 import os
 
-from concurrent.futures import ThreadPoolExecutor
-
-import docker
-
 from jupyterhub.handlers.base import BaseHandler
 from jupyterhub.services.auth import HubAuthenticated
 from jupyterhub.utils import admin_only, url_path_join
-from tornado import ioloop, web
-from tornado.concurrent import run_on_executor
-from tornado.options import define, options, parse_command_line
+from tornado import web
 
-from .builder import client
+from .builder import docker_client
+from .executor import Executor
 
 
 def list_images():
@@ -20,7 +15,7 @@ def list_images():
     """
     r2d_images = [
         image
-        for image in client.images.list(
+        for image in docker_client.images.list(
             filters={"dangling": False, "label": ["repo2docker.ref"]}
         )
     ]
@@ -47,7 +42,7 @@ def list_containers():
     """
     r2d_containers = [
         container
-        for container in client.containers.list(filters={"label": ["repo2docker.ref"]})
+        for container in docker_client.containers.list(filters={"label": ["repo2docker.ref"]})
     ]
     containers = [
         {
@@ -65,17 +60,15 @@ def list_containers():
     return containers
 
 
-class ImagesHandler(BaseHandler):
-
-    executor = ThreadPoolExecutor(max_workers=5)
+class ImagesHandler(BaseHandler, Executor):
 
     @admin_only
-    @run_on_executor
-    def get(self):
-        images = list_images() + list_containers()
+    async def get(self):
+        images = await self._run_in_executor(list_images)
+        containers = await self._run_in_executor(list_containers)
         self.write(
             self.render_template("images.html",
-                images=images,
+                images=images + containers,
                 default_mem_limit=self.settings.get("default_mem_limit"),
                 default_cpu_limit=self.settings.get("default_cpu_limit"),
             )
