@@ -2,7 +2,7 @@
 
 {% block stylesheet %}
 {{ super() }}
-<link rel="stylesheet" href="{{ static_url("css/style.css") }}" type="text/css"/>
+<link rel="stylesheet" href="{{ base_url }}environments-static/css/style.css" type="text/css"/>
 {% endblock %}
 
 {% block main %}
@@ -135,6 +135,6 @@
 {% block script %}
 {{ super() }}
 <script type="text/javascript">
-require(["images"]);
+require(["{{ base_url }}environments-static/js/images.js"]);
 </script>
 {% endblock %}

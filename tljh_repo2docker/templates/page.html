@@ -1,0 +1,15 @@
+{% extends "templates/page.html" %}
+
+{% block nav_bar_left_items %}
+<li><a href="{{base_url}}home">Home</a></li>
+<li><a href="{{base_url}}token">Token</a></li>
+{% if user.admin %}
+<li><a href="{{base_url}}admin">Admin</a></li>
+<li><a href="{{base_url}}environments">Environments</a></li>
+{% if services %}
+{% for service in services %}
+<li><a href="{{service.prefix}}" style="text-transform: capitalize;">{{service.name}}</a></li>
+{% endfor %}
+{% endif %}
+{% endif %}
+{% endblock %}

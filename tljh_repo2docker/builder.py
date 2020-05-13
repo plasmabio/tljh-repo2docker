@@ -1,16 +1,14 @@
 import json
 import re
 
-from concurrent.futures import ThreadPoolExecutor
-from http.client import responses
 from urllib.parse import urlparse
 
 import docker
 
-from jupyterhub.services.auth import HubAuthenticated
-from tornado import web, escape
-from tornado.concurrent import run_on_executor
-from tornado.log import app_log
+from jupyterhub.apihandlers import APIHandler
+from tornado.web import authenticated
+
+from .executor import DockerExecutor
 
 client = docker.from_env()
 
@@ -76,59 +74,25 @@ def build_image(repo, ref, name="", memory=None, cpu=None):
     )
 
 
-def remove_image(name):
-    """
-    Remove an image by name
-    """
-    client.images.remove(name)
+class BuildHandler(APIHandler, DockerExecutor):
 
-
-class BuildHandler(HubAuthenticated, web.RequestHandler):
-
-    executor = ThreadPoolExecutor(max_workers=5)
-
-    def initialize(self):
-        self.log = app_log
-
-    def write_error(self, status_code, **kwargs):
-        exc_info = kwargs.get("exc_info")
-        message = ""
-        exception = None
-        status_message = responses.get(status_code, "Unknown Error")
-        if exc_info:
-            exception = exc_info[1]
-            try:
-                message = exception.log_message % exception.args
-            except Exception:
-                pass
-
-            reason = getattr(exception, "reason", "")
-            if reason:
-                status_message = reason
-
-        self.set_header("Content-Type", "application/json")
-        self.write(
-            json.dumps({"status": status_code, "message": message or status_message})
-        )
-
-    @web.authenticated
-    @run_on_executor
-    def delete(self):
-        data = escape.json_decode(self.request.body)
+    @authenticated
+    async def delete(self):
+        data = self.get_json_body()
         name = data["name"]
         try:
-            remove_image(name)
+            await self._run_in_executor(client.images.remove, name)
         except docker.errors.ImageNotFound:
             raise web.HTTPError(400, f"Image {name} does not exist")
         except docker.errors.APIError as e:
             raise web.HTTPError(500, str(e))
 
         self.set_status(200)
+        self.finish(json.dumps({"status": "ok"}))
 
-    @web.authenticated
-    @run_on_executor
-    def post(self):
-        data = escape.json_decode(self.request.body)
+    @authenticated
+    async def post(self):
+        data = self.get_json_body()
         repo = data["repo"]
         ref = data["ref"]
         name = data["name"].lower()
@@ -156,5 +120,6 @@ class BuildHandler(HubAuthenticated, web.RequestHandler):
                 f"The name of the environment is restricted to the following characters: {IMAGE_NAME_RE}",
             )
 
-        build_image(repo, ref, name, memory, cpu)
+        await self._run_in_executor(build_image, repo, ref, name, memory, cpu)
         self.set_status(200)
+        self.finish(json.dumps({"status": "ok"}))
