@@ -3,94 +3,36 @@ import re
 
 from urllib.parse import urlparse
 
-import docker
-
+from aiodocker import Docker, DockerError
 from jupyterhub.apihandlers import APIHandler
+from jupyterhub.utils import admin_only
 from tornado import web
 
-from .executor import Executor
-
-docker_client = docker.from_env()
+docker = Docker()
 
 IMAGE_NAME_RE = r"^[a-z0-9-_]+$"
 
 
-def build_image(repo, ref, name="", memory=None, cpu=None):
+class BuildHandler(APIHandler):
     """
-    Build an image given a repo, ref and limits
+    Handle requests to build user environments as Docker images
     """
-    ref = ref or "master"
-    if len(ref) >= 40:
-        ref = ref[:7]
-
-    # default to the repo name if no name specified
-    # and sanitize the name of the docker image
-    name = name or urlparse(repo).path.strip("/")
-    name = name.replace("/", "-")
-    image_name = f"{name}:{ref}"
-
-    # memory is specified in GB
-    memory = f"{memory}G" if memory else ""
-    cpu = cpu or ""
-
-    # add extra labels to set additional image properties
-    labels = [
-        f"LABEL tljh_repo2docker.display_name={name}",
-        f"LABEL tljh_repo2docker.image_name={image_name}",
-        f"LABEL tljh_repo2docker.mem_limit={memory}",
-        f"LABEL tljh_repo2docker.cpu_limit={cpu}",
-    ]
-    cmd = [
-        "jupyter-repo2docker",
-        "--ref",
-        ref,
-        "--user-name",
-        "jovyan",
-        "--user-id",
-        "1100",
-        "--no-run",
-        "--image-name",
-        image_name,
-        "--appendix",
-        "\n".join(labels),
-        repo,
-    ]
-    docker_client.containers.run(
-        "jupyter/repo2docker:master",
-        cmd,
-        labels={
-            "repo2docker.repo": repo,
-            "repo2docker.ref": ref,
-            "repo2docker.build": image_name,
-            "tljh_repo2docker.display_name": name,
-            "tljh_repo2docker.mem_limit": memory,
-            "tljh_repo2docker.cpu_limit": cpu,
-        },
-        volumes={
-            "/var/run/docker.sock": {"bind": "/var/run/docker.sock", "mode": "rw"}
-        },
-        detach=True,
-        remove=True,
-    )
-
-
-class BuildHandler(APIHandler, Executor):
 
     @web.authenticated
+    @admin_only
     async def delete(self):
         data = self.get_json_body()
         name = data["name"]
         try:
-            await self._run_in_executor(docker_client.images.remove, name)
-        except docker.errors.ImageNotFound:
-            raise web.HTTPError(400, f"Image {name} does not exist")
-        except docker.errors.APIError as e:
-            raise web.HTTPError(500, str(e))
+            await docker.images.delete(name)
+        except DockerError as e:
+            raise web.HTTPError(e.status, e.message)
 
         self.set_status(200)
         self.finish(json.dumps({"status": "ok"}))
 
     @web.authenticated
+    @admin_only
     async def post(self):
         data = self.get_json_body()
         repo = data["repo"]
@@ -105,13 +47,13 @@ class BuildHandler(APIHandler, Executor):
         if memory:
             try:
                 float(memory)
-            except:
+            except ValueError:
                 raise web.HTTPError(400, "Memory Limit must be a number")
 
         if cpu:
             try:
                 float(cpu)
-            except:
+            except ValueError:
                 raise web.HTTPError(400, "CPU Limit must be a number")
 
         if name and not re.match(IMAGE_NAME_RE, name):
@@ -120,6 +62,73 @@ class BuildHandler(APIHandler, Executor):
                 f"The name of the environment is restricted to the following characters: {IMAGE_NAME_RE}",
             )
 
-        await self._run_in_executor(build_image, repo, ref, name, memory, cpu)
+        await self._build_image(repo, ref, name, memory, cpu)
+
         self.set_status(200)
         self.finish(json.dumps({"status": "ok"}))
+
+    async def _build_image(self, repo, ref, name="", memory=None, cpu=None):
+        """
+        Build an image given a repo, ref and limits
+        """
+        ref = ref or "master"
+        if len(ref) >= 40:
+            ref = ref[:7]
+
+        # default to the repo name if no name specified
+        # and sanitize the name of the docker image
+        name = name or urlparse(repo).path.strip("/")
+        name = name.replace("/", "-")
+        image_name = f"{name}:{ref}"
+
+        # memory is specified in GB
+        memory = f"{memory}G" if memory else ""
+        cpu = cpu or ""
+
+        # add extra labels to set additional image properties
+        labels = [
+            f"LABEL tljh_repo2docker.display_name={name}",
+            f"LABEL tljh_repo2docker.image_name={image_name}",
+            f"LABEL tljh_repo2docker.mem_limit={memory}",
+            f"LABEL tljh_repo2docker.cpu_limit={cpu}",
+        ]
+        cmd = [
+            "jupyter-repo2docker",
+            "--ref",
+            ref,
+            "--user-name",
+            "jovyan",
+            "--user-id",
+            "1100",
+            "--no-run",
+            "--image-name",
+            image_name,
+            "--appendix",
+            "\n".join(labels),
+            repo,
+        ]
+        await docker.containers.run(
+            config={
+                "Cmd": cmd,
+                "Image": "jupyter/repo2docker:master",
+                "Labels": {
+                    "repo2docker.repo": repo,
+                    "repo2docker.ref": ref,
+                    "repo2docker.build": image_name,
+                    "tljh_repo2docker.display_name": name,
+                    "tljh_repo2docker.mem_limit": memory,
+                    "tljh_repo2docker.cpu_limit": cpu,
+                },
+                "Volumes": {
+                    "/var/run/docker.sock": {
+                        "bind": "/var/run/docker.sock",
+                        "mode": "rw",
+                    }
+                },
+                "HostConfig": {"Binds": ["/var/run/docker.sock:/var/run/docker.sock"],},
+                "Tty": False,
+                "AttachStdout": False,
+                "AttachStderr": False,
+                "OpenStdin": False,
+            }
+        )

@@ -1,7 +1,4 @@
 import os
-import sys
-
-from concurrent.futures import ThreadPoolExecutor
 
 from dockerspawner import DockerSpawner
 from jinja2 import Environment, BaseLoader
@@ -10,20 +7,18 @@ from jupyterhub.handlers.static import CacheControlStaticFilesHandler
 from jupyterhub.traitlets import ByteSpecification
 from tljh.hooks import hookimpl
 from tljh.configurer import load_config
-from tornado.ioloop import IOLoop
 from traitlets import Unicode
 from traitlets.config import Configurable
 
 from .builder import BuildHandler
-from .executor import Executor
-from .images import list_images, docker_client, ImagesHandler
+from .images import list_images, docker, ImagesHandler
 
 # Default CPU period
 # See: https://docs.docker.com/config/containers/resource_constraints/#limit-a-containers-access-to-memory#configure-the-default-cfs-scheduler
 CPU_PERIOD = 100_000
 
 
-class SpawnerMixin(Configurable, Executor):
+class SpawnerMixin(Configurable):
 
     """
     Mixin for spawners that derive from DockerSpawner, to use local Docker images
@@ -98,7 +93,7 @@ class SpawnerMixin(Configurable, Executor):
         """
         Return the list of available images
         """
-        return await self._run_in_executor(list_images)
+        return await list_images()
 
     async def get_options_form(self):
         """
@@ -133,9 +128,9 @@ class SpawnerMixin(Configurable, Executor):
         Set the user environment limits if they are defined in the image
         """
         imagename = self.user_options.get("image")
-        image = await self._run_in_executor(docker_client.images.get, imagename)
-        mem_limit = image.labels.get("tljh_repo2docker.mem_limit", None)
-        cpu_limit = image.labels.get("tljh_repo2docker.cpu_limit", None)
+        image = await docker.images.get(imagename)
+        mem_limit = image["Labels"].get("tljh_repo2docker.mem_limit", None)
+        cpu_limit = image["Labels"].get("tljh_repo2docker.cpu_limit", None)
 
         # override the spawner limits if defined in the image
         if mem_limit:
@@ -182,12 +177,12 @@ def tljh_custom_jupyterhub_config(c):
     cpu_limit = limits["cpu"]
     mem_limit = limits["memory"]
 
-    c.JupyterHub.tornado_settings = {
+    c.JupyterHub.tornado_settings.update({
         'default_cpu_limit': cpu_limit,
         'default_mem_limit': mem_limit
-    }
+    })
 
-    # register the handler to manage the user images
+    # register the handlers to manage the user images
     c.JupyterHub.extra_handlers.extend([
         (r"environments", ImagesHandler),
         (r"api/environments", BuildHandler),
