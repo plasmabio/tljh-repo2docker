@@ -128,9 +128,9 @@ class SpawnerMixin(Configurable):
         Set the user environment limits if they are defined in the image
         """
         imagename = self.user_options.get("image")
-        image = await docker.images.get(imagename)
-        mem_limit = image["Labels"].get("tljh_repo2docker.mem_limit", None)
-        cpu_limit = image["Labels"].get("tljh_repo2docker.cpu_limit", None)
+        image = await docker.images.inspect(imagename)
+        mem_limit = image["ContainerConfig"]["Labels"].get("tljh_repo2docker.mem_limit", None)
+        cpu_limit = image["ContainerConfig"]["Labels"].get("tljh_repo2docker.cpu_limit", None)
 
         # override the spawner limits if defined in the image
         if mem_limit:
