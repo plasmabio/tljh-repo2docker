@@ -32,7 +32,7 @@ async def test_add_environment(app, remove_test_image, minimal_repo, image_name)
     assert r.status_code == 200
 
     # wait until build is finished
-    count, retries = 0, 30
+    count, retries = 0, 60 * 3
     image = None
     docker = Docker()
     while count < retries:
