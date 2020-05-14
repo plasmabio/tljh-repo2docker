@@ -1,19 +1,17 @@
 import os
-import sys
-
-from concurrent.futures import ThreadPoolExecutor
 
 from dockerspawner import DockerSpawner
 from jinja2 import Environment, BaseLoader
 from jupyter_client.localinterfaces import public_ips
+from jupyterhub.handlers.static import CacheControlStaticFilesHandler
 from jupyterhub.traitlets import ByteSpecification
 from tljh.hooks import hookimpl
 from tljh.configurer import load_config
-from tornado.ioloop import IOLoop
 from traitlets import Unicode
 from traitlets.config import Configurable
 
-from .images import list_images, client
+from .builder import BuildHandler
+from .images import list_images, docker, ImagesHandler
 
 # Default CPU period
 # See: https://docs.docker.com/config/containers/resource_constraints/#limit-a-containers-access-to-memory#configure-the-default-cfs-scheduler
@@ -21,14 +19,6 @@ CPU_PERIOD = 100_000
 
 
 class SpawnerMixin(Configurable):
-
-    _docker_executor = None
-
-    def _run_in_executor(self, func, *args):
-        cls = self.__class__
-        if cls._docker_executor is None:
-            cls._docker_executor = ThreadPoolExecutor(1)
-        return IOLoop.current().run_in_executor(cls._docker_executor, func, *args)
 
     """
     Mixin for spawners that derive from DockerSpawner, to use local Docker images
@@ -103,7 +93,7 @@ class SpawnerMixin(Configurable):
         """
         Return the list of available images
         """
-        return await self._run_in_executor(list_images)
+        return await list_images()
 
     async def get_options_form(self):
         """
@@ -138,9 +128,9 @@ class SpawnerMixin(Configurable):
         Set the user environment limits if they are defined in the image
         """
         imagename = self.user_options.get("image")
-        image = await self._run_in_executor(client.images.get, imagename)
-        mem_limit = image.labels.get("tljh_repo2docker.mem_limit", None)
-        cpu_limit = image.labels.get("tljh_repo2docker.cpu_limit", None)
+        image = await docker.images.inspect(imagename)
+        mem_limit = image["ContainerConfig"]["Labels"].get("tljh_repo2docker.mem_limit", None)
+        cpu_limit = image["ContainerConfig"]["Labels"].get("tljh_repo2docker.cpu_limit", None)
 
         # override the spawner limits if defined in the image
         if mem_limit:
@@ -187,21 +177,21 @@ def tljh_custom_jupyterhub_config(c):
     cpu_limit = limits["cpu"]
     mem_limit = limits["memory"]
 
-    # register the service to manage the user images
-    c.JupyterHub.services.append(
-        {
-            "name": "environments",
-            "admin": True,
-            "url": "http://127.0.0.1:9988",
-            "command": [
-                sys.executable,
-                "-m",
-                "tljh_repo2docker.images",
-                f"--default-mem-limit={mem_limit}",
-                f"--default-cpu-limit={cpu_limit}",
-            ],
-        }
-    )
+    c.JupyterHub.tornado_settings.update({
+        'default_cpu_limit': cpu_limit,
+        'default_mem_limit': mem_limit
+    })
+
+    # register the handlers to manage the user images
+    c.JupyterHub.extra_handlers.extend([
+        (r"environments", ImagesHandler),
+        (r"api/environments", BuildHandler),
+        (
+            r"environments-static/(.*)",
+            CacheControlStaticFilesHandler,
+            {"path": os.path.join(os.path.dirname(__file__), "static")},
+        ),
+    ])
 
 
 @hookimpl

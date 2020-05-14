@@ -7,7 +7,7 @@ require(["jquery", "bootstrap", "moment", "jhapi", "utils"], function(
 ) {
   "use strict";
 
-  var base_url = '/services/environments';
+  var base_url = window.jhdata.base_url;
   var api = new JHAPI(base_url);
 
   function getRow(element) {
@@ -44,7 +44,7 @@ require(["jquery", "bootstrap", "moment", "jhapi", "utils"], function(
       var spinner = $("#adding-environment-dialog");
       spinner.find('.modal-footer').remove();
       spinner.modal();
-      api.api_request("build", {
+      api.api_request("environments", {
         type: "POST",
         data: JSON.stringify({
           repo: repo,
@@ -53,8 +53,7 @@ require(["jquery", "bootstrap", "moment", "jhapi", "utils"], function(
           memory: memory,
           cpu: cpu
         }),
-        dataType: null,
-        success: function(reply) {
+        success: function() {
           window.location.reload();
         },
       });
@@ -79,13 +78,12 @@ require(["jquery", "bootstrap", "moment", "jhapi", "utils"], function(
       var spinner = $("#removing-environment-dialog");
       spinner.find('.modal-footer').remove();
       spinner.modal();
-      api.api_request("build", {
+      api.api_request("environments", {
         type: "DELETE",
         data: JSON.stringify({
           name: image
         }),
-        dataType: null,
-        success: function(reply) {
+        success: function() {
           window.location.reload();
         },
       })
