@@ -33,6 +33,7 @@ async def test_add_environment(app, remove_test_image, minimal_repo, image_name)
 
     # wait until build is finished
     count, retries = 0, 30
+    image = None
     docker = Docker()
     while count < retries:
         await asyncio.sleep(1)
