@@ -8,11 +8,7 @@ from aiodocker import Docker, DockerError
 from jupyterhub.tests.utils import api_request
 
 
-async def test_api_info(app):
-    r = await api_request(app, "info")
-    assert r.status_code == 200
-
-
+@pytest.mark.asyncio
 async def test_add_environment(app, remove_test_image, minimal_repo, image_name):
     name, ref = image_name.split(':')
     r = await api_request(
@@ -32,7 +28,7 @@ async def test_add_environment(app, remove_test_image, minimal_repo, image_name)
     assert r.status_code == 200
 
     # wait until build is finished
-    count, retries = 0, 60 * 3
+    count, retries = 0, 60 * 10
     image = None
     docker = Docker()
     while count < retries:
