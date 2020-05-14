@@ -13,7 +13,8 @@ IMAGE_NAME_RE = r"^[a-z0-9-_]+$"
 
 class BuildHandler(APIHandler):
 
-    docker = Docker()
+    def initialize(self):
+        self.docker = Docker()
 
     """
     Handle requests to build user environments as Docker images

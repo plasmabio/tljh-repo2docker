@@ -1,6 +1,3 @@
-import json
-import os
-
 import pytest
 
 from aiodocker import Docker, DockerError
@@ -23,7 +20,7 @@ async def test_add_environment(app, remove_test_image, minimal_repo, image_name)
 async def test_delete_environment(app, remove_test_image, minimal_repo, image_name):
     name, ref = image_name.split(":")
     await add_environment(app, repo=minimal_repo, name=name, ref=ref)
-    image = await wait_for_image(image_name=image_name)
+    await wait_for_image(image_name=image_name)
     r = await remove_environment(app, image_name=image_name)
     assert r.status_code == 200
 

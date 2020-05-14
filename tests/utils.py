@@ -6,7 +6,7 @@ from jupyterhub.tests.utils import api_request
 
 
 async def add_environment(
-    app, *, repo, ref="master", name="custom-name", memory="", cpu=""
+    app, *, repo, ref="master", name="tljh-repo2docker-test", memory="", cpu=""
 ):
     """Use the POST endpoint to add a new environment"""
     r = await api_request(

@@ -42,10 +42,12 @@ def app(request, io_loop):
     Adapted from:
     https://github.com/jupyterhub/jupyterhub/blob/8a3790b01ff944c453ffcc0486149e2a58ffabea/jupyterhub/tests/conftest.py#L74
     """
+    from tljh_repo2docker import Repo2DockerSpawner
     from tljh_repo2docker.builder import BuildHandler
     from tljh_repo2docker.images import ImagesHandler
 
     mocked_app = MockHub.instance()
+    mocked_app.spawner_class = Repo2DockerSpawner
     mocked_app.template_paths.insert(
         0, os.path.join(os.path.dirname(__file__), "../tljh_repo2docker", "templates")
     )
