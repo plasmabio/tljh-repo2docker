@@ -1,4 +1,4 @@
-name: CI
+name: Tests
 
 on:
   push:
@@ -10,11 +10,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: [3.6, 3.7, 3.8]
 
     steps:
     - uses: actions/checkout@v2
+    - name: Install node
+      uses: actions/setup-node@v1
+      with:
+       node-version: '10.x'
+    - name: Install configurable-http-proxy
+      run: npm -g install configurable-http-proxy
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v1
       with:
@@ -24,3 +31,6 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install -r dev-requirements.txt
         python -m pip install -e .
+    - name: Run Tests
+      run: |
+        python -m pytest --cov

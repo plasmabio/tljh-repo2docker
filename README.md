@@ -1,6 +1,6 @@
 # tljh-repo2docker
 
-![Github Actions Status](https://github.com/plasmabio/tljh-repo2docker/workflows/CI/badge.svg)
+![Github Actions Status](https://github.com/plasmabio/tljh-repo2docker/workflows/Tests/badge.svg)
 
 TLJH plugin to build and use Docker images as user environments. The Docker images are built using [`repo2docker`](https://repo2docker.readthedocs.io/en/latest/).
 

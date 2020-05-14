@@ -10,6 +10,7 @@ jupyterhub.sqlite
 jupyterhub-proxy.pid
 *.egg-info
 MANIFEST
+.coverage
 
 # IDE
 .vscode
