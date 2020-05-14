@@ -73,6 +73,12 @@ async def test_delete_environment(app, remove_test_image, minimal_repo, image_na
     await docker.close()
 
 
+@pytest.mark.asyncio
+async def test_delete_unknown_environment(app, remove_test_image):
+    r = await remove_environment(app, "image-not-found:12345")
+    assert r.status_code == 404
+
+
 async def test_no_repo(app):
     r = await api_request(
         app,
@@ -111,3 +117,21 @@ async def test_wrong_limits(app, memory, cpu):
     )
     assert r.status_code == 400
     assert "must be a number" in r.text
+
+
+async def test_wrong_name(app):
+    r = await api_request(
+        app,
+        "environments",
+        method="post",
+        data=json.dumps(
+            {
+                "repo": ".",
+                "ref": "master",
+                "name": "#WRONG_NAME#",
+                "memory": "",
+                "cpu": ""
+            }
+        ),
+    )
+    assert r.status_code == 400
