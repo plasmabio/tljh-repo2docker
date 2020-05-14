@@ -2,4 +2,5 @@ git+https://github.com/jupyterhub/the-littlest-jupyterhub
 notebook
 pytest
 pytest-asyncio
+pytest-cov
 requests-mock

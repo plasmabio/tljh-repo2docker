@@ -33,4 +33,4 @@ jobs:
         python -m pip install -e .
     - name: Run Tests
       run: |
-        python -m pytest
+        python -m pytest --cov
