@@ -54,3 +54,13 @@ python -m jupyterhub -f jupyterhub_config.py --debug
 ```
 
 Open https://localhost:8000 in a web browser.
+
+## Tests
+
+Tests are located in the [tests](./tests) folder.
+
+To run the tests:
+
+```bash
+python -m pytest --cov
+```
