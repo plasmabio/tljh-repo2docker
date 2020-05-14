@@ -5,16 +5,16 @@ from jupyterhub.handlers.base import BaseHandler
 from jupyterhub.utils import admin_only
 from tornado import web
 
-docker = Docker()
-
 
 async def list_images():
+    docker = Docker()
     """
     Retrieve local images built by repo2docker
     """
     r2d_images = await docker.images.list(
         filters=json.dumps({"dangling": ["false"], "label": ["repo2docker.ref"]})
     )
+    await docker.close()
     images = [
         {
             "repo": image["Labels"]["repo2docker.repo"],
@@ -32,6 +32,7 @@ async def list_images():
 
 
 async def list_containers():
+    docker = Docker()
     """
     Retrieve the list of local images being built by repo2docker.
     Images are built in a Docker container.
@@ -39,6 +40,7 @@ async def list_containers():
     r2d_containers = await docker.containers.list(
         filters=json.dumps({"label": ["repo2docker.ref"]})
     )
+    await docker.close()
     containers = [
         {
             "repo": container["Labels"]["repo2docker.repo"],

@@ -1,5 +1,6 @@
 import os
 
+from aiodocker import Docker
 from dockerspawner import DockerSpawner
 from jinja2 import Environment, BaseLoader
 from jupyter_client.localinterfaces import public_ips
@@ -11,7 +12,7 @@ from traitlets import Unicode
 from traitlets.config import Configurable
 
 from .builder import BuildHandler
-from .images import list_images, docker, ImagesHandler
+from .images import list_images, ImagesHandler
 
 # Default CPU period
 # See: https://docs.docker.com/config/containers/resource_constraints/#limit-a-containers-access-to-memory#configure-the-default-cfs-scheduler
@@ -128,7 +129,9 @@ class SpawnerMixin(Configurable):
         Set the user environment limits if they are defined in the image
         """
         imagename = self.user_options.get("image")
+        docker = Docker()
         image = await docker.images.inspect(imagename)
+        await docker.close()
         mem_limit = image["ContainerConfig"]["Labels"].get("tljh_repo2docker.mem_limit", None)
         cpu_limit = image["ContainerConfig"]["Labels"].get("tljh_repo2docker.cpu_limit", None)
 

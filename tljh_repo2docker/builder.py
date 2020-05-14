@@ -8,12 +8,13 @@ from jupyterhub.apihandlers import APIHandler
 from jupyterhub.utils import admin_only
 from tornado import web
 
-docker = Docker()
-
 IMAGE_NAME_RE = r"^[a-z0-9-_]+$"
 
 
 class BuildHandler(APIHandler):
+
+    docker = Docker()
+
     """
     Handle requests to build user environments as Docker images
     """
@@ -24,7 +25,7 @@ class BuildHandler(APIHandler):
         data = self.get_json_body()
         name = data["name"]
         try:
-            await docker.images.delete(name)
+            await self.docker.images.delete(name)
         except DockerError as e:
             raise web.HTTPError(e.status, e.message)
 
@@ -107,7 +108,7 @@ class BuildHandler(APIHandler):
             "\n".join(labels),
             repo,
         ]
-        await docker.containers.run(
+        await self.docker.containers.run(
             config={
                 "Cmd": cmd,
                 "Image": "jupyter/repo2docker:master",

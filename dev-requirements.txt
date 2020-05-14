@@ -1,1 +1,5 @@
 git+https://github.com/jupyterhub/the-littlest-jupyterhub
+notebook
+pytest
+pytest-asyncio
+requests-mock
