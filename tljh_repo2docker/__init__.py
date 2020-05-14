@@ -12,7 +12,8 @@ from traitlets import Unicode
 from traitlets.config import Configurable
 
 from .builder import BuildHandler
-from .images import list_images, ImagesHandler
+from .docker import list_images
+from .images import ImagesHandler
 
 # Default CPU period
 # See: https://docs.docker.com/config/containers/resource_constraints/#limit-a-containers-access-to-memory#configure-the-default-cfs-scheduler
@@ -132,8 +133,12 @@ class SpawnerMixin(Configurable):
         docker = Docker()
         image = await docker.images.inspect(imagename)
         await docker.close()
-        mem_limit = image["ContainerConfig"]["Labels"].get("tljh_repo2docker.mem_limit", None)
-        cpu_limit = image["ContainerConfig"]["Labels"].get("tljh_repo2docker.cpu_limit", None)
+        mem_limit = image["ContainerConfig"]["Labels"].get(
+            "tljh_repo2docker.mem_limit", None
+        )
+        cpu_limit = image["ContainerConfig"]["Labels"].get(
+            "tljh_repo2docker.cpu_limit", None
+        )
 
         # override the spawner limits if defined in the image
         if mem_limit:
@@ -180,21 +185,22 @@ def tljh_custom_jupyterhub_config(c):
     cpu_limit = limits["cpu"]
     mem_limit = limits["memory"]
 
-    c.JupyterHub.tornado_settings.update({
-        'default_cpu_limit': cpu_limit,
-        'default_mem_limit': mem_limit
-    })
+    c.JupyterHub.tornado_settings.update(
+        {"default_cpu_limit": cpu_limit, "default_mem_limit": mem_limit}
+    )
 
     # register the handlers to manage the user images
-    c.JupyterHub.extra_handlers.extend([
-        (r"environments", ImagesHandler),
-        (r"api/environments", BuildHandler),
-        (
-            r"environments-static/(.*)",
-            CacheControlStaticFilesHandler,
-            {"path": os.path.join(os.path.dirname(__file__), "static")},
-        ),
-    ])
+    c.JupyterHub.extra_handlers.extend(
+        [
+            (r"environments", ImagesHandler),
+            (r"api/environments", BuildHandler),
+            (
+                r"environments-static/(.*)",
+                CacheControlStaticFilesHandler,
+                {"path": os.path.join(os.path.dirname(__file__), "static")},
+            ),
+        ]
+    )
 
 
 @hookimpl
