@@ -120,3 +120,17 @@ async def build_image(repo, ref, name="", memory=None, cpu=None):
         }
     )
     await docker.close()
+
+
+async def logs(image_name):
+    docker = Docker()
+    containers = await docker.containers.list(
+        filters=json.dumps({"label": [f"repo2docker.build={image_name}"]})
+    )
+    if not containers:
+        await docker.close()
+        return
+    container = containers[0]
+    async for line in container.log(stdout=True, stderr=True, follow=True):
+        yield line
+    await docker.close()

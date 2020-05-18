@@ -89,6 +89,32 @@ require(["jquery", "bootstrap", "moment", "jhapi", "utils"], function(
       })
     });
 
+  $(".logs").click(function() {
+    var el = $(this);
+    var row = getRow(el);
+    var image = row.data("image");
+    console.log(image);
+
+    var logsUrl = utils.url_path_join(base_url, "api", "environments", "logs", image);
+    var eventSource = new EventSource(logsUrl);
+    eventSource.onerror = function(err) {
+      console.error("Failed to construct event stream", err);
+    };
+    eventSource.onmessage = function(event) {
+      var data = JSON.parse(event.data);
+      if (data.phase === 'built') {
+        eventSource.close();
+        return
+      }
+      console.log(data.message);
+    };
+    // var dialog = $("#remove-environment-dialog");
+    // dialog.find(".delete-environment").attr("data-image", image);
+    // dialog.find(".delete-environment").text(name);
+    // dialog.modal();
+    return false;
+  });
+
   // initialize tooltips
   $('[data-toggle="tooltip"]').tooltip();
 
