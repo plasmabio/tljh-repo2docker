@@ -10,12 +10,8 @@ from .docker import logs
 
 class LogsHandler(APIHandler):
     """
-    Server build logs.
+    Expose a handler to follow the build logs.
     """
-
-    async def _emit(self, msg):
-        self.write(f"data: {json.dumps(msg)}\n\n")
-        await self.flush()
 
     @web.authenticated
     @admin_only
@@ -25,10 +21,12 @@ class LogsHandler(APIHandler):
 
         async for line in logs(name):
             try:
-                msg = {"phase": "log", "message": line}
-                await self._emit(msg)
+                await self._emit({"phase": "log", "message": line})
             except StreamClosedError:
                 raise web.Finish()
 
-        msg = {"phase": "built", "message": "built"}
-        await self._emit(msg)
+        await self._emit({"phase": "built", "message": "built"})
+
+    async def _emit(self, msg):
+        self.write(f"data: {json.dumps(msg)}\n\n")
+        await self.flush()

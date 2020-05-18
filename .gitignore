@@ -1,5 +1,6 @@
 *.py[co]
 *~
+*.map
 .cache
 dist
 docs/_build

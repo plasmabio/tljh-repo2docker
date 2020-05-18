@@ -23,7 +23,7 @@ class BuildHandler(APIHandler):
         name = data["name"]
         docker = Docker()
         try:
-            await self.docker.images.delete(name)
+            await docker.images.delete(name)
         except DockerError as e:
             raise web.HTTPError(e.status, e.message)
         finally:

@@ -1,14 +1,21 @@
-require(["jquery", "bootstrap", "moment", "jhapi", "utils"], function(
+require([
+  "jquery", "bootstrap", "moment", "jhapi", "utils",
+  "environments-static/vendor/xterm-addon-fit.js",
+  "environments-static/vendor/xterm.js"
+], function(
   $,
   bs,
   moment,
   JHAPI,
-  utils
+  utils,
+  fit,
+  xterm
 ) {
   "use strict";
 
   var base_url = window.jhdata.base_url;
   var api = new JHAPI(base_url);
+
 
   function getRow(element) {
     var original = element;
@@ -93,26 +100,49 @@ require(["jquery", "bootstrap", "moment", "jhapi", "utils"], function(
     var el = $(this);
     var row = getRow(el);
     var image = row.data("image");
-    console.log(image);
+    var dialog = $("#show-logs-dialog");
 
-    var logsUrl = utils.url_path_join(base_url, "api", "environments", "logs", image);
-    var eventSource = new EventSource(logsUrl);
-    eventSource.onerror = function(err) {
-      console.error("Failed to construct event stream", err);
-    };
-    eventSource.onmessage = function(event) {
-      var data = JSON.parse(event.data);
-      if (data.phase === 'built') {
+    var log = new xterm.Terminal({
+      convertEol: true,
+      disableStdin: true
+    });
+    var fitAddon = new fit.FitAddon();
+    log.loadAddon(fitAddon);
+
+    var eventSource;
+
+    function showTerminal() {
+      $(".build-logs").empty();
+      log.clear();
+      var container = dialog.find(".build-logs")[0];
+      log.open(container);
+      fitAddon.fit();
+
+      var logsUrl = utils.url_path_join(base_url, "api", "environments", "logs", image);
+      eventSource = new EventSource(logsUrl);
+      eventSource.onerror = function(err) {
+        console.error("Failed to construct event stream", err);
         eventSource.close();
-        return
+      };
+      eventSource.onmessage = function(event) {
+        var data = JSON.parse(event.data);
+        if (data.phase === 'built') {
+          eventSource.close();
+          return
+        }
+        log.write(data.message);
+        fitAddon.fit();
+      };
+    }
+
+    dialog.on('shown.bs.modal', showTerminal);
+    dialog.on('hide.bs.modal', function () {
+      dialog.off('shown.bs.modal', showTerminal);
+      if (eventSource) {
+        eventSource.close();
       }
-      console.log(data.message);
-    };
-    // var dialog = $("#remove-environment-dialog");
-    // dialog.find(".delete-environment").attr("data-image", image);
-    // dialog.find(".delete-environment").text(name);
-    // dialog.modal();
-    return false;
+    });
+    dialog.modal();
   });
 
   // initialize tooltips
