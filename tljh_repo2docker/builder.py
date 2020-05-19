@@ -21,13 +21,11 @@ class BuildHandler(APIHandler):
     async def delete(self):
         data = self.get_json_body()
         name = data["name"]
-        docker = Docker()
-        try:
-            await docker.images.delete(name)
-        except DockerError as e:
-            raise web.HTTPError(e.status, e.message)
-        finally:
-            await docker.close()
+        async with Docker() as docker:
+            try:
+                await docker.images.delete(name)
+            except DockerError as e:
+                raise web.HTTPError(e.status, e.message)
 
         self.set_status(200)
         self.finish(json.dumps({"status": "ok"}))

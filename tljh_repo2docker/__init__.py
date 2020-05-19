@@ -131,9 +131,9 @@ class SpawnerMixin(Configurable):
         Set the user environment limits if they are defined in the image
         """
         imagename = self.user_options.get("image")
-        docker = Docker()
-        image = await docker.images.inspect(imagename)
-        await docker.close()
+        async with Docker() as docker:
+            image = await docker.images.inspect(imagename)
+
         mem_limit = image["ContainerConfig"]["Labels"].get(
             "tljh_repo2docker.mem_limit", None
         )
@@ -195,7 +195,7 @@ def tljh_custom_jupyterhub_config(c):
         [
             (r"environments", ImagesHandler),
             (r"api/environments", BuildHandler),
-            (r"api/environments/logs/([^/]+)", LogsHandler),
+            (r"api/environments/([^/]+)/logs", LogsHandler),
             (
                 r"environments-static/(.*)",
                 CacheControlStaticFilesHandler,

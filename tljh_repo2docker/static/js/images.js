@@ -118,7 +118,7 @@ require([
       log.open(container);
       fitAddon.fit();
 
-      var logsUrl = utils.url_path_join(base_url, "api", "environments", "logs", image);
+      var logsUrl = utils.url_path_join(base_url, "api", "environments", image, "logs");
       eventSource = new EventSource(logsUrl);
       eventSource.onerror = function(err) {
         console.error("Failed to construct event stream", err);

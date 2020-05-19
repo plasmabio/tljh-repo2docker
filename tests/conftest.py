@@ -12,9 +12,14 @@ from jupyterhub.tests.conftest import (
     pytest_collection_modifyitems,
 )
 from jupyterhub.tests.mocking import MockHub
-from tljh_repo2docker import Repo2DockerSpawner
-from tljh_repo2docker.builder import BuildHandler
-from tljh_repo2docker.images import ImagesHandler
+from tljh_repo2docker import tljh_custom_jupyterhub_config
+from traitlets import Bunch
+
+class DummyConfig:
+    def __getattr__(self, k):
+        if k not in self.__dict__:
+            self.__dict__[k] = Bunch()
+        return self.__dict__[k]
 
 
 @pytest.fixture(scope='module')
@@ -44,15 +49,11 @@ def app(request, io_loop):
     Adapted from:
     https://github.com/jupyterhub/jupyterhub/blob/8a3790b01ff944c453ffcc0486149e2a58ffabea/jupyterhub/tests/conftest.py#L74
     """
+
     mocked_app = MockHub.instance()
-    mocked_app.spawner_class = Repo2DockerSpawner
-    mocked_app.template_paths.insert(
-        0, os.path.join(os.path.dirname(__file__), "../tljh_repo2docker", "templates")
-    )
-    mocked_app.extra_handlers.extend([
-        (r"environments", ImagesHandler),
-        (r"api/environments", BuildHandler),
-    ])
+    c = DummyConfig()
+    c.JupyterHub = mocked_app
+    tljh_custom_jupyterhub_config(c)
 
     async def make_app():
         await mocked_app.initialize([])

@@ -9,11 +9,10 @@ async def list_images():
     """
     Retrieve local images built by repo2docker
     """
-    docker = Docker()
-    r2d_images = await docker.images.list(
-        filters=json.dumps({"dangling": ["false"], "label": ["repo2docker.ref"]})
-    )
-    await docker.close()
+    async with Docker() as docker:
+        r2d_images = await docker.images.list(
+            filters=json.dumps({"dangling": ["false"], "label": ["repo2docker.ref"]})
+        )
     images = [
         {
             "repo": image["Labels"]["repo2docker.repo"],
@@ -35,11 +34,10 @@ async def list_containers():
     Retrieve the list of local images being built by repo2docker.
     Images are built in a Docker container.
     """
-    docker = Docker()
-    r2d_containers = await docker.containers.list(
-        filters=json.dumps({"label": ["repo2docker.ref"]})
-    )
-    await docker.close()
+    async with Docker() as docker:
+        r2d_containers = await docker.containers.list(
+            filters=json.dumps({"label": ["repo2docker.ref"]})
+        )
     containers = [
         {
             "repo": container["Labels"]["repo2docker.repo"],
@@ -96,41 +94,26 @@ async def build_image(repo, ref, name="", memory=None, cpu=None):
         "\n".join(labels),
         repo,
     ]
-    docker = Docker()
-    await docker.containers.run(
-        config={
-            "Cmd": cmd,
-            "Image": "jupyter/repo2docker:master",
-            "Labels": {
-                "repo2docker.repo": repo,
-                "repo2docker.ref": ref,
-                "repo2docker.build": image_name,
-                "tljh_repo2docker.display_name": name,
-                "tljh_repo2docker.mem_limit": memory,
-                "tljh_repo2docker.cpu_limit": cpu,
-            },
-            "Volumes": {
-                "/var/run/docker.sock": {"bind": "/var/run/docker.sock", "mode": "rw",}
-            },
-            "HostConfig": {"Binds": ["/var/run/docker.sock:/var/run/docker.sock"],},
-            "Tty": False,
-            "AttachStdout": False,
-            "AttachStderr": False,
-            "OpenStdin": False,
-        }
-    )
-    await docker.close()
-
-
-async def logs(image_name):
-    docker = Docker()
-    containers = await docker.containers.list(
-        filters=json.dumps({"label": [f"repo2docker.build={image_name}"]})
-    )
-    if not containers:
-        await docker.close()
-        return
-    container = containers[0]
-    async for line in container.log(stdout=True, stderr=True, follow=True):
-        yield line
-    await docker.close()
+    async with Docker() as docker:
+        await docker.containers.run(
+            config={
+                "Cmd": cmd,
+                "Image": "jupyter/repo2docker:master",
+                "Labels": {
+                    "repo2docker.repo": repo,
+                    "repo2docker.ref": ref,
+                    "repo2docker.build": image_name,
+                    "tljh_repo2docker.display_name": name,
+                    "tljh_repo2docker.mem_limit": memory,
+                    "tljh_repo2docker.cpu_limit": cpu,
+                },
+                "Volumes": {
+                    "/var/run/docker.sock": {"bind": "/var/run/docker.sock", "mode": "rw",}
+                },
+                "HostConfig": {"Binds": ["/var/run/docker.sock:/var/run/docker.sock"],},
+                "Tty": False,
+                "AttachStdout": False,
+                "AttachStderr": False,
+                "OpenStdin": False,
+            }
+        )
