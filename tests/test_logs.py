@@ -21,7 +21,7 @@ def next_event(it):
 
 
 @pytest.mark.asyncio
-async def test_stream_simple(app, remove_test_image, minimal_repo, image_name):
+async def test_stream_simple(app, minimal_repo, image_name):
     name, ref = image_name.split(":")
     await add_environment(app, repo=minimal_repo, name=name, ref=ref)
     r = await api_request(app, "environments", image_name, "logs", stream=True)
@@ -38,7 +38,7 @@ async def test_stream_simple(app, remove_test_image, minimal_repo, image_name):
 
 
 @pytest.mark.asyncio
-async def test_no_build(app, remove_test_image, image_name, request):
+async def test_no_build(app, image_name, request):
     r = await api_request(app, "environments", "image-not-found:12345", "logs", stream=True)
     request.addfinalizer(r.close)
     assert r.status_code == 404

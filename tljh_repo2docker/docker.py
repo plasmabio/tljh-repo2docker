@@ -65,7 +65,7 @@ async def build_image(repo, ref, name="", memory=None, cpu=None):
     # default to the repo name if no name specified
     # and sanitize the name of the docker image
     name = name or urlparse(repo).path.strip("/")
-    name = name.replace("/", "-")
+    name = name.lower().replace("/", "-")
     image_name = f"{name}:{ref}"
 
     # memory is specified in GB
