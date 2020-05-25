@@ -22,25 +22,32 @@ class DummyConfig:
         return self.__dict__[k]
 
 
+async def remove_docker_image(image_name):
+    async with Docker() as docker:
+        try:
+            await docker.images.delete(image_name, force=True)
+        except DockerError:
+            pass
+
+
 @pytest.fixture(scope='module')
 def minimal_repo():
     return "https://github.com/jtpio/test-binder"
 
 
 @pytest.fixture(scope='module')
+def minimal_repo_uppercase():
+    return "https://github.com/jtpio/TEST-BINDER"
+
+
+@pytest.fixture(scope='module')
+def generated_image_name():
+    return "jtpio-test-binder:master"
+
+
+@pytest.fixture(scope='module')
 def image_name():
     return "tljh-repo2docker-test:master"
-
-
-@pytest.mark.asyncio
-@pytest.fixture(scope='module')
-async def remove_test_image(image_name):
-    docker = Docker()
-    try:
-        await docker.images.delete(image_name)
-    except DockerError:
-        pass
-    await docker.close()
 
 
 @pytest.fixture(scope='module')
@@ -71,3 +78,15 @@ def app(request, io_loop):
     request.addfinalizer(fin)
     io_loop.run_sync(make_app)
     return mocked_app
+
+
+@pytest.fixture(autouse=True)
+def remove_all_test_images(image_name, generated_image_name, io_loop):
+    try:
+        yield
+    finally:
+        async def _clean():
+            await remove_docker_image(image_name)
+            await remove_docker_image(generated_image_name)
+
+        io_loop.run_sync(_clean)

@@ -6,7 +6,7 @@ from .utils import add_environment, wait_for_image, remove_environment
 
 
 @pytest.mark.asyncio
-async def test_add_environment(app, remove_test_image, minimal_repo, image_name):
+async def test_add_environment(app, minimal_repo, image_name):
     name, ref = image_name.split(":")
     r = await add_environment(app, repo=minimal_repo, name=name, ref=ref)
     assert r.status_code == 200
@@ -17,7 +17,7 @@ async def test_add_environment(app, remove_test_image, minimal_repo, image_name)
 
 
 @pytest.mark.asyncio
-async def test_delete_environment(app, remove_test_image, minimal_repo, image_name):
+async def test_delete_environment(app, minimal_repo, image_name):
     name, ref = image_name.split(":")
     await add_environment(app, repo=minimal_repo, name=name, ref=ref)
     await wait_for_image(image_name=image_name)
@@ -32,14 +32,25 @@ async def test_delete_environment(app, remove_test_image, minimal_repo, image_na
 
 
 @pytest.mark.asyncio
-async def test_delete_unknown_environment(app, remove_test_image):
+async def test_delete_unknown_environment(app):
     r = await remove_environment(app, image_name="image-not-found:12345")
     assert r.status_code == 404
 
 
 @pytest.mark.asyncio
-async def test_no_repo(app):
-    r = await add_environment(app, repo="")
+async def test_uppercase_repo(app, minimal_repo_uppercase, generated_image_name):
+    r = await add_environment(app, repo=minimal_repo_uppercase)
+    assert r.status_code == 200
+    image = await wait_for_image(image_name=generated_image_name)
+    assert (
+        image["ContainerConfig"]["Labels"]["tljh_repo2docker.image_name"] == generated_image_name
+    )
+
+
+@pytest.mark.asyncio
+async def test_no_repo(app, image_name):
+    name, ref = image_name.split(":")
+    r = await add_environment(app, repo="", name=name, ref=ref)
     assert r.status_code == 400
 
 
@@ -47,8 +58,9 @@ async def test_no_repo(app):
 @pytest.mark.parametrize(
     "memory, cpu", [("abcded", ""), ("", "abcde"),],
 )
-async def test_wrong_limits(app, minimal_repo, memory, cpu):
-    r = await add_environment(app, repo=minimal_repo, memory=memory, cpu=cpu)
+async def test_wrong_limits(app, minimal_repo, image_name, memory, cpu):
+    name, ref = image_name.split(":")
+    r = await add_environment(app, repo=minimal_repo, name=name, ref=ref, memory=memory, cpu=cpu)
     assert r.status_code == 400
     assert "must be a number" in r.text
 

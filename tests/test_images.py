@@ -21,7 +21,7 @@ async def test_images_list_not_admin(app):
 
 
 @pytest.mark.asyncio
-async def test_spawn_page(app, remove_test_image, minimal_repo, image_name):
+async def test_spawn_page(app, minimal_repo, image_name):
     cookies = await app.login_user('admin')
 
     # go to the spawn page
