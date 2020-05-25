@@ -23,9 +23,11 @@ class LogsHandler(APIHandler):
                 filters=json.dumps({"label": [f"repo2docker.build={name}"]})
             )
 
-            if containers:
-                async for line in containers[0].log(stdout=True, stderr=True, follow=True):
-                    await self._emit({"phase": "log", "message": line})
+            if not containers:
+                raise web.HTTPError(404, f"No logs for image: {name}")
+
+            async for line in containers[0].log(stdout=True, stderr=True, follow=True):
+                await self._emit({"phase": "log", "message": line})
 
         await self._emit({"phase": "built", "message": "built"})
 
