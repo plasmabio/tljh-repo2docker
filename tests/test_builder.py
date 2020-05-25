@@ -37,11 +37,13 @@ async def test_delete_unknown_environment(app, remove_test_image):
     assert r.status_code == 404
 
 
+@pytest.mark.asyncio
 async def test_no_repo(app):
     r = await add_environment(app, repo="")
     assert r.status_code == 400
 
 
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "memory, cpu", [("abcded", ""), ("", "abcde"),],
 )
@@ -51,6 +53,7 @@ async def test_wrong_limits(app, minimal_repo, memory, cpu):
     assert "must be a number" in r.text
 
 
+@pytest.mark.asyncio
 async def test_wrong_name(app, minimal_repo):
     r = await add_environment(app, repo=minimal_repo, name="#WRONG_NAME#")
     assert r.status_code == 400

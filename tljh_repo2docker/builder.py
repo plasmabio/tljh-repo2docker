@@ -12,9 +12,6 @@ IMAGE_NAME_RE = r"^[a-z0-9-_]+$"
 
 
 class BuildHandler(APIHandler):
-    def initialize(self):
-        self.docker = Docker()
-
     """
     Handle requests to build user environments as Docker images
     """
@@ -24,10 +21,11 @@ class BuildHandler(APIHandler):
     async def delete(self):
         data = self.get_json_body()
         name = data["name"]
-        try:
-            await self.docker.images.delete(name)
-        except DockerError as e:
-            raise web.HTTPError(e.status, e.message)
+        async with Docker() as docker:
+            try:
+                await docker.images.delete(name)
+            except DockerError as e:
+                raise web.HTTPError(e.status, e.message)
 
         self.set_status(200)
         self.finish(json.dumps({"status": "ok"}))

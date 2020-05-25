@@ -45,6 +45,12 @@ Just like on [Binder](https://mybinder.org), new environments can be added by cl
 
 ![add-new](https://user-images.githubusercontent.com/591645/80963115-9fce3880-8e0e-11ea-890b-c9b928f7edb1.png)
 
+### Follow the build logs
+
+Clicking on the *Logs* button will open a new dialog with the build logs:
+
+![logs](https://user-images.githubusercontent.com/591645/82306574-86f18580-99bf-11ea-984b-4749ddde15e7.png)
+
 ### Select an environment
 
 Once ready, the environments can be selected from the JupyterHub spawn page:

@@ -3,6 +3,7 @@
 {% block stylesheet %}
 {{ super() }}
 <link rel="stylesheet" href="{{ base_url }}environments-static/css/style.css" type="text/css"/>
+<link rel="stylesheet" href="{{ base_url }}environments-static/vendor/xterm.css" type="text/css"/>
 {% endblock %}
 
 {% block main %}
@@ -49,6 +50,7 @@
         <td class="status-col col-sm-1">
           {% if image.status == 'building' %}
             <i title="Building" class="fa fa-refresh fa-spin fa-lg fa-fw" style="color: orange;"></i>
+            <a role="button" class="logs btn btn-xs btn-info">Logs</a>
           {%- elif image.status == 'built' %}
             <i title="Built" class="fa fa-check-square fa-lg fa-fw" style="color: green;"></i>
           {%- endif %}
@@ -86,6 +88,10 @@
 {% call modal('Remove Environment', btn_label='Remove', btn_class='btn-danger remove-button') %}
   Are you sure you want to remove the following environment?
   <pre class="delete-environment">ENV</pre>
+{% endcall %}
+
+{% call modal('Show Logs', btn_label='Close', btn_class='btn-primary') %}
+  <div style="width: auto; height: 400px;" class="build-logs"></div>
 {% endcall %}
 
 {% macro environment_modal(name, multi=False) %}
