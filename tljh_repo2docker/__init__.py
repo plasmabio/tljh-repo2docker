@@ -159,9 +159,9 @@ class Repo2DockerSpawner(SpawnerMixin, DockerSpawner):
     A custom spawner for using local Docker images built with tljh-repo2docker.
     """
 
-    def start(self, *args, **kwargs):
-        self.set_limits()
-        return super().start(*args, **kwargs)
+    async def start(self, *args, **kwargs):
+        await self.set_limits()
+        return await super().start(*args, **kwargs)
 
 
 @hookimpl
