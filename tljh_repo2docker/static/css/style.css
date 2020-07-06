@@ -13,3 +13,7 @@
 .table > tbody > tr > td > p {
   margin: unset;
 }
+
+#show-logs-dialog .btn-default {
+  display: none;
+}
