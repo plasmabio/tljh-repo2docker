@@ -148,10 +148,10 @@ class SpawnerMixin(Configurable):
             self.cpu_limit = float(cpu_limit)
 
         if self.cpu_limit:
-            self.extra_host_config = {
+            self.extra_host_config.update({
                 "cpu_period": CPU_PERIOD,
                 "cpu_quota": int(float(CPU_PERIOD) * self.cpu_limit),
-            }
+            })
 
 
 class Repo2DockerSpawner(SpawnerMixin, DockerSpawner):
