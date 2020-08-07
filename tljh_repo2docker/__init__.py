@@ -12,7 +12,7 @@ from traitlets import Unicode
 from traitlets.config import Configurable
 
 from .builder import BuildHandler
-from .docker import list_images
+from .docker import list_images, find_storage
 from .images import ImagesHandler
 from .logs import LogsHandler
 
@@ -153,6 +153,48 @@ class SpawnerMixin(Configurable):
                 "cpu_quota": int(float(CPU_PERIOD) * self.cpu_limit),
             })
 
+    async def set_storage(self):
+        """
+        Checks for, creates + sets storage container for image
+        """
+
+        # setup helper copy of self to test for and create storage container
+        helper = DockerSpawner()
+        helper.hub = self.hub
+        helper.user = self.user
+        helper.prefix = "storage"
+        helper.cmd = "/bin/true"
+        helper.extra_create_kwargs = self.extra_create_kwargs
+        helper.extra_host_config = self.extra_host_config
+
+        storeage_obj = await helper.get_object()
+
+        if storeage_obj is None:
+            imagename = self.user_options.get("image")
+            storage_image = await find_storage(imagename)
+            if not storage_image:
+                return
+
+            helper.image = storage_image
+            storeage_obj = await helper.create_object()
+            storeage_obj_id = storeage_obj[helper.object_id_key]
+            self.log.info(
+                "Created new storage container %s (id: %s)",
+                helper.object_name,
+                storeage_obj_id[:7]
+            )
+        else:
+            storeage_obj_id = storeage_obj[helper.object_id_key]
+            self.log.info(
+                "Found storage container %s (id: %s)",
+                helper.object_name,
+                storeage_obj_id[:7]
+            )
+
+        self.extra_host_config.update({
+            "volumes_from": [storeage_obj_id]
+        })
+
 
 class Repo2DockerSpawner(SpawnerMixin, DockerSpawner):
     """
@@ -161,6 +203,7 @@ class Repo2DockerSpawner(SpawnerMixin, DockerSpawner):
 
     async def start(self, *args, **kwargs):
         await self.set_limits()
+        await self.set_storage()
         return await super().start(*args, **kwargs)
 
 

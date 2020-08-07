@@ -25,8 +25,32 @@ async def list_images():
         }
         for image in r2d_images
         if "tljh_repo2docker.image_name" in image["Labels"]
+            and "tljh_repo2docker.storage_for" not in image["Labels"]
     ]
     return images
+
+
+async def find_storage(imagename=None):
+    """
+    Find appropiate storage image name for imagename
+    """
+    async with Docker() as docker:
+        images = None if not imagename else await docker.images.list(
+            filters=json.dumps({
+                "dangling": ["false"],
+                "label": ["tljh_repo2docker.storage_for=" + imagename]
+            })
+        )
+        images = images if images else await docker.images.list(
+            filters=json.dumps({
+                "dangling": ["false"],
+                "label": ["tljh_repo2docker.storage_for=ALL"]
+            })
+        )
+    result = images[0] if images else None
+    if not result:
+        return None
+    return result["Id"]
 
 
 async def list_containers():
