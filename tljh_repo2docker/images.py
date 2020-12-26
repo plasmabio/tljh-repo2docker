@@ -1,3 +1,4 @@
+from inspect import isawaitable
 from jupyterhub.handlers.base import BaseHandler
 from jupyterhub.utils import admin_only
 from tornado import web
@@ -15,11 +16,13 @@ class ImagesHandler(BaseHandler):
     async def get(self):
         images = await list_images()
         containers = await list_containers()
-        self.write(
-            self.render_template(
-                "images.html",
-                images=images + containers,
-                default_mem_limit=self.settings.get("default_mem_limit"),
-                default_cpu_limit=self.settings.get("default_cpu_limit"),
-            )
+        result = self.render_template(
+            "images.html",
+            images=images + containers,
+            default_mem_limit=self.settings.get("default_mem_limit"),
+            default_cpu_limit=self.settings.get("default_cpu_limit"),
         )
+        if isawaitable(result):
+            self.write(await result)
+        else:
+            self.write(result)
