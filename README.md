@@ -63,7 +63,7 @@ Once ready, the environments can be selected from the JupyterHub spawn page:
 
 It is possible to provide the `username` and `password` in the `Credentials` section of the form:
 
-![image](https://user-images.githubusercontent.com/591645/107355189-6d551880-6acf-11eb-8b52-b4b154e04fd6.png)
+![image](https://user-images.githubusercontent.com/591645/107362654-51567480-6ad9-11eb-93be-74d3b1c37828.png)
 
 On GitHub and GitLab, a user might have to first create an access token with `read` access to use as the password:
 
