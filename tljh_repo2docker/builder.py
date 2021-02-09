@@ -39,8 +39,8 @@ class BuildHandler(APIHandler):
         name = data["name"].lower()
         memory = data["memory"]
         cpu = data["cpu"]
-        username = data["username"]
-        password = data["password"]
+        username = data.get("username", None)
+        password = data.get("password", None)
 
         if not repo:
             raise web.HTTPError(400, "Repository is empty")
