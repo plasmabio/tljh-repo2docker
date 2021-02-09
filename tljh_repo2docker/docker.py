@@ -97,7 +97,7 @@ async def build_image(
         repo,
     ]
 
-    config={
+    config = {
         "Cmd": cmd,
         "Image": "jupyter/repo2docker:master",
         "Labels": {
@@ -124,9 +124,11 @@ async def build_image(
     }
 
     if username and password:
-        config.update({
-            "Env": [f"GIT_CREDENTIAL_ENV=username={username}\npassword={password}"],
-        })
+        config.update(
+            {
+                "Env": [f"GIT_CREDENTIAL_ENV=username={username}\npassword={password}"],
+            }
+        )
 
     async with Docker() as docker:
         await docker.containers.run(config=config)
