@@ -148,10 +148,12 @@ class SpawnerMixin(Configurable):
             self.cpu_limit = float(cpu_limit)
 
         if self.cpu_limit:
-            self.extra_host_config.update({
-                "cpu_period": CPU_PERIOD,
-                "cpu_quota": int(float(CPU_PERIOD) * self.cpu_limit),
-            })
+            self.extra_host_config.update(
+                {
+                    "cpu_period": CPU_PERIOD,
+                    "cpu_quota": int(float(CPU_PERIOD) * self.cpu_limit),
+                }
+            )
 
 
 class Repo2DockerSpawner(SpawnerMixin, DockerSpawner):
@@ -207,4 +209,4 @@ def tljh_custom_jupyterhub_config(c):
 
 @hookimpl
 def tljh_extra_hub_pip_packages():
-    return ["dockerspawner", "jupyter_client"]
+    return ["dockerspawner~=0.11", "jupyter_client~=6.1", "aiodocker~=0.19"]
