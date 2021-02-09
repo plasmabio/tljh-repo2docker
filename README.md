@@ -57,6 +57,18 @@ Once ready, the environments can be selected from the JupyterHub spawn page:
 
 ![select-env](https://user-images.githubusercontent.com/591645/81152248-10e22d00-8f82-11ea-9b5f-5831d8f7d085.png)
 
+### Private Repositories
+
+`tljh-repo2docker` also supports building environments from private repositories.
+
+It is possible to provide the `username` and `password` in the `Credentials` section of the form:
+
+![image](https://user-images.githubusercontent.com/591645/107355189-6d551880-6acf-11eb-8b52-b4b154e04fd6.png)
+
+On GitHub and GitLab, a user might have to first create an access token with `read` access to use as the password:
+
+![image](https://user-images.githubusercontent.com/591645/107350843-39c3bf80-6aca-11eb-8b82-6fa95ba4c7e4.png)
+
 ### Extra documentation
 
 `tljh-repo2docker` is currently developed as part of the [Plasma project](https://github.com/plasmabio/plasma).
