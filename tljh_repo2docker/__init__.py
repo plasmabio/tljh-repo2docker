@@ -181,6 +181,7 @@ def tljh_custom_jupyterhub_config(c):
     # spawner
     c.DockerSpawner.cmd = ["jupyterhub-singleuser"]
     c.DockerSpawner.pull_policy = "Never"
+    c.DockerSpawner.remove = True
 
     # fetch limits from the TLJH config
     tljh_config = load_config()
