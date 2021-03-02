@@ -17,3 +17,22 @@
 #show-logs-dialog .btn-default {
   display: none;
 }
+
+details {
+  padding: 0.5em 0.5em 0;
+}
+
+summary {
+  font-weight: bold;
+  margin: -0.5em -0.5em 0;
+  padding: 0.5em;
+  cursor: pointer;
+}
+
+details[open] {
+  padding: 0.5em;
+}
+
+details[open] summary {
+  margin-bottom: 0.5em;
+}

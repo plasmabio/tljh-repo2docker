@@ -36,6 +36,8 @@ require([
     dialog.find(".name-input").val("");
     dialog.find(".memory-input").val("");
     dialog.find(".cpu-input").val("");
+    dialog.find(".username-input").val("");
+    dialog.find(".password-input").val("");
     dialog.modal();
   });
 
@@ -48,6 +50,8 @@ require([
       var name = dialog.find(".name-input").val().trim();
       var memory = dialog.find(".memory-input").val().trim();
       var cpu = dialog.find(".cpu-input").val().trim();
+      var username = dialog.find(".username-input").val().trim();
+      var password = dialog.find(".password-input").val().trim();
       var spinner = $("#adding-environment-dialog");
       spinner.find('.modal-footer').remove();
       spinner.modal();
@@ -58,7 +62,9 @@ require([
           ref: ref,
           name: name,
           memory: memory,
-          cpu: cpu
+          cpu: cpu,
+          username: username,
+          password: password,
         }),
         success: function() {
           window.location.reload();

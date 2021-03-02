@@ -54,7 +54,9 @@ async def list_containers():
     return containers
 
 
-async def build_image(repo, ref, name="", memory=None, cpu=None):
+async def build_image(
+    repo, ref, name="", memory=None, cpu=None, username=None, password=None
+):
     """
     Build an image given a repo, ref and limits
     """
@@ -94,26 +96,39 @@ async def build_image(repo, ref, name="", memory=None, cpu=None):
         "\n".join(labels),
         repo,
     ]
-    async with Docker() as docker:
-        await docker.containers.run(
-            config={
-                "Cmd": cmd,
-                "Image": "jupyter/repo2docker:master",
-                "Labels": {
-                    "repo2docker.repo": repo,
-                    "repo2docker.ref": ref,
-                    "repo2docker.build": image_name,
-                    "tljh_repo2docker.display_name": name,
-                    "tljh_repo2docker.mem_limit": memory,
-                    "tljh_repo2docker.cpu_limit": cpu,
-                },
-                "Volumes": {
-                    "/var/run/docker.sock": {"bind": "/var/run/docker.sock", "mode": "rw",}
-                },
-                "HostConfig": {"Binds": ["/var/run/docker.sock:/var/run/docker.sock"],},
-                "Tty": False,
-                "AttachStdout": False,
-                "AttachStderr": False,
-                "OpenStdin": False,
+
+    config = {
+        "Cmd": cmd,
+        "Image": "jupyter/repo2docker:master",
+        "Labels": {
+            "repo2docker.repo": repo,
+            "repo2docker.ref": ref,
+            "repo2docker.build": image_name,
+            "tljh_repo2docker.display_name": name,
+            "tljh_repo2docker.mem_limit": memory,
+            "tljh_repo2docker.cpu_limit": cpu,
+        },
+        "Volumes": {
+            "/var/run/docker.sock": {
+                "bind": "/var/run/docker.sock",
+                "mode": "rw",
+            }
+        },
+        "HostConfig": {
+            "Binds": ["/var/run/docker.sock:/var/run/docker.sock"],
+        },
+        "Tty": False,
+        "AttachStdout": False,
+        "AttachStderr": False,
+        "OpenStdin": False,
+    }
+
+    if username and password:
+        config.update(
+            {
+                "Env": [f"GIT_CREDENTIAL_ENV=username={username}\npassword={password}"],
             }
         )
+
+    async with Docker() as docker:
+        await docker.containers.run(config=config)

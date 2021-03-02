@@ -39,6 +39,8 @@ class BuildHandler(APIHandler):
         name = data["name"].lower()
         memory = data["memory"]
         cpu = data["cpu"]
+        username = data.get("username", None)
+        password = data.get("password", None)
 
         if not repo:
             raise web.HTTPError(400, "Repository is empty")
@@ -61,7 +63,7 @@ class BuildHandler(APIHandler):
                 f"The name of the environment is restricted to the following characters: {IMAGE_NAME_RE}",
             )
 
-        await build_image(repo, ref, name, memory, cpu)
+        await build_image(repo, ref, name, memory, cpu, username, password)
 
         self.set_status(200)
         self.finish(json.dumps({"status": "ok"}))
