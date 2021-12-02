@@ -42,7 +42,7 @@ npm -g install configurable-http-proxy
 User environments are built with `repo2docker` running in a Docker container. To pull the Docker image:
 
 ```bash
-docker pull jupyter/repo2docker:master
+docker pull quay.io/jupyterhub/repo2docker:main
 ```
 
 ## Run

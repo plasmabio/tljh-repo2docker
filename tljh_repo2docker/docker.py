@@ -99,7 +99,7 @@ async def build_image(
 
     config = {
         "Cmd": cmd,
-        "Image": "jupyter/repo2docker:master",
+        "Image": "quay.io/jupyterhub/repo2docker:main",
         "Labels": {
             "repo2docker.repo": repo,
             "repo2docker.ref": ref,
