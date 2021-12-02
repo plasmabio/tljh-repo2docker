@@ -60,7 +60,7 @@ async def build_image(
     """
     Build an image given a repo, ref and limits
     """
-    ref = ref or "master"
+    ref = ref or "HEAD"
     if len(ref) >= 40:
         ref = ref[:7]
 
