@@ -10,10 +10,10 @@ Check out the official Docker documentation to know how to install Docker on you
 
 ## Create a virtual environment
 
-Using `conda`:
+Using `mamba` / `conda`:
 
 ```bash
-conda create -n tljh-repo2docker -c conda-forge python nodejs
+mamba create -n tljh-repo2docker -c conda-forge python nodejs
 conda activate tljh-repo2docker
 ```
 
