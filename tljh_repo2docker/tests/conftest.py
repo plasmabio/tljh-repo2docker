@@ -42,12 +42,12 @@ def minimal_repo_uppercase():
 
 @pytest.fixture(scope='module')
 def generated_image_name():
-    return "jtpio-test-binder:master"
+    return "jtpio-test-binder:HEAD"
 
 
 @pytest.fixture(scope='module')
 def image_name():
-    return "tljh-repo2docker-test:master"
+    return "tljh-repo2docker-test:HEAD"
 
 
 @pytest.fixture(scope='module')
