@@ -18,7 +18,7 @@ sudo add-apt-repository -y "deb [arch=amd64] https://download.docker.com/linux/u
 sudo apt update && sudo apt install -y docker-ce
 
 # pull the repo2docker image
-sudo docker pull jupyter/repo2docker:master
+sudo docker pull quay.io/jupyterhub/repo2docker:main
 
 # install TLJH
 curl https://raw.githubusercontent.com/jupyterhub/the-littlest-jupyterhub/master/bootstrap/bootstrap.py \

@@ -10,10 +10,10 @@ Check out the official Docker documentation to know how to install Docker on you
 
 ## Create a virtual environment
 
-Using `conda`:
+Using `mamba` / `conda`:
 
 ```bash
-conda create -n tljh-repo2docker -c conda-forge python nodejs
+mamba create -n tljh-repo2docker -c conda-forge python nodejs
 conda activate tljh-repo2docker
 ```
 
@@ -42,7 +42,7 @@ npm -g install configurable-http-proxy
 User environments are built with `repo2docker` running in a Docker container. To pull the Docker image:
 
 ```bash
-docker pull jupyter/repo2docker:master
+docker pull quay.io/jupyterhub/repo2docker:main
 ```
 
 ## Run
