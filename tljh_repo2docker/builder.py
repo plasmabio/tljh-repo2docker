@@ -39,6 +39,7 @@ class BuildHandler(APIHandler):
         name = data["name"].lower()
         memory = data["memory"]
         cpu = data["cpu"]
+        buildargs = data.get("buildargs", None)
         username = data.get("username", None)
         password = data.get("password", None)
 
@@ -63,7 +64,17 @@ class BuildHandler(APIHandler):
                 f"The name of the environment is restricted to the following characters: {IMAGE_NAME_RE}",
             )
 
-        await build_image(repo, ref, name, memory, cpu, username, password)
+        extra_buildargs = []
+        if buildargs:
+            for barg in buildargs.split("\n"):
+                if "=" not in barg:
+                    raise web.HTTPError(
+                        400,
+                        "Invalid build argument format"
+                    )
+                extra_buildargs.append(barg)
+
+        await build_image(repo, ref, name, memory, cpu, username, password, extra_buildargs)
 
         self.set_status(200)
         self.finish(json.dumps({"status": "ok"}))
