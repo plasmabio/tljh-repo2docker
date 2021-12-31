@@ -76,10 +76,10 @@ async def build_image(
 
     # add extra labels to set additional image properties
     labels = [
-        f"LABEL tljh_repo2docker.display_name={name}",
-        f"LABEL tljh_repo2docker.image_name={image_name}",
-        f"LABEL tljh_repo2docker.mem_limit={memory}",
-        f"LABEL tljh_repo2docker.cpu_limit={cpu}",
+        f"tljh_repo2docker.display_name={name}",
+        f"tljh_repo2docker.image_name={image_name}",
+        f"tljh_repo2docker.mem_limit={memory}",
+        f"tljh_repo2docker.cpu_limit={cpu}",
     ]
     cmd = [
         "jupyter-repo2docker",
@@ -92,10 +92,15 @@ async def build_image(
         "--no-run",
         "--image-name",
         image_name,
-        "--appendix",
-        "\n".join(labels),
-        repo,
     ]
+
+    for label in labels:
+        cmd += [
+            "--label",
+            label
+        ]
+
+    cmd.append(repo)
 
     config = {
         "Cmd": cmd,
