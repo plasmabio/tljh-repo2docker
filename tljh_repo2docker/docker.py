@@ -55,7 +55,8 @@ async def list_containers():
 
 
 async def build_image(
-    repo, ref, name="", memory=None, cpu=None, username=None, password=None
+    repo, ref, name="", memory=None, cpu=None, username=None, password=None,
+    extra_buildargs=None
 ):
     """
     Build an image given a repo, ref and limits
@@ -98,6 +99,12 @@ async def build_image(
         cmd += [
             "--label",
             label
+        ]
+
+    for barg in extra_buildargs or []:
+        cmd += [
+            "--build-arg",
+            barg
         ]
 
     cmd.append(repo)
