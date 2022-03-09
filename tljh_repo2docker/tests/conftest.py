@@ -32,17 +32,17 @@ async def remove_docker_image(image_name):
 
 @pytest.fixture(scope='module')
 def minimal_repo():
-    return "https://github.com/plasmabio/test-binder"
+    return "https://github.com/plasmabio/tljh-repo2docker-test-binder"
 
 
 @pytest.fixture(scope='module')
 def minimal_repo_uppercase():
-    return "https://github.com/plasmabio/TEST-BINDER"
+    return "https://github.com/plasmabio/TLJH-REPO2DOCKER-TEST-BINDER"
 
 
 @pytest.fixture(scope='module')
 def generated_image_name():
-    return "plasmabio-test-binder:HEAD"
+    return "plasmabio-tljh-repo2docker-test-binder:HEAD"
 
 
 @pytest.fixture(scope='module')
