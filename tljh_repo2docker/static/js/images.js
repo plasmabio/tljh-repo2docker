@@ -128,6 +128,11 @@ require([
       fitAddon.fit();
 
       var logsUrl = utils.url_path_join(base_url, "api", "environments", image, "logs");
+      if (api.xsrf_token) {
+        // add xsrf token to url parameter
+        var sep = logsUrl.indexOf("?") === -1 ? "?" : "&";
+        logsUrl = logsUrl + sep + "_xsrf=" + api.xsrf_token;
+      }
       eventSource = new EventSource(logsUrl);
       eventSource.onerror = function(err) {
         console.error("Failed to construct event stream", err);
