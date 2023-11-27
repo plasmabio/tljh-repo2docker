@@ -4,6 +4,10 @@
 
 TLJH plugin to build and use Docker images as user environments. The Docker images are built using [`repo2docker`](https://repo2docker.readthedocs.io/en/latest/).
 
+## Requirements
+
+This plugin requires [The Littlest JupyterHub](https://tljh.jupyter.org) 1.0 or later.
+
 ## Installation
 
 During the [TLJH installation process](http://tljh.jupyter.org/en/latest/install/index.html), use the following post-installation script:
@@ -20,16 +24,16 @@ sudo apt update && sudo apt install -y docker-ce
 # pull the repo2docker image
 sudo docker pull quay.io/jupyterhub/repo2docker:main
 
-# install TLJH
-curl https://raw.githubusercontent.com/jupyterhub/the-littlest-jupyterhub/master/bootstrap/bootstrap.py \
+# install TLJH 1.0
+curl https://tljh.jupyter.org/bootstrap.py
   | sudo python3 - \
+    --version 1.0.0 \
     --admin test:test \
     --plugin git+https://github.com/plasmabio/tljh-repo2docker@master
 ```
 
 Refer to [The Littlest JupyterHub documentation](http://tljh.jupyter.org/en/latest/topic/customizing-installer.html?highlight=plugins#installing-tljh-plugins)
 for more info on installing TLJH plugins.
-
 
 ## Usage
 
