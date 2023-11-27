@@ -43,17 +43,11 @@ async def app(hub_app):
     tljh_custom_jupyterhub_config(config)
 
     app = await hub_app(config=config)
-    print(app)
     return app
 
 
 @pytest.fixture(autouse=True)
 async def remove_all_test_images(image_name, generated_image_name, app):
-    try:
-        yield
-    finally:
-        async def _clean():
-            await remove_docker_image(image_name)
-            await remove_docker_image(generated_image_name)
-
-        app.io_loop.run_sync(_clean)
+    yield
+    await remove_docker_image(image_name)
+    await remove_docker_image(generated_image_name)
