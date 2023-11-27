@@ -1,6 +1,6 @@
 from inspect import isawaitable
 from jupyterhub.handlers.base import BaseHandler
-from jupyterhub.utils import admin_only
+from jupyterhub.scopes import needs_scope
 from tornado import web
 
 from .docker import list_containers, list_images
@@ -12,7 +12,7 @@ class ImagesHandler(BaseHandler):
     """
 
     @web.authenticated
-    @admin_only
+    @needs_scope('admin-ui')
     async def get(self):
         images = await list_images()
         containers = await list_containers()

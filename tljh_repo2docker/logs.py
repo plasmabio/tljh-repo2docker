@@ -2,9 +2,8 @@ import json
 
 from aiodocker import Docker
 from jupyterhub.apihandlers import APIHandler
-from jupyterhub.utils import admin_only
+from jupyterhub.scopes import needs_scope
 from tornado import web
-from tornado.ioloop import IOLoop
 from tornado.iostream import StreamClosedError
 
 
@@ -13,7 +12,7 @@ class LogsHandler(APIHandler):
     Expose a handler to follow the build logs.
     """
     @web.authenticated
-    @admin_only
+    @needs_scope('admin-ui')
     async def get(self, name):
         self.set_header("Content-Type", "text/event-stream")
         self.set_header("Cache-Control", "no-cache")
