@@ -6,7 +6,7 @@ TLJH plugin to build and use Docker images as user environments. The Docker imag
 
 ## Requirements
 
-This plugin requires [The Littlest JupyterHub](https://tljh.jupyter.org) 1.0 or later.
+This plugin requires [The Littlest JupyterHub](https://tljh.jupyter.org) 1.0 or later (running on JupyterHub 4+).
 
 ## Installation
 
