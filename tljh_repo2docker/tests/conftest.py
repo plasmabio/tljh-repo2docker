@@ -1,7 +1,3 @@
-import asyncio
-import os
-import sys
-
 import pytest
 
 from aiodocker import Docker, DockerError
