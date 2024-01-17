@@ -1,5 +1,5 @@
 git+https://github.com/jupyterhub/the-littlest-jupyterhub
-jupyterhub~=1.5
+jupyterhub~=4.0
 notebook<7
 pytest
 pytest-aiohttp
