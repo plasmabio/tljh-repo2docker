@@ -1,0 +1,33 @@
+[build-system]
+requires = ["hatchling>=1.5.0,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tljh-repo2docker"
+dynamic = ["version"]
+readme = "README.md"
+license = { file = "LICENSE" }
+dependencies = [
+    "aiodocker~=0.19",
+    "dockerspawner~=12.1",
+    "jupyter_client~=6.1",
+    "sqlalchemy<2",
+]
+
+[project.entry-points.tljh]
+tljh_repo2docker = "tljh_repo2docker"
+
+[tool.hatch.version]
+path = "tljh_repo2docker/__version__.py"
+
+[tool.hatch.build.targets.sdist]
+include = ["/tljh_repo2docker"]
+
+[tool.jupyter-releaser.options]
+version_cmd = "hatch version"
+
+[tool.jupyter-releaser.hooks]
+before-bump-version = ["python -m pip install hatch"]
+
+[tool.check-wheel-contents]
+ignore = ["W002"]
