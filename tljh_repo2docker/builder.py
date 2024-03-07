@@ -73,7 +73,6 @@ class BuildHandler(APIHandler):
                         "Invalid build argument format"
                     )
                 extra_buildargs.append(barg)
-
         await build_image(repo, ref, name, memory, cpu, username, password, extra_buildargs)
 
         self.set_status(200)

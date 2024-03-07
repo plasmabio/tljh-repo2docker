@@ -21,6 +21,7 @@ class ImagesHandler(BaseHandler):
             images=images + containers,
             default_mem_limit=self.settings.get("default_mem_limit"),
             default_cpu_limit=self.settings.get("default_cpu_limit"),
+            machine_profiles=self.settings.get("machine_profiles"),
         )
         if isawaitable(result):
             self.write(await result)

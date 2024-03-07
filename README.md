@@ -73,6 +73,24 @@ On GitHub and GitLab, a user might have to first create an access token with `re
 
 ![image](https://user-images.githubusercontent.com/591645/107350843-39c3bf80-6aca-11eb-8b82-6fa95ba4c7e4.png)
 
+### Set CPU and Memory via machine profiles
+
+Instead of entering directly the CPU and Memory value, `tljh-repo2docker` can be configured with pre-defined machine profiles and users can only choose from the available options. The following snippet will add 3 machines with labels `Small`, `Medium` and `Large` to the profile list:
+
+```python
+from tljh.configurer import apply_config, load_config
+
+tljh_config = load_config()
+tljh_config["limits"]["machine_profiles"] = [
+    {"label": "Small", "cpu": 2, "memory": 2},
+    {"label": "Medium", "cpu": 4, "memory": 4},
+    {"label": "Large", "cpu": 8, "memory": 8},
+]
+apply_config(tljh_config, c)
+```
+
+![image](https://github.com/plasmabio/tljh-repo2docker/assets/4451292/c1f0231e-a02d-41dc-85e0-97a97ffa0311)
+
 ### Extra documentation
 
 `tljh-repo2docker` is currently developed as part of the [Plasma project](https://github.com/plasmabio/plasma).
@@ -85,4 +103,4 @@ See: https://repo2docker.readthedocs.io/en/latest/howto/jupyterhub_images.html
 
 ## Run Locally
 
-Check out the instructions in [CONTRIBUTING.md](./CONTRIBUTING.md) to setup a local environment.
+Check out the instructions in [CONTRIBUTING.md](./CONTRIBUTING.md) to set up a local environment.

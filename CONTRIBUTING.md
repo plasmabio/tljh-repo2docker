@@ -13,7 +13,7 @@ Check out the official Docker documentation to know how to install Docker on you
 Using `mamba` / `conda`:
 
 ```bash
-mamba create -n tljh-repo2docker -c conda-forge python nodejs
+mamba create -n tljh-repo2docker -c conda-forge python nodejs yarn=3
 conda activate tljh-repo2docker
 ```
 
