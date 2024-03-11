@@ -58,4 +58,24 @@ You can find below the list of changes since the creation of the plugin.
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.0.1
+
+([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v1.0.0...98eaec34e3617c1e9bb83b2b4b09b2e4866fe8a0))
+
+### Bugs fixed
+
+- Resolve 'Show Logs' issue by adding \_xsrf token [#61](https://github.com/plasmabio/tljh-repo2docker/pull/61) ([@yamaton](https://github.com/yamaton))
+
+### Maintenance and upkeep improvements
+
+- Use environment in CI [#77](https://github.com/plasmabio/tljh-repo2docker/pull/77) ([@trungleduc](https://github.com/trungleduc))
+- Add 1.0.0 highlights to the change log. [#76](https://github.com/plasmabio/tljh-repo2docker/pull/76) ([@trungleduc](https://github.com/trungleduc))
+- Add releaser workflow [#74](https://github.com/plasmabio/tljh-repo2docker/pull/74) ([@trungleduc](https://github.com/trungleduc))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2023-11-17&to=2024-03-11&type=c))
+
+[@jtpio](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Ajtpio+updated%3A2023-11-17..2024-03-11&type=Issues) | [@trungleduc](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2023-11-17..2024-03-11&type=Issues) | [@yamaton](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Ayamaton+updated%3A2023-11-17..2024-03-11&type=Issues)
+
 <!-- <END NEW CHANGELOG ENTRY> -->
