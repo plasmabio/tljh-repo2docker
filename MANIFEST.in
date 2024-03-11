@@ -1,3 +1,0 @@
-recursive-include tljh_repo2docker/templates/ *
-recursive-include tljh_repo2docker/static/ *
-recursive-include tljh_repo2docker/tests/ *
