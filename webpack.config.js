@@ -2,7 +2,6 @@ const path = require('path');
 
 const config = {
   mode: process.env.NODE_ENV ?? 'development',
-  watch: process.env.NODE_ENV === 'production' ? false : true,
   module: {
     rules: [
       {
@@ -21,18 +20,13 @@ const config = {
   }
 };
 
-const distRoot = path.resolve(
-  __dirname,
-  'tljh_repo2docker',
-  'static',
-  'js'
-);
+const distRoot = path.resolve(__dirname, 'tljh_repo2docker', 'static', 'js');
 
 const environmentsPageConfig = {
   name: 'environments',
   entry: './src/environments/main.tsx',
   output: {
-    path: path.resolve(distRoot, 'react'),
+    path: distRoot,
     filename: 'environments.js'
   },
   ...config
@@ -41,7 +35,7 @@ const serversPageConfig = {
   name: 'servers',
   entry: './src/servers/main.tsx',
   output: {
-    path: path.resolve(distRoot, 'react'),
+    path: distRoot,
     filename: 'servers.js'
   },
   ...config

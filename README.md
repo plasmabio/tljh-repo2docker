@@ -39,19 +39,19 @@ for more info on installing TLJH plugins.
 
 ### List the environments
 
-The *Environments* page shows the list of built environments, as well as the ones currently being built:
+The _Environments_ page shows the list of built environments, as well as the ones currently being built:
 
 ![environments](https://user-images.githubusercontent.com/591645/80962805-056df500-8e0e-11ea-81ab-6efc1c97432d.png)
 
 ### Add a new environment
 
-Just like on [Binder](https://mybinder.org), new environments can be added by clicking on the *Add New* button and providing a URL to the repository. Optional names, memory, and CPU limits can also be set for the environment:
+Just like on [Binder](https://mybinder.org), new environments can be added by clicking on the _Add New_ button and providing a URL to the repository. Optional names, memory, and CPU limits can also be set for the environment:
 
 ![add-new](https://user-images.githubusercontent.com/591645/80963115-9fce3880-8e0e-11ea-890b-c9b928f7edb1.png)
 
 ### Follow the build logs
 
-Clicking on the *Logs* button will open a new dialog with the build logs:
+Clicking on the _Logs_ button will open a new dialog with the build logs:
 
 ![logs](https://user-images.githubusercontent.com/591645/82306574-86f18580-99bf-11ea-984b-4749ddde15e7.png)
 

@@ -26,7 +26,6 @@ source bin/activate
 
 ## Install the development requirements
 
-
 ```bash
 python -m pip install -r dev-requirements.txt
 

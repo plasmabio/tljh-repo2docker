@@ -20,10 +20,14 @@ MANIFEST
 # Local TLJH config file
 config.yaml
 
+# Frontend assets
 .yarn
 node_modules
-frontend/dist
-frontend/lib
-frontend/ui-tests/playwright-report
-frontend/ui-tests/test-results
-**/js/react/
+dist/
+ui-tests/playwright-report
+ui-tests/test-results
+**/js
+lib/
+
+# Hatch version
+_version.py

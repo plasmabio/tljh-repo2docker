@@ -44,13 +44,12 @@ jobs:
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: yarn-${{ hashFiles('frontend/yarn.lock') }}
+          key: yarn-${{ hashFiles('./yarn.lock') }}
           restore-keys: |
             yarn-
 
       - name: Lint the application
         shell: bash -l {0}
-        working-directory: frontend
         run: |
           set -eux
           yarn install
@@ -181,7 +180,7 @@ jobs:
 
       - name: Install UI test dependencies
         shell: bash -l {0}
-        working-directory: frontend/ui-tests
+        working-directory: ui-tests
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
         run: yarn install
@@ -191,16 +190,16 @@ jobs:
         with:
           path: |
             ${{ github.workspace }}/pw-browsers
-          key: ${{ runner.os }}-${{ hashFiles('frontend/ui-tests/yarn.lock') }}
+          key: ${{ runner.os }}-${{ hashFiles('ui-tests/yarn.lock') }}
 
       - name: Install browser
         shell: bash -l {0}
         run: npx playwright install chromium
-        working-directory: frontend/ui-tests
+        working-directory: ui-tests
 
       - name: Execute integration tests
         shell: bash -l {0}
-        working-directory: frontend/ui-tests
+        working-directory: ui-tests
         run: |
           npx playwright test
 
@@ -210,5 +209,5 @@ jobs:
         with:
           name: tljh-playwright-tests
           path: |
-            frontend/ui-tests/test-results
-            frontend/ui-tests/playwright-report
+            ui-tests/test-results
+            ui-tests/playwright-report

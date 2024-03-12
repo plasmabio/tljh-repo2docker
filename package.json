@@ -3,7 +3,16 @@
     "version": "1.0.1",
     "description": "tljh_repo2docker frontend package",
     "license": "BSD-3-Clause",
+    "homepage": "https://github.com/plasmabio/tljh-repo2docker",
+    "bugs": {
+        "url": "https://github.com/plasmabio/tljh-repo2docker/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/plasmabio/tljh-repo2docker.git"
+    },
     "scripts": {
+        "watch": "cross-env NODE_ENV=development webpack watch --config webpack.config.js",
         "build": "cross-env NODE_ENV=development webpack --config webpack.config.js",
         "build:prod": "cross-env NODE_ENV=production webpack --config webpack.config.js",
         "eslint": "eslint --fix --ext .js,.jsx,.ts,.tsx src/",
@@ -12,7 +21,7 @@
         "prettier": "prettier --write \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
         "lint": "yarn prettier && yarn eslint",
         "lint:check": "yarn prettier:check && yarn eslint:check",
-        "clean": "rimraf ./lib ./tljh_repo2docker/static/js/react"
+        "clean": "rimraf ./lib ./tljh_repo2docker/static/js"
     },
     "devDependencies": {
         "@types/react": "^18.2.0",
