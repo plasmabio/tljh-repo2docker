@@ -1,0 +1,154 @@
+name: Build and Test
+
+on:
+  push:
+    branches: master
+  pull_request:
+    branches: "*"
+
+jobs:
+  build:
+    name: Build tljh_repo2docker
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Base Setup
+        uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+
+      - name: Lint the application
+        run: |
+          set -eux
+          npm install
+          npm run lint:check
+
+      - name: Package the application
+        run: |
+          set -eux
+          python -m pip install build
+          python -m build .
+
+      - name: Upload package
+        uses: actions/upload-artifact@v3
+        with:
+          name: tljh_repo2docker-artifacts
+          path: |
+            dist/tljh_repo2docker*.whl
+          if-no-files-found: error
+
+  isolated-tests:
+    name: Isolated tests
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Base Setup
+        uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: tljh_repo2docker-artifacts
+
+      - name: Install and Test
+        run: |
+          set -eux
+          # Remove NodeJS, twice to take care of system and locally installed node versions.
+          sudo rm -rf $(which node)
+          sudo rm -rf $(which node)
+
+          python -m pip install git+https://github.com/jupyterhub/the-littlest-jupyterhub tljh_repo2docker*.whl
+
+      - name: Test import
+        run: python -c "import tljh_repo2docker"
+
+  unit-tests:
+    name: Unit tests
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8", "3.9", "3.10"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Base Setup
+        uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+
+      - name: Download app package
+        uses: actions/download-artifact@v3
+        with:
+          name: tljh_repo2docker-artifacts
+
+      - name: Install package
+        run: |
+          set -eux
+          python -m pip install -r dev-requirements.txt
+          python -m pip install tljh_repo2docker*.whl
+          npm -g install configurable-http-proxy
+
+      - name: Run Tests
+        run: |
+          python -m pytest --cov
+
+  integration-tests:
+    name: Integration tests
+    needs: build
+    runs-on: ubuntu-latest
+
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/pw-browsers
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Base Setup
+        uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+
+      - name: Download app package
+        uses: actions/download-artifact@v3
+        with:
+          name: tljh_repo2docker-artifacts
+
+      - name: Install package
+        run: |
+          set -eux
+          python -m pip install -r dev-requirements.txt
+          python -m pip install tljh_repo2docker*.whl
+          npm -g install configurable-http-proxy
+
+      - name: Install UI test dependencies
+        working-directory: ui-tests
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+        run: npm install
+
+      - name: Set up browser cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ github.workspace }}/pw-browsers
+          key: ${{ runner.os }}-${{ hashFiles('ui-tests/package-lock.json') }}
+
+      - name: Install browser
+        run: npx playwright install chromium
+        working-directory: ui-tests
+
+      - name: Execute integration tests
+        working-directory: ui-tests
+        run: |
+          npx playwright test
+
+      - name: Upload Playwright Test report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: tljh-playwright-tests
+          path: |
+            ui-tests/test-results
+            ui-tests/playwright-report

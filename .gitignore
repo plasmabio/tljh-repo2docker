@@ -7,8 +7,8 @@ docs/_build
 docs/build
 .ipynb_checkpoints
 jupyterhub_cookie_secret
-jupyterhub.sqlite
-jupyterhub-proxy.pid
+**/jupyterhub.sqlite
+**/jupyterhub-proxy.pid
 *.egg-info
 MANIFEST
 .coverage
@@ -19,3 +19,14 @@ MANIFEST
 
 # Local TLJH config file
 config.yaml
+
+# Frontend assets
+node_modules
+dist/
+ui-tests/playwright-report
+ui-tests/test-results
+**/js
+lib/
+
+# Hatch version
+_version.py

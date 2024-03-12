@@ -39,19 +39,19 @@ for more info on installing TLJH plugins.
 
 ### List the environments
 
-The *Environments* page shows the list of built environments, as well as the ones currently being built:
+The _Environments_ page shows the list of built environments, as well as the ones currently being built:
 
 ![environments](https://user-images.githubusercontent.com/591645/80962805-056df500-8e0e-11ea-81ab-6efc1c97432d.png)
 
 ### Add a new environment
 
-Just like on [Binder](https://mybinder.org), new environments can be added by clicking on the *Add New* button and providing a URL to the repository. Optional names, memory, and CPU limits can also be set for the environment:
+Just like on [Binder](https://mybinder.org), new environments can be added by clicking on the _Add New_ button and providing a URL to the repository. Optional names, memory, and CPU limits can also be set for the environment:
 
 ![add-new](https://user-images.githubusercontent.com/591645/80963115-9fce3880-8e0e-11ea-890b-c9b928f7edb1.png)
 
 ### Follow the build logs
 
-Clicking on the *Logs* button will open a new dialog with the build logs:
+Clicking on the _Logs_ button will open a new dialog with the build logs:
 
 ![logs](https://user-images.githubusercontent.com/591645/82306574-86f18580-99bf-11ea-984b-4749ddde15e7.png)
 
@@ -73,6 +73,24 @@ On GitHub and GitLab, a user might have to first create an access token with `re
 
 ![image](https://user-images.githubusercontent.com/591645/107350843-39c3bf80-6aca-11eb-8b82-6fa95ba4c7e4.png)
 
+### Set CPU and Memory via machine profiles
+
+Instead of entering directly the CPU and Memory value, `tljh-repo2docker` can be configured with pre-defined machine profiles and users can only choose from the available options. The following snippet will add 3 machines with labels `Small`, `Medium` and `Large` to the profile list:
+
+```python
+from tljh.configurer import apply_config, load_config
+
+tljh_config = load_config()
+tljh_config["limits"]["machine_profiles"] = [
+    {"label": "Small", "cpu": 2, "memory": 2},
+    {"label": "Medium", "cpu": 4, "memory": 4},
+    {"label": "Large", "cpu": 8, "memory": 8},
+]
+apply_config(tljh_config, c)
+```
+
+![image](https://github.com/plasmabio/tljh-repo2docker/assets/4451292/c1f0231e-a02d-41dc-85e0-97a97ffa0311)
+
 ### Extra documentation
 
 `tljh-repo2docker` is currently developed as part of the [Plasma project](https://github.com/plasmabio/plasma).
@@ -85,4 +103,4 @@ See: https://repo2docker.readthedocs.io/en/latest/howto/jupyterhub_images.html
 
 ## Run Locally
 
-Check out the instructions in [CONTRIBUTING.md](./CONTRIBUTING.md) to setup a local environment.
+Check out the instructions in [CONTRIBUTING.md](./CONTRIBUTING.md) to set up a local environment.

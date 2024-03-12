@@ -1,4 +1,5 @@
 import os
+from typing import Any, Coroutine, Optional
 
 from aiodocker import Docker
 from dockerspawner import DockerSpawner
@@ -13,6 +14,7 @@ from traitlets.config import Configurable
 
 from .builder import BuildHandler
 from .docker import list_images
+from .servers import ServersHandler
 from .images import ImagesHandler
 from .logs import LogsHandler
 
@@ -193,9 +195,16 @@ def tljh_custom_jupyterhub_config(c):
         {"default_cpu_limit": cpu_limit, "default_mem_limit": mem_limit}
     )
 
+    machine_profiles = limits.get("machine_profiles", [])
+
+    c.JupyterHub.tornado_settings.update(
+        {"machine_profiles": machine_profiles}
+    )
+
     # register the handlers to manage the user images
     c.JupyterHub.extra_handlers.extend(
         [
+            (r"servers", ServersHandler),
             (r"environments", ImagesHandler),
             (r"api/environments", BuildHandler),
             (r"api/environments/([^/]+)/logs", LogsHandler),

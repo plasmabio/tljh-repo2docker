@@ -1,31 +1,65 @@
 [build-system]
-requires = ["hatchling>=1.5.0,<2"]
 build-backend = "hatchling.build"
+requires = ["hatchling>=1.5.0,<2", "hatch-nodejs-version>=0.3.2"]
 
 [project]
-name = "tljh-repo2docker"
-dynamic = ["version"]
-readme = "README.md"
-license = { file = "LICENSE" }
 dependencies = [
-    "aiodocker~=0.19",
-    "dockerspawner~=12.1",
-    "jupyter_client>=6.1,<8"
+  "aiodocker~=0.19",
+  "dockerspawner~=12.1",
+  "jupyter_client>=6.1,<8",
 ]
+dynamic = ["version"]
+license = {file = "LICENSE"}
+name = "tljh-repo2docker"
+readme = "README.md"
 
 [project.entry-points.tljh]
 tljh_repo2docker = "tljh_repo2docker"
 
 [tool.hatch.version]
-path = "tljh_repo2docker/__version__.py"
+source = "nodejs"
 
 [tool.hatch.build.targets.sdist]
-include = ["/tljh_repo2docker"]
+artifacts = ["tljh_repo2docker/static"]
+exclude = [".github"]
+
+[tool.hatch.build.targets.wheel]
+artifacts = ["tljh_repo2docker/static"]
+
+[tool.hatch.build.hooks.version]
+path = "tljh_repo2docker/_version.py"
+
+[tool.hatch.build.hooks.jupyter-builder]
+build-function = "hatch_jupyter_builder.npm_builder"
+dependencies = ["hatch-jupyter-builder>=0.5"]
+ensured-targets = [
+  "tljh_repo2docker/static/js/servers.js",
+  "tljh_repo2docker/static/js/environments.js",
+]
+skip-if-exists = [
+  "tljh_repo2docker/static/js/servers.js",
+  "tljh_repo2docker/static/js/environments.js",
+]
+
+[tool.hatch.build.hooks.jupyter-builder.build-kwargs]
+build_cmd = "build:prod"
+npm = ["npm"]
+
+[tool.hatch.build.hooks.jupyter-builder.editable-build-kwargs]
+build_cmd = "build"
+build_dir = "tljh_repo2docker/static/js"
+npm = ["npm"]
+source_dir = "src"
 
 [tool.jupyter-releaser.options]
 version_cmd = "hatch version"
 
 [tool.jupyter-releaser.hooks]
+before-build-npm = [
+  "npm install",
+  "npm run build:prod",
+]
+before-build-python = ["npm run clean"]
 before-bump-version = ["python -m pip install hatch"]
 
 [tool.check-wheel-contents]
