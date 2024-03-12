@@ -21,6 +21,8 @@ path = "tljh_repo2docker/__version__.py"
 
 [tool.hatch.build.targets.sdist]
 include = ["/tljh_repo2docker"]
+artifacts = ["tljh_repo2docker/static"]
+exclude = [".github"]
 
 [tool.jupyter-releaser.options]
 version_cmd = "hatch version"

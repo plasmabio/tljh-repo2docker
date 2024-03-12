@@ -1,6 +1,6 @@
 {
     "name": "tljh_repo2docker_ui",
-    "version": "0.1.0",
+    "version": "1.0.1",
     "description": "tljh_repo2docker frontend package",
     "license": "BSD-3-Clause",
     "scripts": {
@@ -12,7 +12,7 @@
         "prettier": "prettier --write \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
         "lint": "yarn prettier && yarn eslint",
         "lint:check": "yarn prettier:check && yarn eslint:check",
-        "clean": "rimraf ./lib ../tljh_repo2docker/static/js/react"
+        "clean": "rimraf ./lib ./tljh_repo2docker/static/js/react"
     },
     "devDependencies": {
         "@types/react": "^18.2.0",

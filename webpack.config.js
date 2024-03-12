@@ -23,7 +23,6 @@ const config = {
 
 const distRoot = path.resolve(
   __dirname,
-  '..',
   'tljh_repo2docker',
   'static',
   'js'

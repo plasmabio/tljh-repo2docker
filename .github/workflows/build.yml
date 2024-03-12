@@ -108,7 +108,6 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.8", "3.9", "3.10"]
-        jupyterhub-version: [latest, 1.2.2]
 
     steps:
       - name: Checkout
@@ -137,12 +136,6 @@ jobs:
           python -m pip install -r dev-requirements.txt
           python -m pip install tljh_repo2docker*.whl
           npm -g install configurable-http-proxy
-
-      - name: Downgrade jupyterhub
-        if: ${{ matrix.jupyterhub-version != 'latest' }}
-        shell: bash -l {0}
-        run: |
-          python -m pip install -U 'jupyterhub==${{ matrix.jupyterhub-version }}'
 
       - name: Run Tests
         shell: bash -l {0}
