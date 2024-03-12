@@ -1,8 +1,8 @@
-git+https://github.com/jupyterhub/the-littlest-jupyterhub
-jupyterhub~=1.5
-notebook<7
+git+https://github.com/jupyterhub/the-littlest-jupyterhub@1.0.0
+jupyterhub>=4,<5
 pytest
 pytest-aiohttp
 pytest-asyncio
 pytest-cov
+pytest-jupyterhub
 requests-mock
