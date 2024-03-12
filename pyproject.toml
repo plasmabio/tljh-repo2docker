@@ -43,12 +43,12 @@ skip-if-exists = [
 
 [tool.hatch.build.hooks.jupyter-builder.build-kwargs]
 build_cmd = "build:prod"
-npm = ["yarn"]
+npm = ["npm"]
 
 [tool.hatch.build.hooks.jupyter-builder.editable-build-kwargs]
 build_cmd = "build"
 build_dir = "tljh_repo2docker/static/js"
-npm = ["yarn"]
+npm = ["npm"]
 source_dir = "src"
 
 [tool.jupyter-releaser.options]
@@ -56,10 +56,10 @@ version_cmd = "hatch version"
 
 [tool.jupyter-releaser.hooks]
 before-build-npm = [
-  "yarn install",
-  "yarn build:prod",
+  "npm install",
+  "npm run build:prod",
 ]
-before-build-python = ["yarn clean"]
+before-build-python = ["npm run clean"]
 before-bump-version = ["python -m pip install hatch"]
 
 [tool.check-wheel-contents]

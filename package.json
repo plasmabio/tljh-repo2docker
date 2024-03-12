@@ -19,8 +19,8 @@
         "eslint:check": "eslint --ext .js,.jsx,.ts,.tsx src/",
         "prettier:check": "prettier --list-different \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
         "prettier": "prettier --write \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
-        "lint": "yarn prettier && yarn eslint",
-        "lint:check": "yarn prettier:check && yarn eslint:check",
+        "lint": "npm run prettier && npm run eslint",
+        "lint:check": "npm run prettier:check && npm run eslint:check",
         "clean": "rimraf ./lib ./tljh_repo2docker/static/js"
     },
     "devDependencies": {

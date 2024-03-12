@@ -21,7 +21,6 @@ MANIFEST
 config.yaml
 
 # Frontend assets
-.yarn
 node_modules
 dist/
 ui-tests/playwright-report
