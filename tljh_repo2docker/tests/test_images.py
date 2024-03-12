@@ -10,7 +10,6 @@ async def test_images_list_admin(app):
     cookies = await app.login_user('admin')
     r = await get_page('environments', app, cookies=cookies, allow_redirects=False)
     r.raise_for_status()
-    print(r.text)
     assert '{"images": [], "default_mem_limit": "None", "default_cpu_limit":"None", "machine_profiles": []}' in r.text
 
 
