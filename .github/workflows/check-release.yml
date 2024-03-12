@@ -20,7 +20,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           version_spec: next
-          shell: bash -l {0}
 
       - name: Upload Distributions
         uses: actions/upload-artifact@v3

@@ -19,14 +19,12 @@ jobs:
         uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
 
       - name: Lint the application
-        shell: bash -l {0}
         run: |
           set -eux
           npm install
           npm run lint:check
 
       - name: Package the application
-        shell: bash -l {0}
         run: |
           set -eux
           python -m pip install build
@@ -63,7 +61,6 @@ jobs:
           python -m pip install git+https://github.com/jupyterhub/the-littlest-jupyterhub tljh_repo2docker*.whl
 
       - name: Test import
-        shell: bash -l {0}
         run: python -c "import tljh_repo2docker"
 
   unit-tests:
@@ -88,7 +85,6 @@ jobs:
           name: tljh_repo2docker-artifacts
 
       - name: Install package
-        shell: bash -l {0}
         run: |
           set -eux
           python -m pip install -r dev-requirements.txt
@@ -96,7 +92,6 @@ jobs:
           npm -g install configurable-http-proxy
 
       - name: Run Tests
-        shell: bash -l {0}
         run: |
           python -m pytest --cov
 
@@ -121,7 +116,6 @@ jobs:
           name: tljh_repo2docker-artifacts
 
       - name: Install package
-        shell: bash -l {0}
         run: |
           set -eux
           python -m pip install -r dev-requirements.txt
@@ -129,7 +123,6 @@ jobs:
           npm -g install configurable-http-proxy
 
       - name: Install UI test dependencies
-        shell: bash -l {0}
         working-directory: ui-tests
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
@@ -143,12 +136,10 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('ui-tests/package-lock.json') }}
 
       - name: Install browser
-        shell: bash -l {0}
         run: npx playwright install chromium
         working-directory: ui-tests
 
       - name: Execute integration tests
-        shell: bash -l {0}
         working-directory: ui-tests
         run: |
           npx playwright test
