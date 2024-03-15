@@ -128,7 +128,6 @@ class SpawnerMixin(Configurable):
         imagename = self.user_options.get("image")
         async with Docker() as docker:
             image = await docker.images.inspect(imagename)
-
         mem_limit = image["ContainerConfig"]["Labels"].get(
             "tljh_repo2docker.mem_limit", None
         )
@@ -172,20 +171,6 @@ def tljh_custom_jupyterhub_config(c):
     c.DockerSpawner.cmd = ["jupyterhub-singleuser"]
     c.DockerSpawner.pull_policy = "Never"
     c.DockerSpawner.remove = True
-
-    # fetch limits from the TLJH config
-    tljh_config = load_config()
-    limits = tljh_config["limits"]
-    cpu_limit = limits["cpu"]
-    mem_limit = limits["memory"]
-
-    c.JupyterHub.tornado_settings.update(
-        {"default_cpu_limit": cpu_limit, "default_mem_limit": mem_limit}
-    )
-
-    machine_profiles = limits.get("machine_profiles", [])
-
-    c.JupyterHub.tornado_settings.update({"machine_profiles": machine_profiles})
 
 
 @hookimpl

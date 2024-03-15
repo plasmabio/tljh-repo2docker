@@ -102,7 +102,28 @@ class TljhRepo2Docker(Application):
     def _default_log_level(self):
         return logging.INFO
 
-    aliases = {"port": "TljhRepo2Docker.port", "ip": "TljhRepo2Docker.ip"}
+    machine_profiles = List(
+        default_value=[], trait=Dict, config=True, help="Pre-defined machine profiles"
+    )
+
+    default_cpu_limit = Unicode(
+        None, config=True, help="Default CPU limit.", allow_none=True
+    )
+
+    default_memory_limit = Unicode(
+        None,
+        config=True,
+        help="Default Memory limit.",
+        allow_none=True,
+    )
+
+    aliases = {
+        "port": "TljhRepo2Docker.port",
+        "ip": "TljhRepo2Docker.ip",
+        "default_memory_limit": "TljhRepo2Docker.default_memory_limit",
+        "default_cpu_limit": "TljhRepo2Docker.default_cpu_limit",
+        "machine_profiles": "TljhRepo2Docker.machine_profiles",
+    }
 
     def init_settings(self) -> tp.Dict:
         """Initialize settings for the service application."""
@@ -125,6 +146,9 @@ class TljhRepo2Docker(Application):
             base_url=self.base_url,
             hub_prefix=url_path_join(self.base_url, "/hub/"),
             service_prefix=self.service_prefix,
+            default_mem_limit=self.default_memory_limit,
+            default_cpu_limit=self.default_cpu_limit,
+            machine_profiles=self.machine_profiles,
         )
         return settings
 

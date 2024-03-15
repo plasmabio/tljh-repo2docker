@@ -25,17 +25,26 @@ test.describe('tljh_repo2docker UI Tests', () => {
 
   test('Log in with admin account', async ({ page }) => {
     await login(page, 'alice');
+    await page.getByRole('button', { name: 'Services' }).click();
+    await page.getByRole('link', { name: 'tljh_repo2docker' }).click();
+    await page.waitForURL('**/servers');
+    await page.waitForTimeout(500);
     expect(await page.screenshot()).toMatchSnapshot('admin.png');
   });
 
   test('Log in with user account', async ({ page }) => {
     await login(page, 'user');
+    await page.getByRole('button', { name: 'Services' }).click();
+    await page.getByRole('link', { name: 'tljh_repo2docker' }).click();
+    await page.waitForURL('**/servers');
+    await page.waitForTimeout(500);
     expect(await page.screenshot()).toMatchSnapshot('user.png');
   });
 
   test('Render servers page', async ({ page }) => {
     await login(page, 'alice');
-    await page.getByRole('link', { name: 'Servers' }).click();
+    await page.getByRole('button', { name: 'Services' }).click();
+    await page.getByRole('link', { name: 'tljh_repo2docker' }).click();
     await page.waitForURL('**/servers');
     await page.waitForTimeout(500);
     await page.waitForSelector('div:has-text("No servers are running")', {
@@ -46,6 +55,9 @@ test.describe('tljh_repo2docker UI Tests', () => {
 
   test('Render environments page', async ({ page }) => {
     await login(page, 'alice');
+    await page.getByRole('button', { name: 'Services' }).click();
+    await page.getByRole('link', { name: 'tljh_repo2docker' }).click();
+    await page.waitForURL('**/servers');
     await page.getByRole('link', { name: 'Environments' }).click();
     await page.waitForURL('**/environments');
     await page.waitForTimeout(500);
@@ -57,8 +69,7 @@ test.describe('tljh_repo2docker UI Tests', () => {
 
   test('Render environments dialog', async ({ page }) => {
     await login(page, 'alice');
-    await page.getByRole('link', { name: 'Environments' }).click();
-    await page.waitForURL('**/environments');
+    await page.goto('/services/tljh_repo2docker/environments');
     await page.waitForTimeout(1000);
     await page.getByRole('button', { name: 'Create new environment' }).click();
     await page.waitForTimeout(1000);
@@ -68,8 +79,7 @@ test.describe('tljh_repo2docker UI Tests', () => {
 
   test('Create new environments', async ({ page }) => {
     await login(page, 'alice');
-    await page.getByRole('link', { name: 'Environments' }).click();
-    await page.waitForURL('**/environments');
+    await page.goto('/services/tljh_repo2docker/environments');
     await page.waitForTimeout(1000);
     await page.getByRole('button', { name: 'Create new environment' }).click();
     await page
@@ -102,8 +112,7 @@ test.describe('tljh_repo2docker UI Tests', () => {
 
   test('Render servers dialog', async ({ page }) => {
     await login(page, 'alice');
-    await page.getByRole('link', { name: 'Servers' }).click();
-    await page.waitForURL('**/servers');
+    await page.goto('/services/tljh_repo2docker/servers');
     await page.waitForTimeout(500);
     await page.waitForSelector('div:has-text("No servers are running")', {
       timeout: 1000
@@ -116,8 +125,7 @@ test.describe('tljh_repo2docker UI Tests', () => {
 
   test('Start server', async ({ page }) => {
     await login(page, 'alice');
-    await page.getByRole('link', { name: 'Servers' }).click();
-    await page.waitForURL('**/servers');
+    await page.goto('/services/tljh_repo2docker/servers');
     await page.waitForTimeout(500);
     await page.waitForSelector('div:has-text("No servers are running")', {
       timeout: 1000
@@ -144,8 +152,7 @@ test.describe('tljh_repo2docker UI Tests', () => {
 
   test('Remove server', async ({ page }) => {
     await login(page, 'alice');
-    await page.getByRole('link', { name: 'Servers' }).click();
-    await page.waitForURL('**/servers');
+    await page.goto('/services/tljh_repo2docker/servers');
     await page.waitForTimeout(1000);
 
     await page.getByRole('button', { name: 'Stop Server' }).click();
@@ -163,8 +170,7 @@ test.describe('tljh_repo2docker UI Tests', () => {
 
   test('Remove environment', async ({ page }) => {
     await login(page, 'alice');
-    await page.getByRole('link', { name: 'Environments' }).click();
-    await page.waitForURL('**/environments');
+    await page.goto('/services/tljh_repo2docker/environments');
     await page.waitForTimeout(1000);
     await page.getByRole('button', { name: 'Remove' }).click();
     await page.waitForTimeout(500);

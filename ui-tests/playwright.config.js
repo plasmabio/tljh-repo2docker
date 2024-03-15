@@ -9,7 +9,7 @@ module.exports = {
   retries: 1,
   expect: {
     toMatchSnapshot: {
-      maxDiffPixelRatio: 0.01
+      maxDiffPixelRatio: 0.001
     }
   },
   webServer: {
