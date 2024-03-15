@@ -16,7 +16,7 @@ function _RemoveEnvironmentButton(props: IRemoveEnvironmentButton) {
   const axios = useAxios();
 
   const removeEnv = useCallback(async () => {
-    const response = await axios.request({
+    const response = await axios.serviceClient.request({
       method: 'delete',
       prefix: API_PREFIX,
       path: ENV_PREFIX,

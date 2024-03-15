@@ -1,15 +1,120 @@
-{% extends "templates/page.html" %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
 
-{% block nav_bar_left_items %}
-<li><a href="{{base_url}}servers">Servers</a></li>
-<li><a href="{{base_url}}token">Token</a></li>
-{% if user.admin %}
-<li><a href="{{base_url}}admin">Admin</a></li>
-<li><a href="{{base_url}}environments">Environments</a></li>
-{% if services %}
-{% for service in services %}
-<li><a href="{{service.prefix}}" style="text-transform: capitalize;">{{service.name}}</a></li>
-{% endfor %}
-{% endif %}
-{% endif %}
-{% endblock %}
+    <title>{% block title %}JupyterHub{% endblock %}</title>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    {% block stylesheet %} <link rel="stylesheet" href="{{
+    static_url("css/style.min.css") }}" type="text/css"/> {% endblock %} {%
+    block favicon %} <link rel="icon" href="{{ static_url("favicon.ico") }}"
+    type="image/x-icon"> {% endblock %}
+
+    <script type="text/javascript">
+      window.jhdata = {
+        service_prefix: "{{service_prefix}}",
+        base_url: "{{base_url}}",
+        hub_prefix: "{{hub_prefix}}",
+        {% if user %}
+        user: "{{ user.name | safe }}",
+        {% endif %}
+        {% if admin_access %}
+        admin_access: true,
+        {% else %}
+        admin_access: false,
+        {% endif %}
+        options_form: false,
+        xsrf_token: "{{ xsrf_token }}",
+      }
+    </script>
+
+    {% block meta %} {% endblock %}
+  </head>
+
+  <body>
+    <noscript>
+      <div id="noscript">
+        JupyterHub requires JavaScript.<br />
+        Please enable it to proceed.
+      </div>
+    </noscript>
+
+    {% block nav_bar %}
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          {% block logo %}
+          <span id="jupyterhub-logo" class="pull-left">
+            <a href="{{logo_url or base_url}}"
+              ><img
+                src="{{service_prefix}}logo"
+                alt="JupyterHub logo"
+                class="jpy-logo"
+                title="Home"
+            /></a>
+          </span>
+          {% endblock %} {% if user %}
+          <button
+            type="button"
+            class="navbar-toggle collapsed"
+            data-toggle="collapse"
+            data-target="#thenavbar"
+            aria-expanded="false"
+          >
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          {% endif %}
+        </div>
+
+        <div class="collapse navbar-collapse" id="thenavbar">
+          {% if user %}
+          <ul class="nav navbar-nav">
+            <li><a href="{{service_prefix}}servers">Servers</a></li>
+            {% if user.admin %}
+            <li><a href="{{service_prefix}}environments">Environments</a></li>
+            {% endif %}
+          </ul>
+          {% endif %}
+          <ul class="nav navbar-nav navbar-right">
+            {% block nav_bar_right_items %}
+            <li>
+              {% block login_widget %}
+              <span id="login_widget">
+                {% if user %}
+                <p class="navbar-text">{{user.name}}</p>
+                <a
+                  id="logout"
+                  role="button"
+                  class="navbar-btn btn-sm btn btn-default"
+                  href="{{logout_url}}"
+                >
+                  <i aria-hidden="true" class="fa fa-sign-out"></i> Logout</a
+                >
+                {% else %}
+                <a
+                  id="login"
+                  role="button"
+                  class="btn-sm btn navbar-btn btn-default"
+                  href="{{login_url}}"
+                  >Login</a
+                >
+                {% endif %}
+              </span>
+              {% endblock %}
+            </li>
+            {% endblock %}
+          </ul>
+        </div>
+
+        {% block header %} {% endblock %}
+      </div>
+    </nav>
+    {% endblock %} {% block main %} {% endblock %} {% block footer %} {%
+    endblock %}
+  </body>
+</html>

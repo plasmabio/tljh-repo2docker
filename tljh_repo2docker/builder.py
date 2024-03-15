@@ -2,22 +2,21 @@ import json
 import re
 
 from aiodocker import Docker, DockerError
-from jupyterhub.apihandlers import APIHandler
-from jupyterhub.scopes import needs_scope
 from tornado import web
 
+from .base import BaseHandler, require_admin_role
 from .docker import build_image
 
 IMAGE_NAME_RE = r"^[a-z0-9-_]+$"
 
 
-class BuildHandler(APIHandler):
+class BuildHandler(BaseHandler):
     """
     Handle requests to build user environments as Docker images
     """
 
     @web.authenticated
-    @needs_scope('admin-ui')
+    @require_admin_role
     async def delete(self):
         data = self.get_json_body()
         name = data["name"]
@@ -28,10 +27,11 @@ class BuildHandler(APIHandler):
                 raise web.HTTPError(e.status, e.message)
 
         self.set_status(200)
+        self.set_header("content-type", "application/json")
         self.finish(json.dumps({"status": "ok"}))
 
     @web.authenticated
-    @needs_scope('admin-ui')
+    @require_admin_role
     async def post(self):
         data = self.get_json_body()
         repo = data["repo"]
@@ -68,12 +68,12 @@ class BuildHandler(APIHandler):
         if buildargs:
             for barg in buildargs.split("\n"):
                 if "=" not in barg:
-                    raise web.HTTPError(
-                        400,
-                        "Invalid build argument format"
-                    )
+                    raise web.HTTPError(400, "Invalid build argument format")
                 extra_buildargs.append(barg)
-        await build_image(repo, ref, name, memory, cpu, username, password, extra_buildargs)
+        await build_image(
+            repo, ref, name, memory, cpu, username, password, extra_buildargs
+        )
 
         self.set_status(200)
+        self.set_header("content-type", "application/json")
         self.finish(json.dumps({"status": "ok"}))

@@ -21,15 +21,22 @@ export interface IAppProps {
 }
 export default function App(props: IAppProps) {
   const jhData = useJupyterhub();
-  const axios = useMemo(() => {
-    const baseUrl = jhData.baseUrl;
+
+  const hubClient = useMemo(() => {
+    const baseUrl = jhData.hubPrefix;
+    const xsrfToken = jhData.xsrfToken;
+    return new AxiosClient({ baseUrl, xsrfToken });
+  }, [jhData]);
+
+  const serviceClient = useMemo(() => {
+    const baseUrl = jhData.servicePrefix;
     const xsrfToken = jhData.xsrfToken;
     return new AxiosClient({ baseUrl, xsrfToken });
   }, [jhData]);
 
   return (
     <ThemeProvider theme={customTheme}>
-      <AxiosContext.Provider value={axios}>
+      <AxiosContext.Provider value={{ hubClient, serviceClient }}>
         <ScopedCssBaseline>
           <Stack sx={{ padding: 1 }} spacing={1}>
             <NewServerDialog

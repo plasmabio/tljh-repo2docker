@@ -22,15 +22,22 @@ if (rootElement) {
     configData = JSON.parse(dataElement.textContent || '') as IAppProps;
   }
   const jhData = (window as any).jhdata;
-  const { base_url, xsrf_token, user, prefix, admin_access } = jhData;
-
+  const {
+    base_url,
+    xsrf_token,
+    user,
+    hub_prefix,
+    service_prefix,
+    admin_access
+  } = jhData;
   root.render(
     <JupyterhubContext.Provider
       value={{
         baseUrl: base_url,
         xsrfToken: xsrf_token,
         user,
-        prefix,
+        hubPrefix: hub_prefix ?? base_url,
+        servicePrefix: service_prefix ?? base_url,
         adminAccess: admin_access
       }}
     >

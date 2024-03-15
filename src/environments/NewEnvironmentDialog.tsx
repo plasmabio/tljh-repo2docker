@@ -172,7 +172,7 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
             data.memory = data.memory ?? '2';
             data.username = data.username ?? '';
             data.password = data.password ?? '';
-            const response = await axios.request({
+            const response = await axios.serviceClient.request({
               method: 'post',
               prefix: API_PREFIX,
               path: ENV_PREFIX,

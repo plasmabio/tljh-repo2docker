@@ -2,14 +2,16 @@ import { createContext, useContext } from 'react';
 
 export interface IJupyterhubData {
   baseUrl: string;
-  prefix: string;
+  servicePrefix: string;
+  hubPrefix: string;
   user: string;
   adminAccess: boolean;
   xsrfToken: string;
 }
 export const JupyterhubContext = createContext<IJupyterhubData>({
   baseUrl: '',
-  prefix: '',
+  servicePrefix: '',
+  hubPrefix: '',
   user: '',
   adminAccess: false,
   xsrfToken: ''
