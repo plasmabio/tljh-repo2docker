@@ -49,7 +49,7 @@ c.JupyterHub.services.extend(
 )
 
 c.JupyterHub.custom_scopes = {
-    "custom:tljh_repo2docker:admin": {
+    TLJH_R2D_ADMIN_SCOPE: {
         "description": "Admin access to myservice",
     },
 }
