@@ -74,7 +74,7 @@ function _NewServerDialog(props: INewServerDialogProps) {
       path = jhData.user;
     }
     try {
-      await axios.request({
+      await axios.hubClient.request({
         method: 'post',
         prefix: SPAWN_PREFIX,
         path,

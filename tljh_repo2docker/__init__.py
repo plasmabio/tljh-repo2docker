@@ -1,30 +1,23 @@
-import os
-from typing import Any, Coroutine, Optional
-
 from aiodocker import Docker
 from dockerspawner import DockerSpawner
-from jinja2 import Environment, BaseLoader
+from jinja2 import BaseLoader, Environment
 from jupyter_client.localinterfaces import public_ips
-from jupyterhub.handlers.static import CacheControlStaticFilesHandler
 from jupyterhub.traitlets import ByteSpecification
-from tljh.hooks import hookimpl
 from tljh.configurer import load_config
+from tljh.hooks import hookimpl
 from traitlets import Unicode
 from traitlets.config import Configurable
 
-from .builder import BuildHandler
 from .docker import list_images
-from .servers import ServersHandler
-from .images import ImagesHandler
-from .logs import LogsHandler
 
 # Default CPU period
 # See: https://docs.docker.com/config/containers/resource_constraints/#limit-a-containers-access-to-memory#configure-the-default-cfs-scheduler
 CPU_PERIOD = 100_000
 
+TLJH_R2D_ADMIN_SCOPE = "custom:tljh_repo2docker:admin"
+
 
 class SpawnerMixin(Configurable):
-
     """
     Mixin for spawners that derive from DockerSpawner, to use local Docker images
     built with tljh-repo2docker.
@@ -135,7 +128,6 @@ class SpawnerMixin(Configurable):
         imagename = self.user_options.get("image")
         async with Docker() as docker:
             image = await docker.images.inspect(imagename)
-
         mem_limit = image["ContainerConfig"]["Labels"].get(
             "tljh_repo2docker.mem_limit", None
         )
@@ -175,48 +167,12 @@ def tljh_custom_jupyterhub_config(c):
     c.JupyterHub.cleanup_servers = False
     c.JupyterHub.spawner_class = Repo2DockerSpawner
 
-    # add extra templates for the service UI
-    c.JupyterHub.template_paths.insert(
-        0, os.path.join(os.path.dirname(__file__), "templates")
-    )
-
     # spawner
     c.DockerSpawner.cmd = ["jupyterhub-singleuser"]
     c.DockerSpawner.pull_policy = "Never"
     c.DockerSpawner.remove = True
 
-    # fetch limits from the TLJH config
-    tljh_config = load_config()
-    limits = tljh_config["limits"]
-    cpu_limit = limits["cpu"]
-    mem_limit = limits["memory"]
-
-    c.JupyterHub.tornado_settings.update(
-        {"default_cpu_limit": cpu_limit, "default_mem_limit": mem_limit}
-    )
-
-    machine_profiles = limits.get("machine_profiles", [])
-
-    c.JupyterHub.tornado_settings.update(
-        {"machine_profiles": machine_profiles}
-    )
-
-    # register the handlers to manage the user images
-    c.JupyterHub.extra_handlers.extend(
-        [
-            (r"servers", ServersHandler),
-            (r"environments", ImagesHandler),
-            (r"api/environments", BuildHandler),
-            (r"api/environments/([^/]+)/logs", LogsHandler),
-            (
-                r"environments-static/(.*)",
-                CacheControlStaticFilesHandler,
-                {"path": os.path.join(os.path.dirname(__file__), "static")},
-            ),
-        ]
-    )
-
 
 @hookimpl
 def tljh_extra_hub_pip_packages():
-    return ["dockerspawner~=0.11", "jupyter_client~=6.1", "aiodocker~=0.19"]
+    return ["dockerspawner~=0.11", "jupyter_client>=6.1,<8", "aiodocker~=0.19"]

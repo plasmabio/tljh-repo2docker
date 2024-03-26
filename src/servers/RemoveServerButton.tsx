@@ -22,7 +22,7 @@ function _RemoveServerButton(props: IRemoveServerButton) {
       path = `users/${jhData.user}/server`;
     }
     try {
-      await axios.request({
+      await axios.hubClient.request({
         method: 'delete',
         prefix: API_PREFIX,
         path,

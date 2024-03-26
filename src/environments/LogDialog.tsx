@@ -42,10 +42,10 @@ function _EnvironmentLogButton(props: IEnvironmentLogButton) {
 
       terminal.open(divRef.current);
       fitAddon.fit();
-      const { baseUrl, xsrfToken } = jhData;
+      const { servicePrefix, xsrfToken } = jhData;
 
       let logsUrl = urlJoin(
-        baseUrl,
+        servicePrefix,
         'api',
         'environments',
         props.image,

@@ -2,7 +2,7 @@
 
 ![Github Actions Status](https://github.com/plasmabio/tljh-repo2docker/workflows/Tests/badge.svg)
 
-TLJH plugin to build and use Docker images as user environments. The Docker images are built using [`repo2docker`](https://repo2docker.readthedocs.io/en/latest/).
+TLJH plugin providing a JupyterHub service to build and use Docker images as user environments. The Docker images are built using [`repo2docker`](https://repo2docker.readthedocs.io/en/latest/).
 
 ## Requirements
 
@@ -29,11 +29,115 @@ curl https://tljh.jupyter.org/bootstrap.py
   | sudo python3 - \
     --version 1.0.0 \
     --admin test:test \
-    --plugin git+https://github.com/plasmabio/tljh-repo2docker@master
+    --plugin tljh-repo2docker
 ```
 
 Refer to [The Littlest JupyterHub documentation](http://tljh.jupyter.org/en/latest/topic/customizing-installer.html?highlight=plugins#installing-tljh-plugins)
 for more info on installing TLJH plugins.
+
+## Configuration
+
+This Python package is designed for deployment as [a service managed by JupyterHub](https://jupyterhub.readthedocs.io/en/stable/reference/services.html#launching-a-hub-managed-service). The service runs its own Tornado server. Requests will be forwarded to it by the JupyterHub internal proxy from the standard URL `https://{my-hub-url}/services/my-service/`.
+
+The available settings for this service are:
+
+- `port`: Port of the service; defaults to 6789
+- `ip`: Internal IP of the service; defaults to 127.0.0.1
+- `default_memory_limit`: Default memory limit of a user server; defaults to `None`
+- `default_cpu_limit`: Default CPU limit of a user server; defaults to `None`
+- `machine_profiles`: Instead of entering directly the CPU and Memory value, `tljh-repo2docker` can be configured with pre-defined machine profiles and users can only choose from the available option; defaults to `[]`
+
+Here is an example of registering `tljh_repo2docker`'s service with JupyterHub
+
+```python
+# jupyterhub_config.py
+
+from tljh_repo2docker import TLJH_R2D_ADMIN_SCOPE
+
+c.JupyterHub.services.extend(
+    [
+        {
+            "name": "tljh_repo2docker",
+            "url": "http://127.0.0.1:6789", # URL must match the `ip` and `port` config
+            "command": [
+                sys.executable,
+                "-m",
+                "tljh_repo2docker",
+                "--ip",
+                "127.0.0.1",
+                "--port",
+                "6789"
+            ],
+            "oauth_no_confirm": True,
+        }
+    ]
+)
+# Set required scopes for the service and users
+c.JupyterHub.load_roles = [
+    {
+        "description": "Role for tljh_repo2docker service",
+        "name": "tljh-repo2docker-service",
+        "scopes": ["read:users", "read:servers", "read:roles:users"],
+        "services": ["tljh_repo2docker"],
+    },
+    {
+        "name": "user",
+        "scopes": [
+            "self",
+            # access to the serve page
+            "access:services!service=tljh_repo2docker",
+        ],
+    },
+]
+```
+
+By default, only users with an admin role can access the environment builder page and APIs, by leveraging the RBAC system of JupyterHub, non-admin users can also be granted the access right.
+
+Here is an example of the configuration
+
+```python
+# jupyterhub_config.py
+
+from tljh_repo2docker import TLJH_R2D_ADMIN_SCOPE
+
+c.JupyterHub.services.extend(
+    [
+        {
+            "name": "tljh_repo2docker",
+            "url": "http://127.0.0.1:6789",
+            "command": [
+                sys.executable,
+                "-m",
+                "tljh_repo2docker",
+                "--ip",
+                "127.0.0.1",
+                "--port",
+                "6789"
+            ],
+            "oauth_no_confirm": True,
+            "oauth_client_allowed_scopes": [
+                TLJH_R2D_ADMIN_SCOPE, # Allows this service to check if users have its admin scope.
+            ],
+        }
+    ]
+)
+
+c.JupyterHub.custom_scopes = {
+    TLJH_R2D_ADMIN_SCOPE: {
+        "description": "Admin access to tljh_repo2docker",
+    },
+}
+
+c.JupyterHub.load_roles = [
+    ... # Other role settings
+    {
+        "name": 'tljh-repo2docker-service-admin',
+        "users": ["alice"],
+        "scopes": [TLJH_R2D_ADMIN_SCOPE],
+    },
+]
+
+```
 
 ## Usage
 
@@ -41,25 +145,25 @@ for more info on installing TLJH plugins.
 
 The _Environments_ page shows the list of built environments, as well as the ones currently being built:
 
-![environments](https://user-images.githubusercontent.com/591645/80962805-056df500-8e0e-11ea-81ab-6efc1c97432d.png)
+![environments](https://raw.githubusercontent.com/plasmabio/tljh-repo2docker/master/ui-tests/tests/ui.test.ts-snapshots/environment-list-linux.png)
 
 ### Add a new environment
 
 Just like on [Binder](https://mybinder.org), new environments can be added by clicking on the _Add New_ button and providing a URL to the repository. Optional names, memory, and CPU limits can also be set for the environment:
 
-![add-new](https://user-images.githubusercontent.com/591645/80963115-9fce3880-8e0e-11ea-890b-c9b928f7edb1.png)
+![add-new](https://raw.githubusercontent.com/plasmabio/tljh-repo2docker/master/ui-tests/tests/ui.test.ts-snapshots/environment-dialog-linux.png)
 
 ### Follow the build logs
 
 Clicking on the _Logs_ button will open a new dialog with the build logs:
 
-![logs](https://user-images.githubusercontent.com/591645/82306574-86f18580-99bf-11ea-984b-4749ddde15e7.png)
+![logs](https://raw.githubusercontent.com/plasmabio/tljh-repo2docker/master/ui-tests/tests/ui.test.ts-snapshots/environment-console-linux.png)
 
 ### Select an environment
 
 Once ready, the environments can be selected from the JupyterHub spawn page:
 
-![select-env](https://user-images.githubusercontent.com/591645/81152248-10e22d00-8f82-11ea-9b5f-5831d8f7d085.png)
+![select-env](https://raw.githubusercontent.com/plasmabio/tljh-repo2docker/master/ui-tests/tests/ui.test.ts-snapshots/servers-dialog-linux.png)
 
 ### Private Repositories
 
@@ -67,26 +171,42 @@ Once ready, the environments can be selected from the JupyterHub spawn page:
 
 It is possible to provide the `username` and `password` in the `Credentials` section of the form:
 
-![image](https://user-images.githubusercontent.com/591645/107362654-51567480-6ad9-11eb-93be-74d3b1c37828.png)
+![image](https://raw.githubusercontent.com/plasmabio/tljh-repo2docker/master/ui-tests/tests/ui.test.ts-snapshots/environment-dialog-linux.png)
 
 On GitHub and GitLab, a user might have to first create an access token with `read` access to use as the password:
 
 ![image](https://user-images.githubusercontent.com/591645/107350843-39c3bf80-6aca-11eb-8b82-6fa95ba4c7e4.png)
 
-### Set CPU and Memory via machine profiles
+### Machine profiles
 
-Instead of entering directly the CPU and Memory value, `tljh-repo2docker` can be configured with pre-defined machine profiles and users can only choose from the available options. The following snippet will add 3 machines with labels `Small`, `Medium` and `Large` to the profile list:
+Instead of entering directly the CPU and Memory value, `tljh-repo2docker` can be configured with pre-defined machine profiles and users can only choose from the available options. The following configuration will add 3 machines with labels Small, Medium and Large to the profile list:
 
 ```python
-from tljh.configurer import apply_config, load_config
+c.JupyterHub.services.extend(
+    [
+        {
+            "name": "tljh_repo2docker",
+            "url": "http://127.0.0.1:6789",
+            "command": [
+                sys.executable,
+                "-m",
+                "tljh_repo2docker",
+                "--ip",
+                "127.0.0.1",
+                "--port",
+                "6789",
+                "--machine_profiles",
+                '{"label": "Small", "cpu": 2, "memory": 2}',
+                "--machine_profiles",
+                '{"label": "Medium", "cpu": 4, "memory": 4}',
+                "--machine_profiles",
+                '{"label": "Large", "cpu": 8, "memory": 8}'
 
-tljh_config = load_config()
-tljh_config["limits"]["machine_profiles"] = [
-    {"label": "Small", "cpu": 2, "memory": 2},
-    {"label": "Medium", "cpu": 4, "memory": 4},
-    {"label": "Large", "cpu": 8, "memory": 8},
-]
-apply_config(tljh_config, c)
+            ],
+            "oauth_no_confirm": True,
+        }
+    ]
+)
 ```
 
 ![image](https://github.com/plasmabio/tljh-repo2docker/assets/4451292/c1f0231e-a02d-41dc-85e0-97a97ffa0311)

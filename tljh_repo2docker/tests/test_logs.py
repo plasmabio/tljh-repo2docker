@@ -1,10 +1,9 @@
 import json
 
 import pytest
+from jupyterhub.tests.utils import async_requests
 
-from jupyterhub.tests.utils import api_request, async_requests
-
-from .utils import add_environment, wait_for_image
+from .utils import add_environment, api_request, wait_for_image
 
 
 def next_event(it):
@@ -39,6 +38,8 @@ async def test_stream_simple(app, minimal_repo, image_name):
 
 @pytest.mark.asyncio
 async def test_no_build(app, image_name, request):
-    r = await api_request(app, "environments", "image-not-found:12345", "logs", stream=True)
+    r = await api_request(
+        app, "environments", "image-not-found:12345", "logs", stream=True
+    )
     request.addfinalizer(r.close)
     assert r.status_code == 404
