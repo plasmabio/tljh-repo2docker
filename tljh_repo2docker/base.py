@@ -7,7 +7,7 @@ from httpx import AsyncClient
 from jinja2 import Template
 from jupyterhub.services.auth import HubOAuthenticated
 from jupyterhub.utils import url_path_join
-from tornado import web
+from tornado import web, version as tor_Version
 
 from tljh_repo2docker import TLJH_R2D_ADMIN_SCOPE
 
@@ -81,6 +81,14 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
         """
         user = await self.fetch_user()
         base_url = self.settings.get("base_url", "/")
+        version, token, timestamp = self._get_raw_xsrf_token()
+        self.settings["log"].info(
+            f"########## CHECKING RAW {token} timescpae {timestamp} version {version} tornado {tor_Version}"
+        )
+        self.settings["log"].info(
+            f'########## SENDING  {self.xsrf_token.decode("ascii")} version {self.settings.get("xsrf_cookie_version", "NOTFOUND")}'
+        )
+
         template_ns = dict(
             service_prefix=self.settings.get("service_prefix", "/"),
             hub_prefix=self.settings.get("hub_prefix", "/"),
