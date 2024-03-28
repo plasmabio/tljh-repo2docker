@@ -39,6 +39,7 @@ if (rootElement) {
     service_prefix,
     admin_access
   } = jhData;
+  console.log('USING ###########', xsrf_token);
   root.render(
     <JupyterhubContext.Provider
       value={{

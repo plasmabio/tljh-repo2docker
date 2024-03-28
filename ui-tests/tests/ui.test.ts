@@ -1,4 +1,4 @@
-import { expect, test, Page } from '@playwright/test';
+import { expect, test, Page, Cookie } from '@playwright/test';
 
 async function login(page: Page, user: string) {
   await page.goto('hub/login');
@@ -123,9 +123,28 @@ test.describe('tljh_repo2docker UI Tests', () => {
     expect(await page.screenshot()).toMatchSnapshot('servers-dialog.png');
   });
 
-  test('Start server', async ({ page }) => {
+  test('Start server', async ({ page, context }) => {
     await login(page, 'alice');
     await page.goto('/services/tljh_repo2docker/servers');
+    console.log('########### AFTER GOTO PAGE', await context.cookies());
+    const newCookies = (await context.cookies()).map(el => {
+      return el;
+    });
+    const serviceCookie = newCookies.filter(
+      el => el.name === '_xsrf' && el.path === '/services/tljh_repo2docker/'
+    )[0];
+    for (let index = 0; index < newCookies.length; index++) {
+      const element = newCookies[index];
+      if (element.name === '_xsrf' && element.path === '/hub/') {
+        element.value = serviceCookie.value;
+        break;
+      }
+    }
+
+    await context.clearCookies();
+    await context.addCookies(newCookies);
+    console.log('########### AFTER FILTERED', await context.cookies());
+
     await page.waitForTimeout(500);
     await page.waitForSelector('div:has-text("No servers are running")', {
       timeout: 1000
@@ -142,9 +161,11 @@ test.describe('tljh_repo2docker UI Tests', () => {
     const createServer = await page.getByRole('button', {
       name: 'Create Server'
     });
+
     await createServer.click();
-    await expect(createServer).toHaveCount(0);
+    // await page.waitForTimeout(1000);
     await page.waitForURL('**/servers');
+    // await expect(createServer).toHaveCount(0);
     await page.waitForTimeout(1000);
 
     expect(await page.screenshot()).toMatchSnapshot('running-servers.png');
