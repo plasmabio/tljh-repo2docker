@@ -16,8 +16,8 @@ import { IEnvironmentData } from '../environments/types';
 import { SmallTextField } from '../common/SmallTextField';
 
 import { useAxios } from '../common/AxiosContext';
-import { SPAWN_PREFIX } from '../common/axiosclient';
 import { useJupyterhub } from '../common/JupyterhubContext';
+import { SERVER_PREFIX } from './types';
 export interface INewServerDialogProps {
   images: IEnvironmentData[];
   allowNamedServers: boolean;
@@ -65,22 +65,18 @@ function _NewServerDialog(props: INewServerDialogProps) {
 
   const createServer = useCallback(async () => {
     const imageName = props.images[rowSelectionModel[0] as number].image_name;
-    const data = new FormData();
-    data.append('image', imageName);
-    let path = '';
-    if (serverName.length > 0) {
-      path = `${jhData.user}/${serverName}`;
-    } else {
-      path = jhData.user;
-    }
+    const data: { [key: string]: string } = {
+      imageName,
+      userName: jhData.user,
+      serverName
+    };
     try {
-      await axios.hubClient.request({
+      await axios.serviceClient.request({
         method: 'post',
-        prefix: SPAWN_PREFIX,
-        path,
+        path: SERVER_PREFIX,
         data
       });
-      window.location.reload();
+      // window.location.reload();
     } catch (e: any) {
       console.error(e);
     }

@@ -37,8 +37,7 @@ c.JupyterHub.services.extend(
                 "--machine_profiles",
                 '{"label": "Medium", "cpu": 4, "memory": 4}',
                 "--machine_profiles",
-                '{"label": "Large", "cpu": 8, "memory": 8}'
-
+                '{"label": "Large", "cpu": 8, "memory": 8}',
             ],
             "oauth_no_confirm": True,
             "oauth_client_allowed_scopes": [
@@ -58,11 +57,11 @@ c.JupyterHub.load_roles = [
     {
         "description": "Role for tljh_repo2docker service",
         "name": "tljh-repo2docker-service",
-        "scopes": ["read:users", "read:servers", "read:roles:users"],
+        "scopes": ["read:users", "read:servers", "read:roles:users", "admin:servers"],
         "services": ["tljh_repo2docker"],
     },
     {
-        "name": 'tljh-repo2docker-service-admin',
+        "name": "tljh-repo2docker-service-admin",
         "users": ["alice"],
         "scopes": [TLJH_R2D_ADMIN_SCOPE],
     },

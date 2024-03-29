@@ -157,6 +157,7 @@ class TljhRepo2Docker(Application):
         handlers = []
         static_path = str(HERE / "static")
         server_url = url_path_join(self.service_prefix, r"servers")
+        environments_url = url_path_join(self.service_prefix, r"environments")
         handlers.extend(
             [
                 (
@@ -176,7 +177,7 @@ class TljhRepo2Docker(Application):
                 (self.service_prefix, web.RedirectHandler, {"url": server_url}),
                 (server_url, ServersHandler),
                 (
-                    url_path_join(self.service_prefix, r"environments"),
+                    environments_url,
                     EnvironmentsHandler,
                 ),
                 (url_path_join(self.service_prefix, r"api/environments"), BuildHandler),

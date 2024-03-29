@@ -15,15 +15,15 @@ export class AxiosClient {
 
   async request<T = any>(args: {
     method: 'get' | 'post' | 'put' | 'option' | 'delete';
-    prefix: 'api' | 'spawn';
+    prefix?: 'api' | 'spawn';
     path: string;
     query?: string;
     data?: { [key: string]: any } | FormData;
   }): Promise<T> {
     const { method, path } = args;
-
+    const prefix = args.prefix ?? '';
     const data = args.data ?? {};
-    let url = urlJoin(args.prefix, encodeUriComponents(path));
+    let url = urlJoin(prefix, encodeUriComponents(path));
     if (args.query) {
       const sep = url.indexOf('?') === -1 ? '?' : '&';
       url = `${url}${sep}${args.query}`;

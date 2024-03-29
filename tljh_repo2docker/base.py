@@ -42,7 +42,7 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
             api_token = os.environ.get("JUPYTERHUB_API_TOKEN", None)
             BaseHandler._client = AsyncClient(
                 base_url=api_url,
-                headers={f"Authorization": f"Bearer {api_token}"},
+                headers={"Authorization": f"Bearer {api_token}"},
             )
         return BaseHandler._client
 
