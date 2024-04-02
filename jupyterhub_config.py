@@ -14,6 +14,8 @@ apply_config(tljh_config, c)
 
 tljh_custom_jupyterhub_config(c)
 
+c.JupyterHub.default_url = '/services/tljh_repo2docker/'
+
 c.JupyterHub.authenticator_class = DummyAuthenticator
 
 c.JupyterHub.allow_named_servers = True

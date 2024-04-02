@@ -76,9 +76,9 @@ function _NewServerDialog(props: INewServerDialogProps) {
         path: SERVER_PREFIX,
         data
       });
-      // window.location.reload();
+      window.location.reload();
     } catch (e: any) {
-      console.error(e);
+      alert(e);
     }
   }, [serverName, rowSelectionModel, props.images, axios, jhData]);
   const disabled = useMemo(() => {

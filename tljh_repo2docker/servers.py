@@ -1,6 +1,5 @@
 from inspect import isawaitable
 
-import requests
 from tornado import web
 from jupyterhub.utils import url_path_join
 from .base import BaseHandler
@@ -56,5 +55,28 @@ class ServersHandler(BaseHandler):
         try:
             response = await self.client.post(path, json=post_data)
             response.raise_for_status()
-        except requests.exceptions.HTTPError as e:
-            print(e)
+        except Exception:
+            raise web.HTTPError(500, "Server error")
+        self.finish(0)
+
+    @web.authenticated
+    async def delete(self):
+        data = self.get_json_body()
+        user_name = data.get("userName", None)
+        server_name = data.get("serverName", "")
+        if user_name != self.current_user["name"]:
+            raise web.HTTPError(403, "Unauthorized")
+
+        path = ""
+        post_data = {}
+        if len(server_name) > 0:
+            path = url_path_join("users", user_name, "servers", server_name)
+            post_data = {"remove": True}
+        else:
+            path = url_path_join("users", user_name, "server")
+        try:
+            response = await self.client.request("DELETE", path, json=post_data)
+            response.raise_for_status()
+        except Exception as e:
+            raise web.HTTPError(500, "Server error")
+        self.finish("0")

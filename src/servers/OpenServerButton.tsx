@@ -5,7 +5,7 @@ import { useAxios } from '../common/AxiosContext';
 import { useJupyterhub } from '../common/JupyterhubContext';
 import urlJoin from 'url-join';
 import SyncIcon from '@mui/icons-material/Sync';
-import { SPAWN_PREFIX } from '../common/axiosclient';
+import { SERVER_PREFIX } from './types';
 
 interface IOpenServerButton {
   url: string;
@@ -30,7 +30,7 @@ function _OpenServerButton(props: IOpenServerButton) {
       props.serverName,
       'progress'
     );
-    if (xsrfToken) {
+    if (!xsrfToken) {
       // add xsrf token to url parameter
       const sep = progressUrl.indexOf('?') === -1 ? '?' : '&';
       progressUrl = progressUrl + sep + '_xsrf=' + xsrfToken;
@@ -51,13 +51,15 @@ function _OpenServerButton(props: IOpenServerButton) {
 
   const createServer = useCallback(async () => {
     const imageName = props.imageName;
-    const data = new FormData();
-    data.append('image', imageName);
+    const data = {
+      imageName,
+      userName: jhData.user,
+      serverName: props.serverName
+    };
     try {
-      await axios.hubClient.request({
+      await axios.serviceClient.request({
         method: 'post',
-        prefix: SPAWN_PREFIX,
-        path: `${jhData.user}/${props.serverName}`,
+        path: SERVER_PREFIX,
         data
       });
       window.open(props.url, '_blank')?.focus();

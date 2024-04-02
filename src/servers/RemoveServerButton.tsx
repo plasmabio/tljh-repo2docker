@@ -5,7 +5,7 @@ import { memo, useCallback } from 'react';
 import { useAxios } from '../common/AxiosContext';
 import { ButtonWithConfirm } from '../common/ButtonWithConfirm';
 import { useJupyterhub } from '../common/JupyterhubContext';
-import { API_PREFIX } from '../common/axiosclient';
+import { SERVER_PREFIX } from './types';
 
 interface IRemoveServerButton {
   server: string;
@@ -15,24 +15,20 @@ function _RemoveServerButton(props: IRemoveServerButton) {
   const axios = useAxios();
   const jhData = useJupyterhub();
   const removeEnv = useCallback(async () => {
-    let path = '';
-    if (props.server.length > 0) {
-      path = `users/${jhData.user}/servers/${props.server}`;
-    } else {
-      path = `users/${jhData.user}/server`;
-    }
     try {
-      await axios.hubClient.request({
+      await axios.serviceClient.request({
         method: 'delete',
-        prefix: API_PREFIX,
-        path,
-        data: { remove: props.server.length > 0 }
+        path: SERVER_PREFIX,
+        data: {
+          userName: jhData.user,
+          serverName: props.server
+        }
       });
       window.location.reload();
     } catch (e: any) {
       console.error(e);
     }
-  }, [props.server, axios, jhData]);
+  }, [props.server, axios, jhData.user]);
 
   return (
     <ButtonWithConfirm
