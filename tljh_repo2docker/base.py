@@ -85,7 +85,7 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
             service_prefix=self.settings.get("service_prefix", "/"),
             hub_prefix=self.settings.get("hub_prefix", "/"),
             base_url=base_url,
-            logo_url=url_path_join(base_url,'hub','home'),
+            logo_url=url_path_join(base_url, "hub", "home"),
             logout_url=self.settings.get(
                 "logout_url", url_path_join(base_url, "logout")
             ),

@@ -1,10 +1,8 @@
-import { Button, IconButton } from '@mui/material';
-import { Fragment, memo, useCallback, useEffect, useState } from 'react';
+import { Button } from '@mui/material';
+import { Fragment, memo, useCallback } from 'react';
 
 import { useAxios } from '../common/AxiosContext';
 import { useJupyterhub } from '../common/JupyterhubContext';
-import urlJoin from 'url-join';
-import SyncIcon from '@mui/icons-material/Sync';
 import { SERVER_PREFIX } from './types';
 
 interface IOpenServerButton {
@@ -18,37 +16,6 @@ function _OpenServerButton(props: IOpenServerButton) {
   const axios = useAxios();
   const jhData = useJupyterhub();
 
-  const [progress, setProgress] = useState(0);
-  useEffect(() => {
-    const { user, hubPrefix, xsrfToken } = jhData;
-    let progressUrl = urlJoin(
-      hubPrefix,
-      'api',
-      'users',
-      user,
-      'servers',
-      props.serverName,
-      'progress'
-    );
-    if (!xsrfToken) {
-      // add xsrf token to url parameter
-      const sep = progressUrl.indexOf('?') === -1 ? '?' : '&';
-      progressUrl = progressUrl + sep + '_xsrf=' + xsrfToken;
-    }
-
-    const eventSource = new EventSource(progressUrl);
-    eventSource.onerror = err => {
-      setProgress(100);
-      eventSource.close();
-    };
-
-    eventSource.onmessage = event => {
-      const data = JSON.parse(event.data);
-
-      setProgress(data.progress ?? 0);
-    };
-  }, [jhData, setProgress, props.serverName]);
-
   const createServer = useCallback(async () => {
     const imageName = props.imageName;
     const data = {
@@ -59,6 +26,7 @@ function _OpenServerButton(props: IOpenServerButton) {
     try {
       await axios.serviceClient.request({
         method: 'post',
+        prefix: 'api',
         path: SERVER_PREFIX,
         data
       });
@@ -71,37 +39,13 @@ function _OpenServerButton(props: IOpenServerButton) {
 
   return (
     <Fragment>
-      {progress === 100 && (
-        <Fragment>
-          {props.active && (
-            <Button href={props.url} target="_blank">
-              Open Server
-            </Button>
-          )}
+      {props.active && (
+        <Button href={props.url} target="_blank">
+          Open Server
+        </Button>
+      )}
 
-          {!props.active && (
-            <Button onClick={createServer}>Launch server</Button>
-          )}
-        </Fragment>
-      )}
-      {progress < 100 && (
-        <IconButton title="Starting">
-          <SyncIcon
-            sx={{
-              animation: 'spin 2s linear infinite',
-              '@keyframes spin': {
-                '0%': {
-                  transform: 'rotate(360deg)'
-                },
-                '100%': {
-                  transform: 'rotate(0deg)'
-                }
-              }
-            }}
-            htmlColor="orange"
-          />
-        </IconButton>
-      )}
+      {!props.active && <Button onClick={createServer}>Launch server</Button>}
     </Fragment>
   );
 }

@@ -19,8 +19,9 @@ export class AxiosClient {
     path: string;
     query?: string;
     data?: { [key: string]: any } | FormData;
+    params?: { [key: string]: string };
   }): Promise<T> {
-    const { method, path } = args;
+    const { method, path, params } = args;
     const prefix = args.prefix ?? '';
     const data = args.data ?? {};
     let url = urlJoin(prefix, encodeUriComponents(path));
@@ -35,7 +36,8 @@ export class AxiosClient {
     const response = await this._axios.request<T>({
       method,
       url,
-      data
+      data,
+      params
     });
     return response.data;
   }

@@ -19,6 +19,7 @@ function _RemoveServerButton(props: IRemoveServerButton) {
       await axios.serviceClient.request({
         method: 'delete',
         path: SERVER_PREFIX,
+        prefix: 'api',
         data: {
           userName: jhData.user,
           serverName: props.server

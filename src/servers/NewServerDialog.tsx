@@ -18,6 +18,7 @@ import { SmallTextField } from '../common/SmallTextField';
 import { useAxios } from '../common/AxiosContext';
 import { useJupyterhub } from '../common/JupyterhubContext';
 import { SERVER_PREFIX } from './types';
+
 export interface INewServerDialogProps {
   images: IEnvironmentData[];
   allowNamedServers: boolean;
@@ -36,6 +37,7 @@ function _NewServerDialog(props: INewServerDialogProps) {
   const axios = useAxios();
   const jhData = useJupyterhub();
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [serverName, setServerName] = useState<string>('');
   const handleOpen = () => {
     setOpen(true);
@@ -71,13 +73,16 @@ function _NewServerDialog(props: INewServerDialogProps) {
       serverName
     };
     try {
+      setLoading(true);
       await axios.serviceClient.request({
         method: 'post',
+        prefix: 'api',
         path: SERVER_PREFIX,
         data
       });
       window.location.reload();
     } catch (e: any) {
+      setLoading(false);
       alert(e);
     }
   }, [serverName, rowSelectionModel, props.images, axios, jhData]);
@@ -102,6 +107,7 @@ function _NewServerDialog(props: INewServerDialogProps) {
       </Box>
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth={'md'}>
         <DialogTitle>Server Options</DialogTitle>
+
         <DialogContent>
           {props.allowNamedServers && (
             <Box sx={{ padding: 1 }}>
@@ -127,8 +133,10 @@ function _NewServerDialog(props: INewServerDialogProps) {
             selectable
             rowSelectionModel={rowSelectionModel}
             setRowSelectionModel={updateSelectedRow}
+            loading={loading}
           />
         </DialogContent>
+
         <DialogActions>
           <Button variant="contained" color="error" onClick={handleClose}>
             Cancel
