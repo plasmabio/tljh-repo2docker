@@ -58,7 +58,7 @@ c.JupyterHub.load_roles = [
     {
         "description": "Role for tljh_repo2docker service",
         "name": "tljh-repo2docker-service",
-        "scopes": ["read:users", "read:servers", "read:roles:users", "admin:servers"],
+        "scopes": ["read:users", "read:roles:users", "admin:servers"],
         "services": ["tljh_repo2docker"],
     },
     {
