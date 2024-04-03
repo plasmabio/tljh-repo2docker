@@ -47,12 +47,13 @@ The available settings for this service are:
 - `default_cpu_limit`: Default CPU limit of a user server; defaults to `None`
 - `machine_profiles`: Instead of entering directly the CPU and Memory value, `tljh-repo2docker` can be configured with pre-defined machine profiles and users can only choose from the available option; defaults to `[]`
 
-Here is an example of registering `tljh_repo2docker`'s service with JupyterHub
+This service requires the following scopes : `read:users`, `admin:servers` and `read:roles:users`. Here is an example of registering `tljh_repo2docker`'s service with JupyterHub
 
 ```python
 # jupyterhub_config.py
 
 from tljh_repo2docker import TLJH_R2D_ADMIN_SCOPE
+import sys
 
 c.JupyterHub.services.extend(
     [
@@ -77,7 +78,7 @@ c.JupyterHub.load_roles = [
     {
         "description": "Role for tljh_repo2docker service",
         "name": "tljh-repo2docker-service",
-        "scopes": ["read:users", "read:servers", "read:roles:users"],
+        "scopes": ["read:users", "admin:servers", "read:roles:users"],
         "services": ["tljh_repo2docker"],
     },
     {
@@ -99,6 +100,7 @@ Here is an example of the configuration
 # jupyterhub_config.py
 
 from tljh_repo2docker import TLJH_R2D_ADMIN_SCOPE
+import sys
 
 c.JupyterHub.services.extend(
     [

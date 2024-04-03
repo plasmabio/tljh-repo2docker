@@ -93,7 +93,6 @@ function _ServerList(props: IServerListProps) {
 
     return allServers;
   }, [props]);
-
   return (
     <Box sx={{ padding: 1 }}>
       <DataGrid

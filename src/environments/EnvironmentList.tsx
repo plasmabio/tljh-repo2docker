@@ -91,6 +91,7 @@ export interface IEnvironmentListProps {
   selectable?: boolean;
   rowSelectionModel?: GridRowSelectionModel;
   setRowSelectionModel?: (selected: GridRowSelectionModel) => void;
+  loading?: boolean;
 }
 
 function _EnvironmentList(props: IEnvironmentListProps) {
@@ -111,6 +112,7 @@ function _EnvironmentList(props: IEnvironmentListProps) {
   return (
     <Box sx={{ padding: 1 }}>
       <DataGrid
+        loading={Boolean(props.loading)}
         rows={rows}
         columns={columns}
         initialState={{

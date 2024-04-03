@@ -18,15 +18,14 @@ class UserModel:
     def all_spawners(self) -> list:
         sp = []
         for server in self.servers.values():
-            if len(server["name"]) > 0:
+            active = bool(server.get("pending", None) or server.get("ready", False))
+            if active or len(server["name"]) > 0:
                 sp.append(
                     {
                         "name": server.get("name", ""),
                         "url": server.get("url", ""),
                         "last_activity": server.get("last_activity", None),
-                        "active": bool(
-                            server.get("pending", None) or server.get("ready", False)
-                        ),
+                        "active": active,
                         "user_options": server.get("user_options", None),
                     }
                 )

@@ -17,7 +17,6 @@ class ServersHandler(BaseHandler):
         user_data = await self.fetch_user()
 
         server_data = user_data.all_spawners()
-
         named_server_limit = 0
         result = self.render_template(
             "servers.html",

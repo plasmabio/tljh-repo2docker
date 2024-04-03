@@ -42,7 +42,7 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
             api_token = os.environ.get("JUPYTERHUB_API_TOKEN", None)
             BaseHandler._client = AsyncClient(
                 base_url=api_url,
-                headers={f"Authorization": f"Bearer {api_token}"},
+                headers={"Authorization": f"Bearer {api_token}"},
             )
         return BaseHandler._client
 
@@ -85,6 +85,7 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
             service_prefix=self.settings.get("service_prefix", "/"),
             hub_prefix=self.settings.get("hub_prefix", "/"),
             base_url=base_url,
+            logo_url=url_path_join(base_url, "hub", "home"),
             logout_url=self.settings.get(
                 "logout_url", url_path_join(base_url, "logout")
             ),

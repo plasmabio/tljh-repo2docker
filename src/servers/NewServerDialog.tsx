@@ -16,8 +16,9 @@ import { IEnvironmentData } from '../environments/types';
 import { SmallTextField } from '../common/SmallTextField';
 
 import { useAxios } from '../common/AxiosContext';
-import { SPAWN_PREFIX } from '../common/axiosclient';
 import { useJupyterhub } from '../common/JupyterhubContext';
+import { SERVER_PREFIX } from './types';
+
 export interface INewServerDialogProps {
   images: IEnvironmentData[];
   allowNamedServers: boolean;
@@ -36,6 +37,7 @@ function _NewServerDialog(props: INewServerDialogProps) {
   const axios = useAxios();
   const jhData = useJupyterhub();
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [serverName, setServerName] = useState<string>('');
   const handleOpen = () => {
     setOpen(true);
@@ -65,24 +67,22 @@ function _NewServerDialog(props: INewServerDialogProps) {
 
   const createServer = useCallback(async () => {
     const imageName = props.images[rowSelectionModel[0] as number].image_name;
-    const data = new FormData();
-    data.append('image', imageName);
-    let path = '';
-    if (serverName.length > 0) {
-      path = `${jhData.user}/${serverName}`;
-    } else {
-      path = jhData.user;
-    }
+    const data: { [key: string]: string } = {
+      imageName,
+      userName: jhData.user,
+      serverName
+    };
     try {
-      await axios.hubClient.request({
+      setLoading(true);
+      await axios.serviceClient.request({
         method: 'post',
-        prefix: SPAWN_PREFIX,
-        path,
+        path: SERVER_PREFIX,
         data
       });
       window.location.reload();
     } catch (e: any) {
-      console.error(e);
+      setLoading(false);
+      alert(e);
     }
   }, [serverName, rowSelectionModel, props.images, axios, jhData]);
   const disabled = useMemo(() => {
@@ -106,6 +106,7 @@ function _NewServerDialog(props: INewServerDialogProps) {
       </Box>
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth={'md'}>
         <DialogTitle>Server Options</DialogTitle>
+
         <DialogContent>
           {props.allowNamedServers && (
             <Box sx={{ padding: 1 }}>
@@ -131,8 +132,10 @@ function _NewServerDialog(props: INewServerDialogProps) {
             selectable
             rowSelectionModel={rowSelectionModel}
             setRowSelectionModel={updateSelectedRow}
+            loading={loading}
           />
         </DialogContent>
+
         <DialogActions>
           <Button variant="contained" color="error" onClick={handleClose}>
             Cancel

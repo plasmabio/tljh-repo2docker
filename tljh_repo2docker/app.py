@@ -16,6 +16,7 @@ from .builder import BuildHandler
 from .environments import EnvironmentsHandler
 from .logs import LogsHandler
 from .servers import ServersHandler
+from .servers_api import ServersAPIHandler
 
 if os.environ.get("JUPYTERHUB_API_TOKEN"):
     from jupyterhub.services.auth import HubOAuthCallbackHandler
@@ -175,6 +176,10 @@ class TljhRepo2Docker(Application):
                 ),
                 (self.service_prefix, web.RedirectHandler, {"url": server_url}),
                 (server_url, ServersHandler),
+                (
+                    url_path_join(self.service_prefix, r"api/servers"),
+                    ServersAPIHandler,
+                ),
                 (
                     url_path_join(self.service_prefix, r"environments"),
                     EnvironmentsHandler,
