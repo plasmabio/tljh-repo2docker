@@ -15,7 +15,6 @@ import {
 } from '@mui/material';
 import { Fragment, memo, useCallback, useMemo, useState } from 'react';
 
-import { API_PREFIX } from '../common/axiosclient';
 import { useAxios } from '../common/AxiosContext';
 import { SmallTextField } from '../common/SmallTextField';
 import { ENV_PREFIX } from './types';
@@ -174,7 +173,6 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
             data.password = data.password ?? '';
             const response = await axios.serviceClient.request({
               method: 'post',
-              prefix: API_PREFIX,
               path: ENV_PREFIX,
               data
             });

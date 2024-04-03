@@ -26,7 +26,6 @@ function _OpenServerButton(props: IOpenServerButton) {
     try {
       await axios.serviceClient.request({
         method: 'post',
-        prefix: 'api',
         path: SERVER_PREFIX,
         data
       });

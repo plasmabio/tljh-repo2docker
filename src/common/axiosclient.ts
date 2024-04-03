@@ -2,8 +2,6 @@ import urlJoin from 'url-join';
 import { encodeUriComponents } from './utils';
 import axios, { AxiosInstance } from 'axios';
 
-export const API_PREFIX = 'api';
-export const SPAWN_PREFIX = 'spawn';
 export class AxiosClient {
   constructor(options: AxiosClient.IOptions) {
     this._baseUrl = options.baseUrl ?? '';
@@ -15,14 +13,13 @@ export class AxiosClient {
 
   async request<T = any>(args: {
     method: 'get' | 'post' | 'put' | 'option' | 'delete';
-    prefix?: 'api' | 'spawn';
     path: string;
     query?: string;
     data?: { [key: string]: any } | FormData;
     params?: { [key: string]: string };
   }): Promise<T> {
     const { method, path, params } = args;
-    const prefix = args.prefix ?? '';
+    const prefix = 'api';
     const data = args.data ?? {};
     let url = urlJoin(prefix, encodeUriComponents(path));
     if (args.query) {

@@ -5,7 +5,6 @@ import { memo, useCallback } from 'react';
 import { useAxios } from '../common/AxiosContext';
 import { ButtonWithConfirm } from '../common/ButtonWithConfirm';
 import { ENV_PREFIX } from './types';
-import { API_PREFIX } from '../common/axiosclient';
 
 interface IRemoveEnvironmentButton {
   name: string;
@@ -18,7 +17,6 @@ function _RemoveEnvironmentButton(props: IRemoveEnvironmentButton) {
   const removeEnv = useCallback(async () => {
     const response = await axios.serviceClient.request({
       method: 'delete',
-      prefix: API_PREFIX,
       path: ENV_PREFIX,
       data: { name: props.image }
     });
