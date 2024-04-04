@@ -59,6 +59,28 @@ You can find below the list of changes since the creation of the plugin.
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.0.0a0
+
+([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v1.0.1...094e4635ca9329ccab20e06eb1c0fefa4b8aa664))
+
+### Enhancements made
+
+- Start single server from backend [#81](https://github.com/plasmabio/tljh-repo2docker/pull/81) ([@trungleduc](https://github.com/trungleduc))
+- Switch to JupyterHub service [#75](https://github.com/plasmabio/tljh-repo2docker/pull/75) ([@trungleduc](https://github.com/trungleduc))
+- Add react-based frontend [#69](https://github.com/plasmabio/tljh-repo2docker/pull/69) ([@trungleduc](https://github.com/trungleduc))
+
+### Maintenance and upkeep improvements
+
+- Update to JupyterHub 4 and TLJH 1.0, use `pytest-jupyterhub` [#65](https://github.com/plasmabio/tljh-repo2docker/pull/65) ([@jtpio](https://github.com/jtpio))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2024-03-11&to=2024-04-03&type=c))
+
+[@jtpio](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Ajtpio+updated%3A2024-03-11..2024-04-03&type=Issues) | [@trungleduc](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2024-03-11..2024-04-03&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.0.1
 
 ([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v1.0.0...98eaec34e3617c1e9bb83b2b4b09b2e4866fe8a0))
@@ -78,5 +100,3 @@ You can find below the list of changes since the creation of the plugin.
 ([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2023-11-17&to=2024-03-11&type=c))
 
 [@jtpio](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Ajtpio+updated%3A2023-11-17..2024-03-11&type=Issues) | [@trungleduc](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2023-11-17..2024-03-11&type=Issues) | [@yamaton](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Ayamaton+updated%3A2023-11-17..2024-03-11&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
