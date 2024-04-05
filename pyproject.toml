@@ -7,7 +7,7 @@ dependencies = [
   "aiodocker~=0.19",
   "dockerspawner~=12.1",
   "jupyter_client>=6.1,<8",
-  "httpx"
+  "httpx",
 ]
 dynamic = ["version"]
 license = {file = "LICENSE"}

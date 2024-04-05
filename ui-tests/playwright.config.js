@@ -13,7 +13,7 @@ module.exports = {
     }
   },
   webServer: {
-    command: 'python -m jupyterhub -f ../jupyterhub_config.py',
+    command: 'python -m jupyterhub -f ./jupyterhub_config.py',
     url: 'http://localhost:8000',
     timeout: 120 * 1000,
     reuseExistingServer: true

@@ -33,12 +33,8 @@ c.JupyterHub.services.extend(
                 "127.0.0.1",
                 "--port",
                 "6789",
-                "--machine_profiles",
-                '{"label": "Small", "cpu": 2, "memory": 2}',
-                "--machine_profiles",
-                '{"label": "Medium", "cpu": 4, "memory": 4}',
-                "--machine_profiles",
-                '{"label": "Large", "cpu": 8, "memory": 8}',
+                "--config",
+                "tljh_repo2docker_config.py"
             ],
             "oauth_no_confirm": True,
             "oauth_client_allowed_scopes": [

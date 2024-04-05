@@ -49,7 +49,7 @@ docker pull quay.io/jupyterhub/repo2docker:main
 Finally, start `jupyterhub` with the config in `debug` mode:
 
 ```bash
-python -m jupyterhub -f jupyterhub_config.py --debug
+python -m jupyterhub -f ui-tests/jupyterhub_config.py --debug
 ```
 
 Open https://localhost:8000 in a web browser.

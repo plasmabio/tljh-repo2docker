@@ -30,3 +30,4 @@ lib/
 
 # Hatch version
 _version.py
+*.sqlite

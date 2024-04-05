@@ -3,7 +3,6 @@ from dockerspawner import DockerSpawner
 from jinja2 import BaseLoader, Environment
 from jupyter_client.localinterfaces import public_ips
 from jupyterhub.traitlets import ByteSpecification
-from tljh.configurer import load_config
 from tljh.hooks import hookimpl
 from traitlets import Unicode
 from traitlets.config import Configurable

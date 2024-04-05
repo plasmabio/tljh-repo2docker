@@ -3,6 +3,7 @@ import os
 import socket
 import typing as tp
 from pathlib import Path
+from urllib.parse import urlparse
 
 from jinja2 import Environment, PackageLoader
 from jupyterhub.app import DATA_FILES_PATH
@@ -13,6 +14,7 @@ from traitlets import Dict, Int, List, Unicode, default, validate
 from traitlets.config.application import Application
 
 from .builder import BuildHandler
+from .dbutil import async_session_context_factory, sync_to_async_url, upgrade_if_needed
 from .environments import EnvironmentsHandler
 from .logs import LogsHandler
 from .servers import ServersHandler
@@ -118,9 +120,25 @@ class TljhRepo2Docker(Application):
         allow_none=True,
     )
 
+    db_url = Unicode(
+        "sqlite:///tljh_repo2docker.sqlite",
+        help="url for the database.",
+    ).tag(config=True)
+
+    config_file = Unicode(
+        "tljh_repo2docker_config.py",
+        help="""
+        Config file to load.
+
+        If a relative path is provided, it is taken relative to current directory
+        """,
+        config=True,
+    )
+
     aliases = {
         "port": "TljhRepo2Docker.port",
         "ip": "TljhRepo2Docker.ip",
+        "config": "TljhRepo2Docker.config_file",
         "default_memory_limit": "TljhRepo2Docker.default_memory_limit",
         "default_cpu_limit": "TljhRepo2Docker.default_cpu_limit",
         "machine_profiles": "TljhRepo2Docker.machine_profiles",
@@ -128,6 +146,9 @@ class TljhRepo2Docker(Application):
 
     def init_settings(self) -> tp.Dict:
         """Initialize settings for the service application."""
+
+        self.load_config_file(self.config_file)
+
         static_path = DATA_FILES_PATH + "/static/"
         static_url_prefix = self.service_prefix + "static/"
         env_opt = {"autoescape": True}
@@ -151,6 +172,8 @@ class TljhRepo2Docker(Application):
             default_cpu_limit=self.default_cpu_limit,
             machine_profiles=self.machine_profiles,
         )
+        if hasattr(self, "db_context"):
+            settings["db_context"] = self.db_context
         return settings
 
     def init_handlers(self) -> tp.List:
@@ -196,6 +219,25 @@ class TljhRepo2Docker(Application):
 
         return handlers
 
+    def init_db(self):
+        async_db_url = sync_to_async_url(self.db_url)
+        urlinfo = urlparse(async_db_url)
+        if urlinfo.password:
+            # avoid logging the database password
+            urlinfo = urlinfo._replace(
+                netloc=f"{urlinfo.username}:[redacted]@{urlinfo.hostname}:{urlinfo.port}"
+            )
+            db_log_url = urlinfo.geturl()
+        else:
+            db_log_url = async_db_url
+        self.log.info("Connecting to db: %s", db_log_url)
+        upgrade_if_needed(async_db_url, log=self.log)
+        try:
+            self.db_context = async_session_context_factory(async_db_url)
+        except Exception:
+            self.log.error("Failed to connect to db: %s", db_log_url)
+            self.log.debug("Database error was:", exc_info=True)
+
     def make_app(self) -> web.Application:
         """Create the tornado web application.
         Returns:
@@ -208,6 +250,7 @@ class TljhRepo2Docker(Application):
 
     def start(self):
         """Start the server."""
+        self.init_db()
         settings = self.init_settings()
 
         self.app = web.Application(**settings)
