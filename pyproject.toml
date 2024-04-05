@@ -7,10 +7,10 @@ dependencies = [
   "aiodocker~=0.19",
   "dockerspawner~=12.1",
   "jupyter_client>=6.1,<8",
-  "httpx"
+  "httpx",
 ]
 dynamic = ["version"]
-license = {file = "LICENSE"}
+license = { file = "LICENSE" }
 name = "tljh-repo2docker"
 readme = "README.md"
 
@@ -52,14 +52,14 @@ build_dir = "tljh_repo2docker/static/js"
 npm = ["npm"]
 source_dir = "src"
 
+[tool.jupyter-releaser]
+skip = ["check_npm"]
+
 [tool.jupyter-releaser.options]
 version_cmd = "hatch version"
 
 [tool.jupyter-releaser.hooks]
-before-build-npm = [
-  "npm install",
-  "npm run build:prod",
-]
+before-build-npm = ["npm install", "npm run build:prod"]
 before-build-python = ["npm run clean"]
 before-bump-version = ["python -m pip install hatch"]
 
