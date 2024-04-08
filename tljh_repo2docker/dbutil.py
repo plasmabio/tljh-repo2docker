@@ -130,7 +130,7 @@ def check_db_revision(engine):
     else:
         raise Exception(
             f"Found database schema version {alembic_revision} != {head}. "
-            "Backup your database and run `tljh_repo2docker-upgrade-db`"
+            "Backup your database and run `tljh_repo2docker upgrade-db`"
             " to upgrade to the latest schema."
         )
 

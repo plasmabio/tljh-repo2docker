@@ -24,11 +24,13 @@ c.BinderHub.push_secret = ""
 c.BinderHub.launch_quota_class = LaunchQuota
 
 c.BinderHub.hub_url_local = "http://localhost:8000"
+# c.BinderHub.enable_api_only_mode = True
 
 # Assert that we're running as a managed JupyterHub service
 # (otherwise c.BinderHub.hub_api_token is needed)
 assert os.getenv("JUPYTERHUB_API_TOKEN")
+
 c.BinderHub.base_url = os.getenv("JUPYTERHUB_SERVICE_PREFIX")
 # JUPYTERHUB_BASE_URL may not include the host
-# c.BinderHub.hub_url = os.getenv('JUPYTERHUB_BASE_URL')
-c.BinderHub.hub_url = os.getenv("JUPYTERHUB_EXTERNAL_URL")
+c.BinderHub.hub_url = os.getenv('JUPYTERHUB_BASE_URL')
+# c.BinderHub.hub_url = os.getenv("JUPYTERHUB_EXTERNAL_URL")
