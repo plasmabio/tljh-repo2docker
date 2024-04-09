@@ -85,8 +85,8 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
     [setFormValues]
   );
   const validated = useMemo(() => {
-    return Boolean(formValues.repo) && Boolean(formValues.ref);
-  }, [formValues]);
+    return Boolean(formValues.repo);
+  }, [formValues.repo]);
 
   const [selectedProfile, setSelectedProfile] = useState<number>(0);
   const [selectedProvider, setSelectedProvider] = useState<number>(0);
@@ -212,6 +212,7 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
                 .replace('https://', '')
                 .replace(/\//g, '-')
                 .replace(/\./g, '-');
+            data.ref = data.ref && data.ref.length > 0 ? data.ref : 'HEAD';
             data.cpu = data.cpu ?? '2';
             data.memory = data.memory ?? '2';
             data.username = data.username ?? '';
@@ -272,6 +273,7 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
             label="Reference (git commit)"
             type="text"
             placeholder="HEAD"
+            required={false}
             onChange={e => updateFormValue('ref', e.target.value)}
             value={formValues.ref ?? ''}
           />

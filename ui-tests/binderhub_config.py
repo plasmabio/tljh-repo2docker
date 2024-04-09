@@ -16,6 +16,8 @@ from binderhub.quota import LaunchQuota
 
 
 c.BinderHub.debug = True
+c.BinderHub.auth_enabled = True
+c.BinderHub.enable_api_only_mode = True
 c.BinderHub.use_registry = False
 c.BinderHub.builder_required = False
 

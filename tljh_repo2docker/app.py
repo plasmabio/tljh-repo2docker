@@ -13,6 +13,8 @@ from tornado import ioloop, web
 from traitlets import Dict, Int, List, Unicode, default, validate
 from traitlets.config.application import Application
 
+from tljh_repo2docker.binderhub_builder import BinderHubBuildHandler
+
 from .builder import BuildHandler
 from .dbutil import async_session_context_factory, sync_to_async_url, upgrade_if_needed
 from .environments import EnvironmentsHandler
@@ -142,9 +144,9 @@ class TljhRepo2Docker(Application):
 
     repo_providers = List(
         default_value=[
+            {"label": "Git", "value": "git"},
             {"label": "GitHub", "value": "gh"},
             {"label": "Gitlab", "value": "gl"},
-            {"label": "Git", "value": "git"},
         ],
         trait=Dict,
         help="""
@@ -228,16 +230,32 @@ class TljhRepo2Docker(Application):
                     url_path_join(self.service_prefix, r"environments"),
                     EnvironmentsHandler,
                 ),
-                (url_path_join(self.service_prefix, r"api/environments"), BuildHandler),
-                (
-                    url_path_join(
-                        self.service_prefix, r"api/environments/([^/]+)/logs"
-                    ),
-                    LogsHandler,
-                ),
             ]
         )
-
+        if self.binderhub_url:
+            handlers.extend(
+                [
+                    (
+                        url_path_join(self.service_prefix, r"api/environments"),
+                        BinderHubBuildHandler,
+                    )
+                ]
+            )
+        else:
+            handlers.extend(
+                [
+                    (
+                        url_path_join(
+                            self.service_prefix, r"api/environments/([^/]+)/logs"
+                        ),
+                        LogsHandler,
+                    ),
+                    (
+                        url_path_join(self.service_prefix, r"api/environments"),
+                        BuildHandler,
+                    ),
+                ]
+            )
         return handlers
 
     def init_db(self):

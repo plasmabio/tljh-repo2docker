@@ -13,7 +13,7 @@ import sys
 
 HERE = Path(__file__).parent
 tljh_config = load_config()
-
+tljh_config["services"]["cull"]["enabled"] = False
 apply_config(tljh_config, c)
 
 tljh_custom_jupyterhub_config(c)
@@ -48,6 +48,8 @@ c.JupyterHub.services.extend(
             ],
             "url": "http://localhost:8585",
             "environment": binderhub_environment,
+            "oauth_client_id": "service-binderhub",
+            "oauth_no_confirm": True,
         },
         {
             "name": "tljh_repo2docker",
@@ -81,7 +83,12 @@ c.JupyterHub.load_roles = [
     {
         "description": "Role for tljh_repo2docker service",
         "name": "tljh-repo2docker-service",
-        "scopes": ["read:users", "read:roles:users", "admin:servers"],
+        "scopes": [
+            "read:users",
+            "read:roles:users",
+            "admin:servers",
+            "access:services!service=binder",
+        ],
         "services": ["tljh_repo2docker"],
     },
     {
@@ -95,6 +102,7 @@ c.JupyterHub.load_roles = [
             "self",
             # access to the env page
             "access:services!service=tljh_repo2docker",
+            "access:services!service=binder",
         ],
     },
 ]
