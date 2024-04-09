@@ -2,13 +2,8 @@ import asyncio
 import json
 
 from aiodocker import Docker, DockerError
-from jupyterhub.tests.utils import (
-    async_requests,
-    auth_header,
-    check_db_locks,
-    public_host,
-    public_url,
-)
+from jupyterhub.tests.utils import (async_requests, auth_header,
+                                    check_db_locks, public_host, public_url)
 from jupyterhub.utils import url_path_join as ujoin
 from tornado.httputil import url_concat
 

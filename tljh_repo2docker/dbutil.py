@@ -13,7 +13,8 @@ import alembic
 import alembic.config
 from alembic.script import ScriptDirectory
 from sqlalchemy import create_engine, inspect, text
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
+                                    create_async_engine)
 
 HERE = Path(__file__).parent.resolve()
 ALEMBIC_DIR = HERE / "alembic"

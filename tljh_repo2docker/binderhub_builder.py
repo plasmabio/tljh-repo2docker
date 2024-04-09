@@ -1,10 +1,11 @@
 import json
+from urllib.parse import quote
 
 import requests
-from tornado import web
-from .base import BaseHandler, require_admin_role
-from urllib.parse import quote
 from jupyterhub.utils import url_path_join
+from tornado import web
+
+from .base import BaseHandler, require_admin_role
 
 
 class BinderHubBuildHandler(BaseHandler):
@@ -28,12 +29,12 @@ class BinderHubBuildHandler(BaseHandler):
         url = url_path_join(binder_url, "build", provider, quoted_repo, ref)
 
         params = {"build_only": "true"}
-        
+
         async with self.client.stream("GET", url, params=params, timeout=None) as r:
             async for line in r.aiter_lines():
                 print("proviDDDDDDDDDDDDDDDDder", line)
                 # if line.startswith("data:"):
-                    # print(line.split(":", 1)[1])
+                # print(line.split(":", 1)[1])
 
         self.set_status(200)
         self.set_header("content-type", "application/json")

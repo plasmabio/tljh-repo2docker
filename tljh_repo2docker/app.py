@@ -16,7 +16,9 @@ from traitlets.config.application import Application
 from tljh_repo2docker.binderhub_builder import BinderHubBuildHandler
 
 from .builder import BuildHandler
-from .dbutil import async_session_context_factory, sync_to_async_url, upgrade_if_needed
+from .database.manager import ImagesDatabaseManager
+from .dbutil import (async_session_context_factory, sync_to_async_url,
+                     upgrade_if_needed)
 from .environments import EnvironmentsHandler
 from .logs import LogsHandler
 from .servers import ServersHandler
@@ -197,6 +199,8 @@ class TljhRepo2Docker(Application):
         )
         if hasattr(self, "db_context"):
             settings["db_context"] = self.db_context
+        if hasattr(self, "image_db_manager"):
+            settings["image_db_manager"] = self.image_db_manager
         return settings
 
     def init_handlers(self) -> tp.List:
@@ -276,6 +280,8 @@ class TljhRepo2Docker(Application):
         except Exception:
             self.log.error("Failed to connect to db: %s", db_log_url)
             self.log.debug("Database error was:", exc_info=True)
+
+        self.image_db_manager = ImagesDatabaseManager()
 
     def make_app(self) -> web.Application:
         """Create the tornado web application.

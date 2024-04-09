@@ -28,7 +28,7 @@ class EnvironmentsHandler(BaseHandler):
             default_cpu_limit=self.settings.get("default_cpu_limit"),
             machine_profiles=self.settings.get("machine_profiles", []),
             repo_providers=self.settings.get("repo_providers", None),
-            use_binderhub=use_binderhub
+            use_binderhub=use_binderhub,
         )
         if isawaitable(result):
             self.write(await result)
