@@ -8,6 +8,7 @@ dependencies = [
   "dockerspawner~=12.1",
   "jupyter_client>=6.1,<8",
   "httpx",
+  "sqlalchemy>=2"
 ]
 dynamic = ["version"]
 license = {file = "LICENSE"}

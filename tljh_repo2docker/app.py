@@ -123,7 +123,8 @@ class TljhRepo2Docker(Application):
     db_url = Unicode(
         "sqlite:///tljh_repo2docker.sqlite",
         help="url for the database.",
-    ).tag(config=True)
+        config=True,
+    )
 
     config_file = Unicode(
         "tljh_repo2docker_config.py",
@@ -135,6 +136,23 @@ class TljhRepo2Docker(Application):
         config=True,
     )
 
+    binderhub_url = Unicode(
+        None, help="URL of the binderhub service.", allow_none=True, config=True
+    )
+
+    repo_providers = List(
+        default_value=[
+            {"label": "GitHub", "value": "gh"},
+            {"label": "Gitlab", "value": "gl"},
+            {"label": "Git", "value": "git"},
+        ],
+        trait=Dict,
+        help="""
+        Dict of available repo providers in the form of {"label":"value"}
+        """,
+        config=True,
+    )
+
     aliases = {
         "port": "TljhRepo2Docker.port",
         "ip": "TljhRepo2Docker.ip",
@@ -142,6 +160,7 @@ class TljhRepo2Docker(Application):
         "default_memory_limit": "TljhRepo2Docker.default_memory_limit",
         "default_cpu_limit": "TljhRepo2Docker.default_cpu_limit",
         "machine_profiles": "TljhRepo2Docker.machine_profiles",
+        "binderhub_url": "TljhRepo2Docker.binderhub_url",
     }
 
     def init_settings(self) -> tp.Dict:
@@ -171,6 +190,8 @@ class TljhRepo2Docker(Application):
             default_mem_limit=self.default_memory_limit,
             default_cpu_limit=self.default_cpu_limit,
             machine_profiles=self.machine_profiles,
+            binderhub_url=self.binderhub_url,
+            repo_providers=self.repo_providers,
         )
         if hasattr(self, "db_context"):
             settings["db_context"] = self.db_context
