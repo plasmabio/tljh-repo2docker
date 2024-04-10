@@ -96,7 +96,10 @@ class SpawnerMixin(Configurable):
         """
         Override the default form to handle the case when there is only one image.
         """
-        images = await self.list_images()
+        try:
+            images = await self.list_images()
+        except ValueError:
+            images = []
 
         # make default limits human readable
         default_mem_limit = self.mem_limit

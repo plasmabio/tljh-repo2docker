@@ -13,8 +13,8 @@ from tornado import ioloop, web
 from traitlets import Dict, Int, List, Unicode, default, validate
 from traitlets.config.application import Application
 
-from tljh_repo2docker.binderhub_builder import BinderHubBuildHandler
-
+from .binderhub_builder import BinderHubBuildHandler
+from .binderhub_log import BinderHubLogsHandler
 from .builder import BuildHandler
 from .database.manager import ImagesDatabaseManager
 from .dbutil import (async_session_context_factory, sync_to_async_url,
@@ -240,9 +240,15 @@ class TljhRepo2Docker(Application):
             handlers.extend(
                 [
                     (
+                        url_path_join(
+                            self.service_prefix, r"api/environments/([^/]+)/logs"
+                        ),
+                        BinderHubLogsHandler,
+                    ),
+                    (
                         url_path_join(self.service_prefix, r"api/environments"),
                         BinderHubBuildHandler,
-                    )
+                    ),
                 ]
             )
         else:

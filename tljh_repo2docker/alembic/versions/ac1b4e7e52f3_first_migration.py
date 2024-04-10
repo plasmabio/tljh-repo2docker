@@ -26,7 +26,7 @@ def upgrade():
         sa.Column(
             "status",
             postgresql.ENUM(
-                "success",
+                "built",
                 "building",
                 "failed",
                 name="build_status_enum",
@@ -35,7 +35,7 @@ def upgrade():
             nullable=False,
         ),
         sa.Column("log", sa.UnicodeText()),
-        sa.Column("metadata", JSONDict, nullable=False),
+        sa.Column("image_meta", JSONDict, nullable=False),
     )
 
 

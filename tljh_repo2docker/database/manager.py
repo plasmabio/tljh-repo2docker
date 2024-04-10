@@ -28,11 +28,6 @@ class ImagesDatabaseManager:
         """
         Create one resource.
 
-        ```sql
-        INSERT INTO resource
-        VALUES (...)
-        ```
-
         Args:
             db: An asyncio version of SQLAlchemy session.
             obj_in: An object containing the resource instance to create
@@ -65,12 +60,6 @@ class ImagesDatabaseManager:
         """
         Get one resource by uid.
 
-        ```sql
-        SELECT *
-        FROM %tablename
-        WHERE uid=%s
-        ```
-
         Args:
             db: An asyncio version of SQLAlchemy session.
             uid: The primary key of the resource to retrieve.
@@ -88,12 +77,6 @@ class ImagesDatabaseManager:
         """
         Get multiple resources.
 
-        ```sql
-        SELECT *
-        FROM %tablename
-        WHERE uid=_in(%s...)
-        ```
-
         Args:
             db: An asyncio version of SQLAlchemy session.
             uids: The primary keys of the resources to retrieve.
@@ -106,17 +89,24 @@ class ImagesDatabaseManager:
         ).scalars()
         return [self._schema_out.model_validate(r) for r in resources]
 
+    async def read_all(self, db: AsyncSession) -> List[DockerImageOutSchema]:
+        """
+        Get all rows.
+
+        Args:
+            db: An asyncio version of SQLAlchemy session.
+
+        Returns:
+            The list of resources retrieved.
+        """
+        resources = (await db.execute(sa.select(self._table))).scalars().all()
+        return [self._schema_out.model_validate(r) for r in resources]
+
     async def update(
         self, db: AsyncSession, obj_in: DockerImageUpdateSchema, optimistic: bool = True
     ) -> Union[DockerImageOutSchema, None]:
         """
         Update one object.
-
-        ```sql
-        UPDATE %tablename
-        SET (...), updated_at=now()
-        WHERE uid=%s
-        ```
 
         Args:
             db: An asyncio version of SQLAlchemy session.
@@ -134,7 +124,7 @@ class ImagesDatabaseManager:
         if not (obj_db := await self.read(db=db, uid=obj_in.uid)):
             await self.create(db, obj_in)
 
-        update_data = obj_in.model_dump()
+        update_data = obj_in.model_dump(exclude_none=True)
 
         await db.execute(
             sa.update(self._table)
@@ -158,12 +148,6 @@ class ImagesDatabaseManager:
     async def delete(self, db: AsyncSession, uid: UUID4) -> bool:
         """
         Delete one object.
-
-        ```sql
-        DELETE
-        FROM %tablename
-        WHERE uid=%s
-        ```
 
         Args:
             db: An asyncio version of SQLAlchemy session.

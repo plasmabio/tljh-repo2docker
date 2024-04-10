@@ -68,7 +68,6 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
     event?: any,
     reason?: 'backdropClick' | 'escapeKeyDown'
   ) => {
-    console.log(formValues);
     if (reason && reason === 'backdropClick') {
       return;
     }
@@ -222,7 +221,7 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
               path: ENV_PREFIX,
               data
             });
-            if (response?.status === 'ok') {
+            if (response?.uid !== undefined) {
               window.location.reload();
             } else {
               handleClose();

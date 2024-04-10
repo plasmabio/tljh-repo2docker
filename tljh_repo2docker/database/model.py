@@ -37,6 +37,6 @@ class DockerImageSQL(BaseSQL):
 
     log = Column(Text)
 
-    metadata = Column(JSONDict, default={})
+    image_meta = Column(JSONDict, default={})
 
     __mapper_args__ = {"eager_defaults": True}
