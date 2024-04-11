@@ -13,7 +13,15 @@ class ServersHandler(BaseHandler):
 
     @web.authenticated
     async def get(self):
-        images = await list_images()
+        images = []
+        if self.use_binderhub:
+            images = await self.get_images_from_db()
+        else:
+            try:
+                images = await list_images()
+            except ValueError:
+                pass
+
         user_data = await self.fetch_user()
 
         server_data = user_data.all_spawners()

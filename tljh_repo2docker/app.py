@@ -17,8 +17,7 @@ from .binderhub_builder import BinderHubBuildHandler
 from .binderhub_log import BinderHubLogsHandler
 from .builder import BuildHandler
 from .database.manager import ImagesDatabaseManager
-from .dbutil import (async_session_context_factory, sync_to_async_url,
-                     upgrade_if_needed)
+from .dbutil import async_session_context_factory, sync_to_async_url, upgrade_if_needed
 from .environments import EnvironmentsHandler
 from .logs import LogsHandler
 from .servers import ServersHandler

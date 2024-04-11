@@ -7,9 +7,12 @@ from jupyterhub.utils import url_path_join
 from tornado import web
 
 from .base import BaseHandler, require_admin_role
-from .database.manager import ImagesDatabaseManager
-from .database.schemas import (BuildStatusType, DockerImageCreateSchema,
-                               DockerImageUpdateSchema, ImageMetadataType)
+from .database.schemas import (
+    BuildStatusType,
+    DockerImageCreateSchema,
+    DockerImageUpdateSchema,
+    ImageMetadataType,
+)
 
 
 class BinderHubBuildHandler(BaseHandler):
@@ -23,8 +26,10 @@ class BinderHubBuildHandler(BaseHandler):
         data = self.get_json_body()
         uid = UUID(data["name"])
 
-        db_context = self.settings.get("db_context")
-        image_db_manager: ImagesDatabaseManager = self.settings.get("image_db_manager")
+        db_context, image_db_manager = self.get_db_handlers()
+        if not db_context or not image_db_manager:
+            return
+
         deleted = False
         async with db_context() as db:
             image = await image_db_manager.read(db, uid)
@@ -60,8 +65,11 @@ class BinderHubBuildHandler(BaseHandler):
         url = url_path_join(binder_url, "build", provider, quoted_repo, ref)
 
         params = {"build_only": "true"}
-        db_context = self.settings.get("db_context")
-        image_db_manager: ImagesDatabaseManager = self.settings.get("image_db_manager")
+
+        db_context, image_db_manager = self.get_db_handlers()
+        if not db_context or not image_db_manager:
+            return
+
         uid = uuid4()
         image_in = DockerImageCreateSchema(
             uid=uid,
@@ -85,7 +93,8 @@ class BinderHubBuildHandler(BaseHandler):
                         json_log = json.loads(line.split(":", 1)[1])
                         phase = json_log.get("phase", None)
                         message = json_log.get("message", "")
-                        log += message
+                        if phase != "unknown":
+                            log += message
                         update_data = DockerImageUpdateSchema(uid=uid, log=log)
                         stop = False
                         if phase == "ready" or phase == "built":

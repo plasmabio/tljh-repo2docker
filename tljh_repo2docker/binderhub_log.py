@@ -6,7 +6,6 @@ from tornado import web
 from tornado.iostream import StreamClosedError
 
 from .base import BaseHandler, require_admin_role
-from .database.manager import ImagesDatabaseManager
 from .database.schemas import BuildStatusType
 
 
@@ -21,8 +20,10 @@ class BinderHubLogsHandler(BaseHandler):
         self.set_header("Content-Type", "text/event-stream")
         self.set_header("Cache-Control", "no-cache")
 
-        db_context = self.settings.get("db_context")
-        image_db_manager: ImagesDatabaseManager = self.settings.get("image_db_manager")
+        db_context, image_db_manager = self.get_db_handlers()
+        if not db_context or not image_db_manager:
+            return
+
         async with db_context() as db:
 
             image = await image_db_manager.read(db, UUID(image_uid))

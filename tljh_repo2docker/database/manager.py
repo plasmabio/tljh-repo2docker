@@ -8,8 +8,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from tornado.web import HTTPError
 
 from .model import DockerImageSQL
-from .schemas import (DockerImageCreateSchema, DockerImageOutSchema,
-                      DockerImageUpdateSchema)
+from .schemas import (
+    DockerImageCreateSchema,
+    DockerImageOutSchema,
+    DockerImageUpdateSchema,
+)
 
 
 class ImagesDatabaseManager:
