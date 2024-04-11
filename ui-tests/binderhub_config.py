@@ -18,7 +18,14 @@ from binderhub.quota import LaunchQuota
 c.BinderHub.debug = True
 c.BinderHub.auth_enabled = True
 c.BinderHub.enable_api_only_mode = True
-c.BinderHub.use_registry = False
+
+c.BinderHub.use_registry = os.getenv("BINDERHUB_USE_REGISTRY", False)
+c.BinderHub.image_prefix = os.getenv(
+    "BINDERHUB_IMAGE_PREFIX", ""
+)  # https://binderhub.readthedocs.io/en/latest/zero-to-binderhub/setup-binderhub.html#id2
+c.DockerRegistry.auth_config_url = "https://index.docker.io/v1/"
+c.BuildExecutor.push_secret = "*"  #
+
 c.BinderHub.builder_required = False
 
 c.BinderHub.build_class = LocalRepo2dockerBuild
@@ -33,6 +40,4 @@ c.BinderHub.hub_url_local = "http://localhost:8000"
 assert os.getenv("JUPYTERHUB_API_TOKEN")
 
 c.BinderHub.base_url = os.getenv("JUPYTERHUB_SERVICE_PREFIX")
-# JUPYTERHUB_BASE_URL may not include the host
-c.BinderHub.hub_url = os.getenv('JUPYTERHUB_BASE_URL')
-# c.BinderHub.hub_url = os.getenv("JUPYTERHUB_EXTERNAL_URL")
+c.BinderHub.hub_url = os.getenv("JUPYTERHUB_BASE_URL")

@@ -9,7 +9,8 @@ dependencies = [
   "jupyter_client>=6.1,<8",
   "httpx",
   "sqlalchemy>=2",
-  "pydantic>=2,<3"
+  "pydantic>=2,<3",
+  "alembic>=1.13,<2"
 ]
 dynamic = ["version"]
 license = {file = "LICENSE"}

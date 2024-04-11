@@ -45,4 +45,3 @@ class DockerImageOutSchema(DockerImageCreateSchema):
     class Config:
         use_enum_values = True
         from_attributes = True
-        orm_mode = True
