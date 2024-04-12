@@ -153,5 +153,6 @@ jobs:
         with:
           name: tljh-playwright-tests
           path: |
-            ui-tests/test-results
+            ui-tests/local-test-results
+            ui-tests/binderhub-test-results
             ui-tests/playwright-report

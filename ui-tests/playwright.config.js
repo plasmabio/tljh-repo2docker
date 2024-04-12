@@ -5,6 +5,7 @@ const configFile = `jupyterhub_config_${process.env.CONFIG_FILE}.py`;
 module.exports = {
   timeout: 600000,
   reporter: [[process.env.CI ? 'dot' : 'list'], ['html']],
+  outputDir: `${process.env.CONFIG_FILE}-test-results`,
   use: {
     baseURL: 'http://localhost:8000',
     video: 'retain-on-failure',

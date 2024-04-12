@@ -10,10 +10,11 @@ dependencies = [
   "httpx",
   "sqlalchemy>=2",
   "pydantic>=2,<3",
-  "alembic>=1.13,<2"
+  "alembic>=1.13,<2",
+  "jupyter-repo2docker>=2024,<2025",
 ]
 dynamic = ["version"]
-license = {file = "LICENSE"}
+license = { file = "LICENSE" }
 name = "tljh-repo2docker"
 readme = "README.md"
 
@@ -59,10 +60,7 @@ source_dir = "src"
 version_cmd = "hatch version"
 
 [tool.jupyter-releaser.hooks]
-before-build-npm = [
-  "npm install",
-  "npm run build:prod",
-]
+before-build-npm = ["npm install", "npm run build:prod"]
 before-build-python = ["npm run clean"]
 before-bump-version = ["python -m pip install hatch"]
 
