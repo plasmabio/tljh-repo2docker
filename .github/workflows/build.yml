@@ -4,7 +4,7 @@ on:
   push:
     branches: master
   pull_request:
-    branches: "*"
+    branches: '*'
 
 jobs:
   build:
@@ -70,7 +70,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ['3.8', '3.9', '3.10']
 
     steps:
       - name: Checkout
@@ -99,7 +99,10 @@ jobs:
     name: Integration tests
     needs: build
     runs-on: ubuntu-latest
-
+    strategy:
+      fail-fast: false
+      matrix:
+        build-backend: ['local', 'binderhub']
     env:
       PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/pw-browsers
 
@@ -139,10 +142,10 @@ jobs:
         run: npx playwright install chromium
         working-directory: ui-tests
 
-      - name: Execute integration tests
+      - name: Execute integration tests with ${{ matrix.build-backend }} build backend
         working-directory: ui-tests
         run: |
-          npx playwright test
+          npm run test:${{ matrix.build-backend }}
 
       - name: Upload Playwright Test report
         if: always()

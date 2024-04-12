@@ -4,7 +4,8 @@
     "description": "tljh_repo2docker UI Tests",
     "private": true,
     "scripts": {
-        "test": "npx playwright test --workers 1",
+        "test:local": "CONFIG_FILE=local npx playwright test --workers 1",
+        "test:binderhub": "CONFIG_FILE=binderhub npx playwright test --workers 1",
         "test:update": "npx playwright test --update-snapshots",
         "test:debug": "PWDEBUG=1 npx playwright test --workers 1"
     },
