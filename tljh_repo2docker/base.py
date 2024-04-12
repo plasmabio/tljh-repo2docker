@@ -3,7 +3,8 @@ import json
 import os
 from contextlib import _AsyncGeneratorContextManager
 from http.client import responses
-from typing import Callable, Dict, List, Optional, Tuple
+import sys
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from httpx import AsyncClient
 from jinja2 import Template
@@ -17,6 +18,10 @@ from tljh_repo2docker.database.manager import ImagesDatabaseManager
 
 from .model import UserModel
 
+if sys.version_info >= (3, 9):
+    AsyncSessionContextFactory = Callable[[], _AsyncGeneratorContextManager[AsyncSession]]
+else:
+    AsyncSessionContextFactory = Any
 
 def require_admin_role(func):
     """decorator to require admin role to perform an action"""
@@ -179,7 +184,7 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
     def get_db_handlers(
         self,
     ) -> Tuple[
-        Optional[Callable[[], _AsyncGeneratorContextManager[AsyncSession]]],
+        Optional[AsyncSessionContextFactory],
         Optional[ImagesDatabaseManager],
     ]:
         """

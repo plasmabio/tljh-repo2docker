@@ -146,12 +146,11 @@ class TljhRepo2Docker(Application):
     repo_providers = List(
         default_value=[
             {"label": "Git", "value": "git"},
-            {"label": "GitHub", "value": "gh"},
-            {"label": "Gitlab", "value": "gl"},
         ],
         trait=Dict,
         help="""
-        Dict of available repo providers in the form of {"label":"value"}
+        Dict of available repo providers in the form of {"label":"value"}.
+        The references are taken from the binderhub documentation
         """,
         config=True,
     )

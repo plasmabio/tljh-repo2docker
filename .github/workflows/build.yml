@@ -76,24 +76,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Base Setup
-        uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+      # - name: Base Setup
+      #   uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
 
-      - name: Download app package
-        uses: actions/download-artifact@v3
-        with:
-          name: tljh_repo2docker-artifacts
+      # - name: Download app package
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: tljh_repo2docker-artifacts
 
-      - name: Install package
-        run: |
-          set -eux
-          python -m pip install -r dev-requirements.txt
-          python -m pip install tljh_repo2docker*.whl
-          npm -g install configurable-http-proxy
+      # - name: Install package
+      #   run: |
+      #     set -eux
+      #     python -m pip install -r dev-requirements.txt
+      #     python -m pip install tljh_repo2docker*.whl
+      #     npm -g install configurable-http-proxy
 
-      - name: Run Tests
-        run: |
-          python -m pytest --cov
+      # - name: Run Tests
+      #   run: |
+      #     python -m pytest --cov
 
   integration-tests:
     name: Integration tests

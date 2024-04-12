@@ -19,17 +19,19 @@ c.BinderHub.debug = True
 c.BinderHub.auth_enabled = True
 c.BinderHub.enable_api_only_mode = True
 
-c.BinderHub.use_registry = os.getenv("BINDERHUB_USE_REGISTRY", False)
-c.BinderHub.image_prefix = os.getenv(
-    "BINDERHUB_IMAGE_PREFIX", ""
-)  # https://binderhub.readthedocs.io/en/latest/zero-to-binderhub/setup-binderhub.html#id2
-c.DockerRegistry.auth_config_url = "https://index.docker.io/v1/"
-c.BuildExecutor.push_secret = "*"  #
+use_registry = bool(os.getenv("BINDERHUB_USE_REGISTRY", False))
+if use_registry:
+    c.BinderHub.use_registry = use_registry
+    c.BinderHub.image_prefix = os.getenv(
+        "BINDERHUB_IMAGE_PREFIX", ""
+    )  # https://binderhub.readthedocs.io/en/latest/zero-to-binderhub/setup-binderhub.html#id2
+    c.DockerRegistry.auth_config_url = "https://index.docker.io/v1/"
+
+    c.BuildExecutor.push_secret = "*"  #
 
 c.BinderHub.builder_required = False
 
 c.BinderHub.build_class = LocalRepo2dockerBuild
-c.BinderHub.push_secret = ""
 c.BinderHub.launch_quota_class = LaunchQuota
 
 c.BinderHub.hub_url_local = "http://localhost:8000"
