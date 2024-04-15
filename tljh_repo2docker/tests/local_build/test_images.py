@@ -1,7 +1,7 @@
 import pytest
 from jupyterhub.tests.utils import get_page
 
-from .utils import add_environment, get_service_page, wait_for_image
+from ..utils import add_environment, get_service_page, wait_for_image
 
 
 @pytest.mark.asyncio

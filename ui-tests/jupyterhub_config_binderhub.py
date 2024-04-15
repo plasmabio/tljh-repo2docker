@@ -101,7 +101,6 @@ c.JupyterHub.load_roles = [
             "self",
             # access to the env page
             "access:services!service=tljh_repo2docker",
-            "access:services!service=binder",
         ],
     },
 ]

@@ -98,3 +98,12 @@ async def remove_environment(app, *, image_name):
         ),
     )
     return r
+
+
+async def remove_docker_image(image_name):
+    async with Docker() as docker:
+        try:
+            await docker.images.delete(image_name, force=True)
+        except DockerError:
+            pass
+

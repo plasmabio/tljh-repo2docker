@@ -3,7 +3,7 @@ import json
 import pytest
 from jupyterhub.tests.utils import async_requests
 
-from .utils import add_environment, api_request, wait_for_image
+from ..utils import add_environment, api_request, wait_for_image
 
 
 def next_event(it):
