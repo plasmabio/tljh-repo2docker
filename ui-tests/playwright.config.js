@@ -9,9 +9,9 @@ module.exports = {
   use: {
     baseURL: 'http://localhost:8000',
     video: 'retain-on-failure',
-    trace: 'on-first-retry'
+    trace: 'retain-on-failure'
   },
-  retries: 1,
+  retries: 0,
   expect: {
     toMatchSnapshot: {
       maxDiffPixelRatio: 0.001

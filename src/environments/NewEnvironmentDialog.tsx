@@ -221,7 +221,7 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
               path: ENV_PREFIX,
               data
             });
-            if (response?.uid !== undefined) {
+            if (response?.status === 'ok') {
               window.location.reload();
             } else {
               handleClose();

@@ -82,7 +82,7 @@ class BinderHubBuildHandler(BaseHandler):
         )
         self.set_status(200)
         self.set_header("content-type", "application/json")
-        self.finish(json.dumps({"uid": str(uid)}))
+        self.finish(json.dumps({"uid": str(uid), "status": "ok"}))
 
         log = ""
         async with db_context() as db:
