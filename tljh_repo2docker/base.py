@@ -1,9 +1,9 @@
 import functools
 import json
 import os
+import sys
 from contextlib import _AsyncGeneratorContextManager
 from http.client import responses
-import sys
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from httpx import AsyncClient
@@ -19,9 +19,12 @@ from tljh_repo2docker.database.manager import ImagesDatabaseManager
 from .model import UserModel
 
 if sys.version_info >= (3, 9):
-    AsyncSessionContextFactory = Callable[[], _AsyncGeneratorContextManager[AsyncSession]]
+    AsyncSessionContextFactory = Callable[
+        [], _AsyncGeneratorContextManager[AsyncSession]
+    ]
 else:
     AsyncSessionContextFactory = Any
+
 
 def require_admin_role(func):
     """decorator to require admin role to perform an action"""

@@ -5,6 +5,7 @@ from traitlets.config import Config
 
 from tljh_repo2docker import tljh_custom_jupyterhub_config
 
+
 @pytest.fixture(scope="module")
 def generated_image_name():
     return "plasmabio-tljh-repo2docker-test-binder:HEAD"
@@ -50,4 +51,3 @@ async def app(hub_app):
 
     app = await hub_app(config=config)
     return app
-

@@ -2,6 +2,7 @@ import pytest
 
 from .utils import remove_docker_image
 
+
 @pytest.fixture(scope="session")
 def minimal_repo():
     return "https://github.com/plasmabio/tljh-repo2docker-test-binder"

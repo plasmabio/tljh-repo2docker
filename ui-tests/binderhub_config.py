@@ -20,8 +20,9 @@ c.BinderHub.auth_enabled = True
 c.BinderHub.enable_api_only_mode = True
 
 use_registry = bool(os.getenv("BINDERHUB_USE_REGISTRY", False))
+c.BinderHub.use_registry = use_registry
+
 if use_registry:
-    c.BinderHub.use_registry = use_registry
     c.BinderHub.image_prefix = os.getenv(
         "BINDERHUB_IMAGE_PREFIX", ""
     )  # https://binderhub.readthedocs.io/en/latest/zero-to-binderhub/setup-binderhub.html#id2

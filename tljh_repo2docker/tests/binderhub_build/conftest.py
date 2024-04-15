@@ -1,5 +1,5 @@
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import pytest
 from traitlets.config import Config
@@ -16,6 +16,11 @@ tljh_repo2docker_config = ROOT / "ui-tests" / "tljh_repo2docker_binderhub.py"
 @pytest.fixture(scope="module")
 def generated_image_name():
     return "plasmabio-tljh-repo2docker-test-binder:HEAD"
+
+
+@pytest.fixture(scope="module")
+def docker_image_name():
+    return "https-3a-2f-2fgithub-2ecom-2fplasmabio-2ftljh-2drepo2docker-2dtest-2dbinder-3f035a:06bb545ab3a2888477cbddfed0ea77eae313cfed"
 
 
 @pytest.fixture(scope="module")
@@ -54,8 +59,8 @@ async def app(hub_app):
                     "127.0.0.1",
                     "--port",
                     "6789",
-                    "--config",
-                    f"{tljh_repo2docker_config}",
+                    "--binderhub_url",
+                    "http://localhost:8585/@/space%20word/services/binder/",
                 ],
                 "oauth_no_confirm": True,
             },

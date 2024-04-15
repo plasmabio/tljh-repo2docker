@@ -30,7 +30,7 @@ async def test_images_list_not_admin(app):
 
 
 @pytest.mark.asyncio
-async def test_spawn_page(app, minimal_repo, image_name):
+async def test_spawn_page(app, minimal_repo, image_name, docker_image_name):
     cookies = await app.login_user("admin")
 
     # go to the spawn page
@@ -40,12 +40,21 @@ async def test_spawn_page(app, minimal_repo, image_name):
 
     # add a new envionment
     name, ref = image_name.split(":")
-    r = await add_environment(app, repo=minimal_repo, name=name, ref=ref)
+    r = await add_environment(
+        app, repo=minimal_repo, name=name, ref=ref, provider="git"
+    )
     assert r.status_code == 200
-    await wait_for_image(image_name=image_name)
+    await wait_for_image(image_name=docker_image_name)
 
     # the environment should be on the page
-    r = await get_page("spawn", app, cookies=cookies, allow_redirects=False)
+    r = await get_page(
+        "services/tljh_repo2docker/environments",
+        app,
+        cookies=cookies,
+        allow_redirects=True,
+        hub=False,
+    )
     r.raise_for_status()
+
     assert r.status_code == 200
     assert minimal_repo in r.text

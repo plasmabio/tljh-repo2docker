@@ -49,21 +49,24 @@ def get_service_page(path, app, **kw):
     return async_requests.get(url, **kw)
 
 
-async def add_environment(app, *, repo, ref="HEAD", name="", memory="", cpu=""):
+async def add_environment(
+    app, *, repo, ref="HEAD", name="", memory="", cpu="", provider=None
+):
     """Use the POST endpoint to add a new environment"""
+    data = {
+        "repo": repo,
+        "ref": ref,
+        "name": name,
+        "memory": memory,
+        "cpu": cpu,
+    }
+    if provider:
+        data["provider"] = provider
     r = await api_request(
         app,
         "environments",
         method="post",
-        data=json.dumps(
-            {
-                "repo": repo,
-                "ref": ref,
-                "name": name,
-                "memory": memory,
-                "cpu": cpu,
-            }
-        ),
+        data=json.dumps(data),
     )
     return r
 
@@ -106,4 +109,3 @@ async def remove_docker_image(image_name):
             await docker.images.delete(image_name, force=True)
         except DockerError:
             pass
-
