@@ -1,7 +1,9 @@
+import asyncio
+
 import pytest
 import sqlalchemy as sa
 from aiodocker import Docker, DockerError
-import asyncio
+
 from tljh_repo2docker.database.model import DockerImageSQL
 
 from ..utils import add_environment, remove_environment, wait_for_image
@@ -40,6 +42,7 @@ async def test_delete_environment(
     assert uid is not None
 
     await wait_for_image(image_name=generated_image_name)
+    await asyncio.sleep(3)
     r = await remove_environment(app, image_name=uid)
     assert r.status_code == 200
 

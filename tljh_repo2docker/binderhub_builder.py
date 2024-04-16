@@ -77,7 +77,6 @@ class BinderHubBuildHandler(BaseHandler):
         memory = data["memory"]
         cpu = data["cpu"]
         provider = data["provider"]
-
         if len(repo) == 0:
             raise web.HTTPError(400, "Repository is empty")
 

@@ -15,6 +15,5 @@ def minimal_repo_uppercase():
 
 @pytest.fixture(autouse=True)
 async def remove_all_test_images(image_name, generated_image_name):
-
     await remove_docker_image(image_name)
     await remove_docker_image(generated_image_name)

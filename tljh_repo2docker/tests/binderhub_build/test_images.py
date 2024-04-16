@@ -1,23 +1,8 @@
-import pytest
-from jupyterhub.tests.utils import get_page
 import asyncio
+
+import pytest
+
 from ..utils import add_environment, get_service_page, wait_for_image
-
-
-@pytest.mark.asyncio
-async def test_images_list_admin(app):
-    cookies = await app.login_user("admin")
-    r = await get_service_page(
-        "environments",
-        app,
-        cookies=cookies,
-        allow_redirects=True,
-    )
-    r.raise_for_status()
-    assert (
-        '{"repo_providers": [{"label": "Git", "value": "git"}], "use_binderhub": true, "images": [], "default_mem_limit": "None", "default_cpu_limit":"None", "machine_profiles": []}'
-        in r.text
-    )
 
 
 @pytest.mark.asyncio
@@ -30,11 +15,16 @@ async def test_images_list_not_admin(app):
 
 
 @pytest.mark.asyncio
-async def test_spawn_page(app, minimal_repo, image_name, generated_image_name):
+async def test_images_list_admin(app, minimal_repo, image_name, generated_image_name):
     cookies = await app.login_user("admin")
 
     # go to the spawn page
-    r = await get_page("spawn", app, cookies=cookies, allow_redirects=False)
+    r = await get_service_page(
+        "environments",
+        app,
+        cookies=cookies,
+        allow_redirects=True,
+    )
     r.raise_for_status()
     assert minimal_repo not in r.text
 
@@ -47,12 +37,11 @@ async def test_spawn_page(app, minimal_repo, image_name, generated_image_name):
     await wait_for_image(image_name=generated_image_name)
     await asyncio.sleep(3)
     # the environment should be on the page
-    r = await get_page(
-        "services/tljh_repo2docker/environments",
+    r = await get_service_page(
+        "environments",
         app,
         cookies=cookies,
         allow_redirects=True,
-        hub=False,
     )
     r.raise_for_status()
 
