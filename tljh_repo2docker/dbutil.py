@@ -130,7 +130,7 @@ def check_db_revision(engine):
     else:
         raise Exception(
             f"Found database schema version {alembic_revision} != {head}. "
-            "Backup your database and run `tljh_repo2docker upgrade-db`"
+            "Backup your database and run `tljh_repo2docker_upgrade_db`"
             " to upgrade to the latest schema."
         )
 
@@ -187,6 +187,16 @@ def async_to_sync_url(db_url: str) -> str:
 
 
 def async_session_context_factory(async_db_url: str):
+    """
+    Factory function to create an asynchronous session context manager.
+
+    Parameters:
+    - async_db_url (str): The URL for the asynchronous database connection.
+
+    Returns:
+    - AsyncContextManager[AsyncSession]: An asynchronous context manager that yields
+      an async session for database interactions within the context.
+    """
     async_engine = create_async_engine(async_db_url)
     async_session_maker = async_sessionmaker(
         async_engine,
@@ -204,14 +214,9 @@ def async_session_context_factory(async_db_url: str):
     return async_session_context
 
 
-def main(args=None):
-    if args is None:
+def main():
+    if len(sys.argv) > 1:
         db_url = sys.argv[1]
-        alembic_args = sys.argv[2:]
-    # dumb option parsing, since we want to pass things through
-    # to subcommands
-    _alembic(db_url, alembic_args)
-
-
-if __name__ == "__main__":
-    sys.exit(main())
+        upgrade(db_url)
+    else:
+        print("Missing database URL")

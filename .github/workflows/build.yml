@@ -92,12 +92,14 @@ jobs:
           npm -g install configurable-http-proxy
 
       - name: Run local build backend tests
+        working-directory: tljh_repo2docker/tests
         run: |
-          python -m pytest tljh_repo2docker/tests/local_build   --cov
+          python -m pytest local_build   --cov
 
       - name: Run binderhub build backend tests
+        working-directory: tljh_repo2docker/tests
         run: |
-          python -m pytest tljh_repo2docker/tests/binderhub_build   --cov
+          python -m pytest binderhub_build   --cov
 
   integration-tests:
     name: Integration tests

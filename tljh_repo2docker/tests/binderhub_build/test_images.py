@@ -1,6 +1,6 @@
 import pytest
 from jupyterhub.tests.utils import get_page
-
+import asyncio
 from ..utils import add_environment, get_service_page, wait_for_image
 
 
@@ -45,7 +45,7 @@ async def test_spawn_page(app, minimal_repo, image_name, generated_image_name):
     )
     assert r.status_code == 200
     await wait_for_image(image_name=generated_image_name)
-
+    await asyncio.sleep(3)
     # the environment should be on the page
     r = await get_page(
         "services/tljh_repo2docker/environments",

@@ -26,6 +26,13 @@ class BinderHubBuildHandler(BaseHandler):
     @web.authenticated
     @require_admin_role
     async def delete(self):
+        """
+        Method to handle the deletion of a specific image.
+
+        Note:
+        - Only users with admin role or with `TLJH_R2D_ADMIN_SCOPE` scope can access it.
+        """
+
         data = self.get_json_body()
         uid = UUID(data["name"])
 
@@ -55,6 +62,13 @@ class BinderHubBuildHandler(BaseHandler):
     @web.authenticated
     @require_admin_role
     async def post(self):
+        """
+        Method to handle the creation of a new environment based on provided specifications.
+        As the build progresses, it updates the build log in the database and checks for completion.
+
+        Note:
+        - Only users with admin role or with `TLJH_R2D_ADMIN_SCOPE` scope can access it.
+        """
         data = self.get_json_body()
 
         repo = data["repo"]

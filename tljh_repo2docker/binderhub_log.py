@@ -17,6 +17,20 @@ class BinderHubLogsHandler(BaseHandler):
     @web.authenticated
     @require_admin_role
     async def get(self, image_uid: str):
+        """
+        Method to retrieve real-time status updates for a specific image build process.
+
+        This method sets the appropriate headers for Server-Sent Events (SSE) to enable streaming of data over HTTP.
+        It retrieves the database handlers and the image with the specified UID from the database.
+        Then, it continuously emits status updates over the stream until the build process is completed or times out.
+
+        Parameters:
+        - image_uid (str): The UID of the image for which real-time status updates are requested.
+
+        Raises:
+        - web.HTTPError: If the provided image UID is badly formed or if the requested image is not found.
+        """
+
         self.set_header("Content-Type", "text/event-stream")
         self.set_header("Cache-Control", "no-cache")
 
@@ -64,6 +78,10 @@ class BinderHubLogsHandler(BaseHandler):
                     break
 
     async def _emit(self, msg):
+        """
+        Asynchronous method to emit a message over a stream.
+        """
+
         try:
             self.write(f"data: {json.dumps(msg)}\n\n")
             await self.flush()

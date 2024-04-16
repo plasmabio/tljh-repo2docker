@@ -14,9 +14,12 @@ dependencies = [
   "jupyter-repo2docker>=2024,<2025",
 ]
 dynamic = ["version"]
-license = { file = "LICENSE" }
+license = {file = "LICENSE"}
 name = "tljh-repo2docker"
 readme = "README.md"
+
+[project.scripts]
+tljh_repo2docker_upgrade_db = "tljh_repo2docker.dbutil:main"
 
 [project.entry-points.tljh]
 tljh_repo2docker = "tljh_repo2docker"

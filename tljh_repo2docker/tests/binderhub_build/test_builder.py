@@ -1,7 +1,7 @@
 import pytest
 import sqlalchemy as sa
 from aiodocker import Docker, DockerError
-
+import asyncio
 from tljh_repo2docker.database.model import DockerImageSQL
 
 from ..utils import add_environment, remove_environment, wait_for_image
@@ -20,6 +20,7 @@ async def test_add_environment(
     assert uid is not None
 
     await wait_for_image(image_name=generated_image_name)
+    await asyncio.sleep(3)
     images_db = db_session.execute(sa.select(DockerImageSQL)).scalars().first()
     assert images_db.name == generated_image_name
     assert images_db.image_meta["display_name"] == name
