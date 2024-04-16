@@ -3,7 +3,7 @@ import uuid
 from jupyterhub.orm import JSONDict
 from sqlalchemy import Column, String, Text
 from sqlalchemy.dialects.postgresql import ENUM, UUID
-from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
+from sqlalchemy.orm import DeclarativeMeta, declarative_base
 
 from .schemas import BuildStatusType
 

@@ -25,11 +25,14 @@ class BinderHubLogsHandler(BaseHandler):
             return
 
         async with db_context() as db:
+            try:
+                uuid = UUID(image_uid)
+            except ValueError:
+                raise web.HTTPError(400, "Badly formed hexadecimal UUID string")
 
-            image = await image_db_manager.read(db, UUID(image_uid))
+            image = await image_db_manager.read(db, uuid)
             if not image:
-                await self._emit({"phase": "error", "message": "Image not found"})
-                return
+                raise web.HTTPError(404, "Image not found")
 
             status = image.status
             if status == BuildStatusType.FAILED:

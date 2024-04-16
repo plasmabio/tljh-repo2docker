@@ -109,3 +109,16 @@ async def remove_docker_image(image_name):
             await docker.images.delete(image_name, force=True)
         except DockerError:
             pass
+
+
+def next_event(it):
+    """read an event from an eventstream
+    From: https://github.com/jupyterhub/jupyterhub/blob/81d423d6c674765400a6fe88064c1366b7070f94/jupyterhub/tests/test_api.py#L692-L700
+    """
+    while True:
+        try:
+            line = next(it)
+        except StopIteration:
+            return
+        if line.startswith("data:"):
+            return json.loads(line.split(":", 1)[1])

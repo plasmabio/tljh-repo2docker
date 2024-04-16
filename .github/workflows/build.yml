@@ -95,7 +95,7 @@ jobs:
         run: |
           python -m pytest tljh_repo2docker/tests/local_build   --cov
 
-      - name: Run binfderhub build backend tests
+      - name: Run binderhub build backend tests
         run: |
           python -m pytest tljh_repo2docker/tests/binderhub_build   --cov
 

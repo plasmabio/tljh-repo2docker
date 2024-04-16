@@ -1,4 +1,5 @@
 import json
+import re
 from urllib.parse import quote
 from uuid import UUID, uuid4
 
@@ -13,6 +14,8 @@ from .database.schemas import (
     DockerImageUpdateSchema,
     ImageMetadataType,
 )
+
+IMAGE_NAME_RE = r"^[a-z0-9-_]+$"
 
 
 class BinderHubBuildHandler(BaseHandler):
@@ -53,12 +56,34 @@ class BinderHubBuildHandler(BaseHandler):
     @require_admin_role
     async def post(self):
         data = self.get_json_body()
+
         repo = data["repo"]
         ref = data["ref"]
         name = data["name"].lower()
         memory = data["memory"]
         cpu = data["cpu"]
         provider = data["provider"]
+
+        if len(repo) == 0:
+            raise web.HTTPError(400, "Repository is empty")
+
+        if name and not re.match(IMAGE_NAME_RE, name):
+            raise web.HTTPError(
+                400,
+                f"The name of the environment is restricted to the following characters: {IMAGE_NAME_RE}",
+            )
+
+        if memory:
+            try:
+                float(memory)
+            except ValueError:
+                raise web.HTTPError(400, "Memory Limit must be a number")
+
+        if cpu:
+            try:
+                float(cpu)
+            except ValueError:
+                raise web.HTTPError(400, "CPU Limit must be a number")
 
         binder_url = self.settings.get("binderhub_url")
         quoted_repo = quote(repo, safe="")

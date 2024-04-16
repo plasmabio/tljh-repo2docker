@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional
 
-from pydantic import UUID4, BaseModel
+from pydantic import UUID4, BaseModel, ConfigDict
 
 
 class BuildStatusType(str, Enum):
@@ -25,8 +25,7 @@ class DockerImageCreateSchema(BaseModel):
     log: str
     image_meta: ImageMetadataType
 
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class DockerImageUpdateSchema(DockerImageCreateSchema):
@@ -36,12 +35,9 @@ class DockerImageUpdateSchema(DockerImageCreateSchema):
     log: Optional[str] = None
     image_meta: Optional[ImageMetadataType] = None
 
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class DockerImageOutSchema(DockerImageCreateSchema):
 
-    class Config:
-        use_enum_values = True
-        from_attributes = True
+    model_config = ConfigDict(use_enum_values=True, from_attributes=True)

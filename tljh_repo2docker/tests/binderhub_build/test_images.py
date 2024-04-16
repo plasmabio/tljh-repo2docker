@@ -15,7 +15,7 @@ async def test_images_list_admin(app):
     )
     r.raise_for_status()
     assert (
-        '{"repo_providers": [{"label": "Git", "value": "git"}], "use_binderhub": true, "images": [], "default_mem_limit": "None", "default_cpu_limit":"None", "machine_profiles": [{"cpu": 2, "label": "Small", "memory": 2}, {"cpu": 4, "label": "Medium", "memory": 4}, {"cpu": 8, "label": "Large", "memory": 8}]}'
+        '{"repo_providers": [{"label": "Git", "value": "git"}], "use_binderhub": true, "images": [], "default_mem_limit": "None", "default_cpu_limit":"None", "machine_profiles": []}'
         in r.text
     )
 
@@ -30,7 +30,7 @@ async def test_images_list_not_admin(app):
 
 
 @pytest.mark.asyncio
-async def test_spawn_page(app, minimal_repo, image_name, docker_image_name):
+async def test_spawn_page(app, minimal_repo, image_name, generated_image_name):
     cookies = await app.login_user("admin")
 
     # go to the spawn page
@@ -44,7 +44,7 @@ async def test_spawn_page(app, minimal_repo, image_name, docker_image_name):
         app, repo=minimal_repo, name=name, ref=ref, provider="git"
     )
     assert r.status_code == 200
-    await wait_for_image(image_name=docker_image_name)
+    await wait_for_image(image_name=generated_image_name)
 
     # the environment should be on the page
     r = await get_page(
