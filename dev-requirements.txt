@@ -2,7 +2,6 @@ git+https://github.com/jupyterhub/the-littlest-jupyterhub@1.0.0
 git+https://github.com/jupyterhub/binderhub.git@main
 jupyterhub>=4,<5
 alembic>=1.13.0,<1.14
-aiosqlite~=0.19.0
 pytest
 pytest-aiohttp
 pytest-asyncio

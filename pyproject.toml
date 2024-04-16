@@ -12,6 +12,7 @@ dependencies = [
   "pydantic>=2,<3",
   "alembic>=1.13,<2",
   "jupyter-repo2docker>=2024,<2025",
+  "aiosqlite~=0.19.0"
 ]
 dynamic = ["version"]
 license = {file = "LICENSE"}

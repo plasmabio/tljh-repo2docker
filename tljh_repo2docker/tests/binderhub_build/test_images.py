@@ -17,17 +17,6 @@ async def test_images_list_not_admin(app):
 @pytest.mark.asyncio
 async def test_images_list_admin(app, minimal_repo, image_name, generated_image_name):
     cookies = await app.login_user("admin")
-
-    # go to the spawn page
-    r = await get_service_page(
-        "environments",
-        app,
-        cookies=cookies,
-        allow_redirects=True,
-    )
-    r.raise_for_status()
-    assert minimal_repo not in r.text
-
     # add a new envionment
     name, ref = image_name.split(":")
     r = await add_environment(

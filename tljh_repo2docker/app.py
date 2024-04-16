@@ -163,6 +163,7 @@ class TljhRepo2Docker(Application):
         "default_cpu_limit": "TljhRepo2Docker.default_cpu_limit",
         "machine_profiles": "TljhRepo2Docker.machine_profiles",
         "binderhub_url": "TljhRepo2Docker.binderhub_url",
+        "db_url": "TljhRepo2Docker.db_url",
     }
 
     def init_settings(self) -> tp.Dict:
