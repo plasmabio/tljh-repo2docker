@@ -1,5 +1,3 @@
-import json
-
 import pytest
 from jupyterhub.tests.utils import async_requests
 

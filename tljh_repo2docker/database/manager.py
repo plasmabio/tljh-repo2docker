@@ -1,5 +1,5 @@
 import logging
-from typing import List, Type, Union
+from typing import List, Optional, Type, Union
 
 import sqlalchemy as sa
 from pydantic import UUID4
@@ -104,6 +104,25 @@ class ImagesDatabaseManager:
         """
         resources = (await db.execute(sa.select(self._table))).scalars().all()
         return [self._schema_out.model_validate(r) for r in resources]
+
+    async def read_by_image_name(
+        self, db: AsyncSession, image: str
+    ) -> Optional[DockerImageOutSchema]:
+        """
+        Get image by its name.
+
+        Args:
+            db: An asyncio version of SQLAlchemy session.
+
+        Returns:
+            The list of resources retrieved.
+        """
+        statement = sa.select(self._table).where(self._table.name == image)
+        try:
+            result = await db.execute(statement)
+            return self._schema_out.model_validate(result.scalars().first())
+        except Exception:
+            return None
 
     async def update(
         self, db: AsyncSession, obj_in: DockerImageUpdateSchema, optimistic: bool = True

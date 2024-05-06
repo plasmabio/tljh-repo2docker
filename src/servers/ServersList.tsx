@@ -65,7 +65,7 @@ const columns: GridColDef[] = [
         <OpenServerButton
           url={params.row.url}
           serverName={params.row.name}
-          imageName={params.row.image}
+          imageName={params.row.uid ?? params.row.image}
           active={params.row.active}
         />
       );
@@ -86,7 +86,9 @@ function _ServerList(props: IServerListProps) {
     }
     const allServers = servers.map((it, id) => {
       const newItem: any = { ...it, id };
-      newItem.image = it.user_options.image ?? '';
+      newItem.image =
+        it.user_options?.display_name ?? it.user_options.image ?? '';
+      newItem.uid = it.user_options?.uid ?? null;
       newItem.last_activity = formatTime(newItem.last_activity);
       return newItem;
     });

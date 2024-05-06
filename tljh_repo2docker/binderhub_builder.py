@@ -3,7 +3,7 @@ import re
 from urllib.parse import quote
 from uuid import UUID, uuid4
 
-from aiodocker import Docker, DockerError
+from aiodocker import Docker
 from jupyterhub.utils import url_path_join
 from tornado import web
 
@@ -44,11 +44,11 @@ class BinderHubBuildHandler(BaseHandler):
         async with db_context() as db:
             image = await image_db_manager.read(db, uid)
             if image:
-                async with Docker() as docker:
-                    try:
+                try:
+                    async with Docker() as docker:
                         await docker.images.delete(image.name)
-                    except DockerError:
-                        pass
+                except Exception:
+                    pass
                 deleted = await image_db_manager.delete(db, uid)
 
         self.set_header("content-type", "application/json")

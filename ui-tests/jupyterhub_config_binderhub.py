@@ -58,7 +58,7 @@ c.JupyterHub.services.extend(
                 "-m",
                 "tljh_repo2docker",
                 "--ip",
-                "127.0.0.1",
+                "0.0.0.0",
                 "--port",
                 "6789",
                 "--config",
