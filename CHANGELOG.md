@@ -59,6 +59,30 @@ You can find below the list of changes since the creation of the plugin.
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.0.0a1
+
+([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v2.0.0a0...78fe0248148f114c72e4260f42ea1088ab285153))
+
+### Enhancements made
+
+- Adopt `binderhub` [#83](https://github.com/plasmabio/tljh-repo2docker/pull/83) ([@trungleduc](https://github.com/trungleduc))
+
+### Maintenance and upkeep improvements
+
+- Make npm package private [#86](https://github.com/plasmabio/tljh-repo2docker/pull/86) ([@trungleduc](https://github.com/trungleduc))
+
+### Other merged PRs
+
+- Update snapshot [#85](https://github.com/plasmabio/tljh-repo2docker/pull/85) ([@trungleduc](https://github.com/trungleduc))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2024-04-04&to=2024-05-15&type=c))
+
+[@jtpio](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Ajtpio+updated%3A2024-04-04..2024-05-15&type=Issues) | [@trungleduc](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2024-04-04..2024-05-15&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.0.0a0
 
 ([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v1.0.1...094e4635ca9329ccab20e06eb1c0fefa4b8aa664))
@@ -78,8 +102,6 @@ You can find below the list of changes since the creation of the plugin.
 ([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2024-03-11&to=2024-04-03&type=c))
 
 [@jtpio](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Ajtpio+updated%3A2024-03-11..2024-04-03&type=Issues) | [@trungleduc](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2024-03-11..2024-04-03&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.0.1
 
