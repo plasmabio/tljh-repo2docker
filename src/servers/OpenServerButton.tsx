@@ -1,5 +1,5 @@
 import { Button } from '@mui/material';
-import { Fragment, memo, useCallback } from 'react';
+import { Fragment, memo, useCallback, useMemo } from 'react';
 
 import { useAxios } from '../common/AxiosContext';
 import { useJupyterhub } from '../common/JupyterhubContext';
@@ -36,10 +36,14 @@ function _OpenServerButton(props: IOpenServerButton) {
     }
   }, [props, axios, jhData]);
 
+  const pendingUrl = useMemo(() => {
+    const url = props.url.replace('user', 'hub/spawn-pending');
+    return url.endsWith('/') ? url.slice(0, -1) : url;
+  }, [props.url]);
   return (
     <Fragment>
       {props.active && (
-        <Button href={props.url} target="_blank">
+        <Button href={pendingUrl} target="_blank">
           Open Server
         </Button>
       )}

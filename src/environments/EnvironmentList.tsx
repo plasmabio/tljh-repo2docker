@@ -59,7 +59,7 @@ const columns: GridColDef[] = [
       ) : params.value === 'building' ? (
         <EnvironmentLogButton
           name={params.row.display_name}
-          image={params.row.image_name}
+          image={params.row.uid ?? params.row.image_name}
         />
       ) : null;
     }
@@ -75,7 +75,7 @@ const columns: GridColDef[] = [
       return (
         <RemoveEnvironmentButton
           name={params.row.display_name}
-          image={params.row.image_name}
+          image={params.row.uid ?? params.row.image_name}
         />
       );
     }

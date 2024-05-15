@@ -16,7 +16,8 @@ if (rootElement) {
     images: [],
     default_cpu_limit: '2',
     default_mem_limit: '2G',
-    machine_profiles: []
+    machine_profiles: [],
+    use_binderhub: false
   };
   if (dataElement) {
     configData = JSON.parse(dataElement.textContent || '') as IAppProps;

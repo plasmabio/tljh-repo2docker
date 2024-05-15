@@ -2,7 +2,7 @@
 
 ![Github Actions Status](https://github.com/plasmabio/tljh-repo2docker/workflows/Tests/badge.svg)
 
-TLJH plugin providing a JupyterHub service to build and use Docker images as user environments. The Docker images are built using [`repo2docker`](https://repo2docker.readthedocs.io/en/latest/).
+TLJH plugin provides a JupyterHub service to build and use Docker images as user environments. The Docker images can be built locally using [`repo2docker`](https://repo2docker.readthedocs.io/en/latest/) or via the [`binderhub`](https://binderhub.readthedocs.io/en/latest/) service.
 
 ## Requirements
 
@@ -46,8 +46,10 @@ The available settings for this service are:
 - `default_memory_limit`: Default memory limit of a user server; defaults to `None`
 - `default_cpu_limit`: Default CPU limit of a user server; defaults to `None`
 - `machine_profiles`: Instead of entering directly the CPU and Memory value, `tljh-repo2docker` can be configured with pre-defined machine profiles and users can only choose from the available option; defaults to `[]`
+- `binderhub_url`: The optional URL of the `binderhub` service. If it is available, `tljh-repo2docker` will use this service to build images.
+- `db_url`: The connection string of the database. `tljh-repo2docker` needs a database to store the image metadata. By default, it will create a `sqlite` database in the starting directory of the service. To use other databases (`PostgreSQL` or `MySQL`), users need to specify the connection string via this config and install the additional drivers (`asyncpg` or `aiomysql`).
 
-This service requires the following scopes : `read:users`, `admin:servers` and `read:roles:users`. Here is an example of registering `tljh_repo2docker`'s service with JupyterHub
+This service requires the following scopes : `read:users`, `admin:servers` and `read:roles:users`. If `binderhub` service is used, ` access:services!service=binder`is also needed. Here is an example of registering `tljh_repo2docker`'s service with JupyterHub
 
 ```python
 # jupyterhub_config.py
@@ -78,7 +80,12 @@ c.JupyterHub.load_roles = [
     {
         "description": "Role for tljh_repo2docker service",
         "name": "tljh-repo2docker-service",
-        "scopes": ["read:users", "admin:servers", "read:roles:users"],
+        "scopes": [
+            "read:users",
+            "read:roles:users",
+            "admin:servers",
+            "access:services!service=binder",
+        ],
         "services": ["tljh_repo2docker"],
     },
     {
@@ -147,25 +154,30 @@ c.JupyterHub.load_roles = [
 
 The _Environments_ page shows the list of built environments, as well as the ones currently being built:
 
-![environments](https://raw.githubusercontent.com/plasmabio/tljh-repo2docker/master/ui-tests/tests/ui.test.ts-snapshots/environment-list-linux.png)
+![environments](https://raw.githubusercontent.com/plasmabio/tljh-repo2docker/master/ui-tests/local_snapshots/ui.test.ts/environment-list.png)
 
 ### Add a new environment
 
 Just like on [Binder](https://mybinder.org), new environments can be added by clicking on the _Add New_ button and providing a URL to the repository. Optional names, memory, and CPU limits can also be set for the environment:
 
-![add-new](https://raw.githubusercontent.com/plasmabio/tljh-repo2docker/master/ui-tests/tests/ui.test.ts-snapshots/environment-dialog-linux.png)
+![add-new](https://raw.githubusercontent.com/plasmabio/tljh-repo2docker/master/ui-tests/local_snapshots/ui.test.ts/environment-dialog.png)
+
+> [!NOTE]
+> If the build backend is `binderhub` service, users need to select the [repository provider](https://binderhub.readthedocs.io/en/latest/developer/repoproviders.html) and can not specify the custom build arguments
+
+![add-new-binderhub](https://raw.githubusercontent.com/plasmabio/tljh-repo2docker/master/ui-tests/binderhub_snapshots/ui.test.ts/environment-dialog.png)
 
 ### Follow the build logs
 
 Clicking on the _Logs_ button will open a new dialog with the build logs:
 
-![logs](https://raw.githubusercontent.com/plasmabio/tljh-repo2docker/master/ui-tests/tests/ui.test.ts-snapshots/environment-console-linux.png)
+![logs](https://raw.githubusercontent.com/plasmabio/tljh-repo2docker/master/ui-tests/local_snapshots/ui.test.ts/environment-console.png)
 
 ### Select an environment
 
 Once ready, the environments can be selected from the JupyterHub spawn page:
 
-![select-env](https://raw.githubusercontent.com/plasmabio/tljh-repo2docker/master/ui-tests/tests/ui.test.ts-snapshots/servers-dialog-linux.png)
+![select-env](https://raw.githubusercontent.com/plasmabio/tljh-repo2docker/master/ui-tests/local_snapshots/ui.test.ts/servers-dialog.png)
 
 ### Private Repositories
 
@@ -173,11 +185,14 @@ Once ready, the environments can be selected from the JupyterHub spawn page:
 
 It is possible to provide the `username` and `password` in the `Credentials` section of the form:
 
-![image](https://raw.githubusercontent.com/plasmabio/tljh-repo2docker/master/ui-tests/tests/ui.test.ts-snapshots/environment-dialog-linux.png)
+![image](https://raw.githubusercontent.com/plasmabio/tljh-repo2docker/master/ui-tests/local_snapshots/ui.test.ts/environment-dialog.png)
 
 On GitHub and GitLab, a user might have to first create an access token with `read` access to use as the password:
 
 ![image](https://user-images.githubusercontent.com/591645/107350843-39c3bf80-6aca-11eb-8b82-6fa95ba4c7e4.png)
+
+> [!NOTE]
+> The `binderhub` build backend does not support configuring private repositories credentials from the interface.
 
 ### Machine profiles
 

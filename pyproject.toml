@@ -7,12 +7,20 @@ dependencies = [
   "aiodocker~=0.19",
   "dockerspawner~=12.1",
   "jupyter_client>=6.1,<8",
-  "httpx"
+  "httpx",
+  "sqlalchemy>=2",
+  "pydantic>=2,<3",
+  "alembic>=1.13,<2",
+  "jupyter-repo2docker>=2024,<2025",
+  "aiosqlite~=0.19.0"
 ]
 dynamic = ["version"]
 license = {file = "LICENSE"}
 name = "tljh-repo2docker"
 readme = "README.md"
+
+[project.scripts]
+tljh_repo2docker_upgrade_db = "tljh_repo2docker.dbutil:main"
 
 [project.entry-points.tljh]
 tljh_repo2docker = "tljh_repo2docker"
@@ -56,10 +64,7 @@ source_dir = "src"
 version_cmd = "hatch version"
 
 [tool.jupyter-releaser.hooks]
-before-build-npm = [
-  "npm install",
-  "npm run build:prod",
-]
+before-build-npm = ["npm install", "npm run build:prod"]
 before-build-python = ["npm run clean"]
 before-bump-version = ["python -m pip install hatch"]
 

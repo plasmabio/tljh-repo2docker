@@ -66,7 +66,8 @@ function _NewServerDialog(props: INewServerDialogProps) {
   );
 
   const createServer = useCallback(async () => {
-    const imageName = props.images[rowSelectionModel[0] as number].image_name;
+    const imageData = props.images[rowSelectionModel[0] as number];
+    const imageName = imageData.uid ?? imageData.image_name;
     const data: { [key: string]: string } = {
       imageName,
       userName: jhData.user,

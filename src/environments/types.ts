@@ -7,4 +7,5 @@ export interface IEnvironmentData {
   ref: string;
   repo: string;
   status: string;
+  uid?: string;
 }

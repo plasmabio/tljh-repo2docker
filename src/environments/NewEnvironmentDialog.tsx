@@ -13,7 +13,14 @@ import {
   Select,
   Typography
 } from '@mui/material';
-import { Fragment, memo, useCallback, useMemo, useState } from 'react';
+import {
+  Fragment,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState
+} from 'react';
 
 import { useAxios } from '../common/AxiosContext';
 import { SmallTextField } from '../common/SmallTextField';
@@ -28,9 +35,12 @@ export interface INewEnvironmentDialogProps {
   default_cpu_limit: string;
   default_mem_limit: string;
   machine_profiles: IMachineProfile[];
+  use_binderhub: boolean;
+  repo_providers?: { label: string; value: string }[];
 }
 
 interface IFormValues {
+  provider?: string;
   repo?: string;
   ref?: string;
   name?: string;
@@ -74,11 +84,53 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
     [setFormValues]
   );
   const validated = useMemo(() => {
-    return Boolean(formValues.repo) && Boolean(formValues.ref);
-  }, [formValues]);
+    return Boolean(formValues.repo);
+  }, [formValues.repo]);
 
   const [selectedProfile, setSelectedProfile] = useState<number>(0);
+  const [selectedProvider, setSelectedProvider] = useState<number>(0);
 
+  const onMachineProfileChange = useCallback(
+    (value?: string | number) => {
+      if (value !== undefined) {
+        const index = parseInt(value + '');
+        const selected = props.machine_profiles[index];
+        if (selected !== undefined) {
+          updateFormValue('cpu', selected.cpu + '');
+          updateFormValue('memory', selected.memory + '');
+          setSelectedProfile(index);
+        }
+      }
+    },
+    [props.machine_profiles, updateFormValue]
+  );
+
+  const onRepoProviderChange = useCallback(
+    (value?: string | number) => {
+      if (value !== undefined) {
+        const index = parseInt(value + '');
+        const selected = props.repo_providers?.[index];
+        if (selected !== undefined) {
+          updateFormValue('provider', selected.value);
+          setSelectedProvider(index);
+        }
+      }
+    },
+    [props.repo_providers, updateFormValue]
+  );
+  useEffect(() => {
+    if (props.machine_profiles.length > 0) {
+      onMachineProfileChange(0);
+    }
+    if (props.repo_providers && props.repo_providers.length > 0) {
+      onRepoProviderChange(0);
+    }
+  }, [
+    props.machine_profiles,
+    props.repo_providers,
+    onMachineProfileChange,
+    onRepoProviderChange
+  ]);
   const MemoryCpuSelector = useMemo(() => {
     return (
       <Fragment>
@@ -120,16 +172,7 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
           value={selectedProfile}
           label="Machine profile"
           size="small"
-          onChange={e => {
-            const value = e.target.value;
-            if (value) {
-              const index = parseInt(value + '');
-              const selected = props.machine_profiles[index];
-              updateFormValue('cpu', selected.cpu + '');
-              updateFormValue('memory', selected.memory + '');
-              setSelectedProfile(index);
-            }
-          }}
+          onChange={e => onMachineProfileChange(e.target.value)}
         >
           {props.machine_profiles.map((it, idx) => {
             return (
@@ -141,7 +184,8 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
         </Select>
       </FormControl>
     );
-  }, [updateFormValue, props.machine_profiles, selectedProfile]);
+  }, [props.machine_profiles, selectedProfile, onMachineProfileChange]);
+
   return (
     <Fragment>
       <Box sx={{ display: 'flex', flexDirection: 'row-reverse' }}>
@@ -167,6 +211,7 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
                 .replace('https://', '')
                 .replace(/\//g, '-')
                 .replace(/\./g, '-');
+            data.ref = data.ref && data.ref.length > 0 ? data.ref : 'HEAD';
             data.cpu = data.cpu ?? '2';
             data.memory = data.memory ?? '2';
             data.username = data.username ?? '';
@@ -186,6 +231,29 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
       >
         <DialogTitle>Create a new environment</DialogTitle>
         <DialogContent>
+          {props.use_binderhub && props.repo_providers && (
+            <FormControl fullWidth sx={{ marginTop: '8px' }}>
+              <InputLabel id="git-provider-select-label">
+                Repository provider
+              </InputLabel>
+              <Select
+                labelId="git-provider-select-label"
+                id="git-provider-select"
+                value={selectedProvider}
+                label="Repository provider"
+                size="small"
+                onChange={e => onRepoProviderChange(e.target.value)}
+              >
+                {props.repo_providers.map((it, idx) => {
+                  return (
+                    <MenuItem key={idx} value={idx}>
+                      {it.label}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
+          )}
           <SmallTextField
             {...commonInputProps}
             id="repo"
@@ -204,6 +272,7 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
             label="Reference (git commit)"
             type="text"
             placeholder="HEAD"
+            required={false}
             onChange={e => updateFormValue('ref', e.target.value)}
             value={formValues.ref ?? ''}
           />
@@ -221,56 +290,64 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
           {props.machine_profiles.length > 0
             ? MachineProfileSelector
             : MemoryCpuSelector}
-          <Divider
-            variant="fullWidth"
-            textAlign="left"
-            sx={{ marginTop: '6px' }}
-          >
-            <Typography sx={{ fontWeight: 500, fontSize: '1.4rem' }}>
-              Advanced
-            </Typography>
-          </Divider>
-          <SmallTextField
-            {...commonInputProps}
-            id="build_args"
-            name="build_args"
-            label="Build arguments"
-            type="text"
-            size="small"
-            multiline
-            rows={4}
-            required={false}
-            placeholder="Build arguments in the form of arg1=val1..."
-            onChange={e => updateFormValue('buildargs', e.target.value)}
-          />
-          <Divider
-            variant="fullWidth"
-            textAlign="left"
-            sx={{ marginTop: '6px' }}
-          >
-            <Typography sx={{ fontWeight: 500, fontSize: '1.4rem' }}>
-              Credentials
-            </Typography>
-          </Divider>
-          <SmallTextField
-            {...commonInputProps}
-            id="git_user"
-            name="git_user"
-            size="small"
-            label="Git user name"
-            type="text"
-            required={false}
-            onChange={e => updateFormValue('username', e.target.value)}
-          />
-          <SmallTextField
-            {...commonInputProps}
-            id="git_password"
-            name="git_password"
-            size="small"
-            label="Git password"
-            type="password"
-            required={false}
-          />
+          {!props.use_binderhub && (
+            <Fragment>
+              <Divider
+                variant="fullWidth"
+                textAlign="left"
+                sx={{ marginTop: '6px' }}
+              >
+                <Typography sx={{ fontWeight: 500, fontSize: '1.4rem' }}>
+                  Advanced
+                </Typography>
+              </Divider>
+              <SmallTextField
+                {...commonInputProps}
+                id="build_args"
+                name="build_args"
+                label="Build arguments"
+                type="text"
+                size="small"
+                multiline
+                rows={4}
+                required={false}
+                placeholder="Build arguments in the form of arg1=val1..."
+                onChange={e => updateFormValue('buildargs', e.target.value)}
+              />
+            </Fragment>
+          )}
+          {!props.use_binderhub && (
+            <Fragment>
+              <Divider
+                variant="fullWidth"
+                textAlign="left"
+                sx={{ marginTop: '6px' }}
+              >
+                <Typography sx={{ fontWeight: 500, fontSize: '1.4rem' }}>
+                  Credentials
+                </Typography>
+              </Divider>
+              <SmallTextField
+                {...commonInputProps}
+                id="git_user"
+                name="git_user"
+                size="small"
+                label="Git user name"
+                type="text"
+                required={false}
+                onChange={e => updateFormValue('username', e.target.value)}
+              />
+              <SmallTextField
+                {...commonInputProps}
+                id="git_password"
+                name="git_password"
+                size="small"
+                label="Git password"
+                type="password"
+                required={false}
+              />
+            </Fragment>
+          )}
         </DialogContent>
         <DialogActions>
           <Button variant="contained" color="error" onClick={handleClose}>

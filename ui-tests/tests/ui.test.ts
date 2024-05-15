@@ -98,10 +98,9 @@ test.describe('tljh_repo2docker UI Tests', () => {
       .getByRole('button')
       .first()
       .click();
-    await page.waitForSelector(
-      'span:has-text("Successfully tagged python-env:HEAD")',
-      { timeout: 600000 }
-    );
+    await page.waitForSelector('span:has-text("Successfully tagged")', {
+      timeout: 600000
+    });
     expect(await page.screenshot()).toMatchSnapshot('environment-console.png', {
       maxDiffPixelRatio: 0.05
     });
@@ -143,7 +142,7 @@ test.describe('tljh_repo2docker UI Tests', () => {
       name: 'Create Server'
     });
     await createServer.click();
-    await expect(createServer).toHaveCount(0);
+    await expect(createServer).toHaveCount(0, { timeout: 20000 });
     await page.waitForURL('**/servers');
     await page.waitForTimeout(1000);
 

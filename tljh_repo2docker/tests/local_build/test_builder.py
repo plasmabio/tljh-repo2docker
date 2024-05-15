@@ -1,7 +1,7 @@
 import pytest
 from aiodocker import Docker, DockerError
 
-from .utils import add_environment, remove_environment, wait_for_image
+from ..utils import add_environment, remove_environment, wait_for_image
 
 
 @pytest.mark.asyncio

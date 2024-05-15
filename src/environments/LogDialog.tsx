@@ -65,13 +65,13 @@ function _EnvironmentLogButton(props: IEnvironmentLogButton) {
       eventSource.onmessage = event => {
         const data = JSON.parse(event.data);
 
+        terminal.write(data.message);
+        fitAddon.fit();
         if (data.phase === 'built') {
           eventSource.close();
           setBuilt(true);
           return;
         }
-        terminal.write(data.message);
-        fitAddon.fit();
       };
     }
   }, [jhData, props.image]);

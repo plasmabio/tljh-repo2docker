@@ -1,7 +1,7 @@
 import pytest
 from jupyterhub.tests.utils import get_page
 
-from .utils import add_environment, get_service_page, wait_for_image
+from ..utils import add_environment, get_service_page, wait_for_image
 
 
 @pytest.mark.asyncio
@@ -15,7 +15,7 @@ async def test_images_list_admin(app):
     )
     r.raise_for_status()
     assert (
-        '{"images": [], "default_mem_limit": "None", "default_cpu_limit":"None", "machine_profiles": []}'
+        '{"repo_providers": [{"label": "Git", "value": "git"}], "use_binderhub": false, "images": [], "default_mem_limit": "None", "default_cpu_limit":"None", "machine_profiles": []}'
         in r.text
     )
 

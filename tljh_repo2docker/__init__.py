@@ -3,10 +3,13 @@ from dockerspawner import DockerSpawner
 from jinja2 import BaseLoader, Environment
 from jupyter_client.localinterfaces import public_ips
 from jupyterhub.traitlets import ByteSpecification
-from tljh.configurer import load_config
-from tljh.hooks import hookimpl
 from traitlets import Unicode
 from traitlets.config import Configurable
+
+try:
+    from tljh.hooks import hookimpl
+except ModuleNotFoundError:
+    hookimpl = None
 
 from .docker import list_images
 
@@ -97,7 +100,10 @@ class SpawnerMixin(Configurable):
         """
         Override the default form to handle the case when there is only one image.
         """
-        images = await self.list_images()
+        try:
+            images = await self.list_images()
+        except ValueError:
+            images = []
 
         # make default limits human readable
         default_mem_limit = self.mem_limit
@@ -160,19 +166,24 @@ class Repo2DockerSpawner(SpawnerMixin, DockerSpawner):
         return await super().start(*args, **kwargs)
 
 
-@hookimpl
-def tljh_custom_jupyterhub_config(c):
-    # hub
-    c.JupyterHub.hub_ip = public_ips()[0]
-    c.JupyterHub.cleanup_servers = False
-    c.JupyterHub.spawner_class = Repo2DockerSpawner
+if hookimpl:
 
-    # spawner
-    c.DockerSpawner.cmd = ["jupyterhub-singleuser"]
-    c.DockerSpawner.pull_policy = "Never"
-    c.DockerSpawner.remove = True
+    @hookimpl
+    def tljh_custom_jupyterhub_config(c):
+        # hub
+        c.JupyterHub.hub_ip = public_ips()[0]
+        c.JupyterHub.cleanup_servers = False
+        c.JupyterHub.spawner_class = Repo2DockerSpawner
 
+        # spawner
+        c.DockerSpawner.cmd = ["jupyterhub-singleuser"]
+        c.DockerSpawner.pull_policy = "Never"
+        c.DockerSpawner.remove = True
 
-@hookimpl
-def tljh_extra_hub_pip_packages():
-    return ["dockerspawner~=0.11", "jupyter_client>=6.1,<8", "aiodocker~=0.19"]
+    @hookimpl
+    def tljh_extra_hub_pip_packages():
+        return ["dockerspawner~=0.11", "jupyter_client>=6.1,<8", "aiodocker~=0.19"]
+
+else:
+    tljh_custom_jupyterhub_config = None
+    tljh_extra_hub_pip_packages = None

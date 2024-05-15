@@ -1,17 +1,29 @@
 import functools
 import json
 import os
+import sys
+from contextlib import _AsyncGeneratorContextManager
 from http.client import responses
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from httpx import AsyncClient
 from jinja2 import Template
 from jupyterhub.services.auth import HubOAuthenticated
 from jupyterhub.utils import url_path_join
+from sqlalchemy.ext.asyncio import AsyncSession
 from tornado import web
 
 from tljh_repo2docker import TLJH_R2D_ADMIN_SCOPE
+from tljh_repo2docker.database.manager import ImagesDatabaseManager
 
 from .model import UserModel
+
+if sys.version_info >= (3, 9):
+    AsyncSessionContextFactory = Callable[
+        [], _AsyncGeneratorContextManager[AsyncSession]
+    ]
+else:
+    AsyncSessionContextFactory = Any
 
 
 def require_admin_role(func):
@@ -37,6 +49,9 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
 
     @property
     def client(self):
+        """
+        Get the asynchronous HTTP client with valid authorization token.
+        """
         if not BaseHandler._client:
             api_url = os.environ.get("JUPYTERHUB_API_URL", "")
             api_token = os.environ.get("JUPYTERHUB_API_TOKEN", None)
@@ -157,3 +172,85 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
         self.write(
             json.dumps({"status": status_code, "message": message or status_message})
         )
+
+    @property
+    def use_binderhub(self) -> bool:
+        """
+        Check if BinderHub is being used by checking for the binderhub url
+        in the setting.
+
+        Returns:
+            bool: True if BinderHub is being used, False otherwise.
+        """
+        return self.settings.get("binderhub_url", None) is not None
+
+    def get_db_handlers(
+        self,
+    ) -> Tuple[
+        Optional[AsyncSessionContextFactory],
+        Optional[ImagesDatabaseManager],
+    ]:
+        """
+        Get database handlers.
+
+        Returns the database context and image database manager based on the
+        configuration and settings. If `use_binderhub` flag is set to True,
+        returns the configured database context and image database manager;
+        otherwise, returns None for both.
+
+        Returns:
+            Tuple[Optional[Callable[[], _AsyncGeneratorContextManager[AsyncSession]]],
+                Optional[ImagesDatabaseManager]]: A tuple containing:
+                - The database context, which is a callable returning an
+                    async generator context manager for session management.
+                - The image database manager, which handles image database
+                    operations.
+
+        """
+        if self.use_binderhub:
+            db_context = self.settings.get("db_context")
+            image_db_manager = self.settings.get("image_db_manager")
+            return db_context, image_db_manager
+        else:
+            return None, None
+
+    async def get_images_from_db(self) -> List[Dict]:
+        """
+        Retrieve images from the database.
+
+        This method fetches image information from the database, formats it,
+        and returns a list of dictionaries representing each image.
+
+        Returns:
+            List[Dict]: A list of dictionaries, each containing information
+            about an image. Each dictionary has the following keys:
+                - image_name (str): The name of the docker image.
+                - uid (str): The unique identifier of the image.
+                - status (str): The build status of the image.
+                - display_name (str): The user defined name of the image.
+                - repo (str): Source repo used to build the image.
+                - ref (str): Commit reference.
+                - cpu_limit (str): CPU limit.
+                - mem_limit (str): Memory limit.
+
+        Note:
+            If `use_binderhub` flag is set to True and valid database context
+            and image database manager are available, it retrieves image
+            information; otherwise, an empty list is returned.
+        """
+        db_context, image_db_manager = self.get_db_handlers()
+        all_images = []
+        if self.use_binderhub and db_context and image_db_manager:
+            async with db_context() as db:
+                docker_images = await image_db_manager.read_all(db)
+                all_images = [
+                    dict(
+                        image_name=image.name,
+                        uid=str(image.uid),
+                        status=image.status,
+                        **image.image_meta.model_dump(),
+                    )
+                    for image in docker_images
+                ]
+
+        return all_images
