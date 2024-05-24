@@ -1,0 +1,23 @@
+jupyterhub:
+  enabled: true
+  hub:
+    image:
+      name: k8s-hub-binhderhub-tljh
+      tag: xxx
+    config:
+      BinderSpawner:
+        auth_enabled: true
+    extraFiles:
+      my_jupyterhub_config:
+        mountPath: /usr/local/etc/jupyterhub/jupyterhub_config.d/jupyterhub_config.py
+
+binderhub-service:
+  config:
+    BinderHub:
+      base_url: /services/binder
+      use_registry: true
+      image_prefix: ""
+      enable_api_only_mode: true
+
+  buildPodsRegistryCredentials:
+    server: "https://index.docker.io/v1/"

@@ -238,6 +238,10 @@ See the [Plasma documentation on user environments](https://docs.plasmabio.org/e
 
 See: https://repo2docker.readthedocs.io/en/latest/howto/jupyterhub_images.html
 
+## Deploy on Kubernetes cluster with Zero to JupyterHub
+
+Check out the instructions in [DEPLOYMENT.md](./example/DEPLOYMENT.md) to set up the deployment.
+
 ## Run Locally
 
 Check out the instructions in [CONTRIBUTING.md](./CONTRIBUTING.md) to set up a local environment.
