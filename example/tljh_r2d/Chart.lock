@@ -1,0 +1,9 @@
+dependencies:
+- name: jupyterhub
+  repository: https://hub.jupyter.org/helm-chart/
+  version: 3.3.7
+- name: binderhub-service
+  repository: https://2i2c.org/binderhub-service
+  version: 0.1.0-0.dev.git.201.h161a088
+digest: sha256:db05fc18bdb7cbcf06ea8881ed72391383ed0524def10d76b62b9d1880abac51
+generated: "2024-05-02T20:34:11.347162518+02:00"
