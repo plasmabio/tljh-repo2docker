@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Base Setup
         uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
@@ -31,7 +31,7 @@ jobs:
           python -m build .
 
       - name: Upload package
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tljh_repo2docker-artifacts
           path: |
@@ -47,7 +47,7 @@ jobs:
       - name: Base Setup
         uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: tljh_repo2docker-artifacts
 
@@ -74,13 +74,13 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Base Setup
         uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
 
       - name: Download app package
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: tljh_repo2docker-artifacts
 
@@ -114,13 +114,13 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Base Setup
         uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
 
       - name: Download app package
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: tljh_repo2docker-artifacts
 
@@ -138,7 +138,7 @@ jobs:
         run: npm install
 
       - name: Set up browser cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ${{ github.workspace }}/pw-browsers
@@ -155,9 +155,9 @@ jobs:
 
       - name: Upload Playwright Test report
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: tljh-playwright-tests
+          name: tljh-playwright-tests-${{ matrix.build-backend }}
           path: |
             ui-tests/local-test-results
             ui-tests/binderhub-test-results
