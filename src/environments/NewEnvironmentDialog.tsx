@@ -199,7 +199,7 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
         onClose={handleClose}
         fullWidth
         maxWidth={'md'}
-        className='tljh-form-dialog'
+        className="tljh-form-dialog"
         PaperProps={{
           component: 'form',
           onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
