@@ -105,7 +105,13 @@ function _NewServerDialog(props: INewServerDialogProps) {
           Create new Server
         </Button>
       </Box>
-      <Dialog open={open} onClose={handleClose} fullWidth maxWidth={'md'}>
+      <Dialog
+        className="tljh-form-dialog"
+        open={open}
+        onClose={handleClose}
+        fullWidth
+        maxWidth={'lg'}
+      >
         <DialogTitle>Server Options</DialogTitle>
 
         <DialogContent>

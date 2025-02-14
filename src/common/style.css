@@ -1,3 +1,40 @@
 .MuiButton-root {
   text-transform: capitalize !important;
+  font-size: 1rem !important;
+}
+.MuiScopedCssBaseline-root {
+  background-color: var(--bs-body-bg) !important;
+}
+/*DataGrid custom styling*/
+.tljh-container .MuiDataGrid-root,
+.tljh-form-dialog .MuiDataGrid-root {
+  font-size: 1rem !important;
+}
+.tljh-container .MuiSvgIcon-root,
+.tljh-form-dialog .MuiSvgIcon-root {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.tljh-container .MuiTablePagination-displayedRows,
+.tljh-form-dialog .MuiTablePagination-displayedRows {
+  font-size: 1.1rem !important;
+}
+
+/* Dialog custom styling */
+.tljh-form-dialog .MuiDialogTitle-root {
+  font-size: 1.5rem !important;
+}
+.tljh-form-dialog .MuiInputLabel-root,
+.tljh-form-dialog .MuiInputBase-root {
+  font-size: 1rem !important;
+}
+.tljh-form-dialog .MuiMenuItem-root {
+  font-size: inherit !important;
+}
+.tljh-form-dialog .MuiDivider-wrapper .MuiTypography-root,
+.tljh-form-dialog .MuiDialogContentText-root {
+  font-size: 1.1rem !important;
+}
+.tljh-form-dialog .MuiFormHelperText-root {
+  font-size: inherit !important;
 }

@@ -23,12 +23,12 @@ const columns: GridColDef[] = [
   {
     field: 'last_activity',
     headerName: 'Last activity',
-    width: 150
+    width: 250
   },
   {
     field: 'active',
     headerName: 'Status',
-    width: 100,
+    width: 125,
     hideSortIcons: true,
     renderCell: params => {
       return params.value ? (
@@ -45,7 +45,7 @@ const columns: GridColDef[] = [
   {
     field: 'status',
     headerName: '',
-    width: 125,
+    width: 175,
     filterable: false,
     sortable: false,
     hideable: false,
@@ -56,7 +56,7 @@ const columns: GridColDef[] = [
   {
     field: 'action',
     headerName: '',
-    width: 125,
+    width: 175,
     filterable: false,
     sortable: false,
     hideable: false,

@@ -29,7 +29,7 @@ const columns: GridColDef[] = [
   {
     field: 'ref',
     headerName: 'Reference',
-    maxWidth: 150,
+    width: 200,
     renderCell: params => {
       return (
         <a href={`${params.row.repo}/tree/${params.value}`}>{params.value}</a>
@@ -39,17 +39,17 @@ const columns: GridColDef[] = [
   {
     field: 'mem_limit',
     headerName: 'Mem. Limit (GB)',
-    width: 150
+    width: 200
   },
   {
     field: 'cpu_limit',
     headerName: 'CPU Limit',
-    width: 100
+    width: 150
   },
   {
     field: 'status',
     headerName: 'Status',
-    width: 100,
+    width: 150,
     hideSortIcons: true,
     renderCell: params => {
       return params.value === 'built' ? (

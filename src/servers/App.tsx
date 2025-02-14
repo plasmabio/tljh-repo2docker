@@ -1,16 +1,16 @@
 import { Stack } from '@mui/material';
 import ScopedCssBaseline from '@mui/material/ScopedCssBaseline';
-import { ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { useEffect, useMemo, useState } from 'react';
 
-import { customTheme } from '../common/theme';
 import { IServerData } from './types';
 import { AxiosContext } from '../common/AxiosContext';
-import { useMemo } from 'react';
 import { AxiosClient } from '../common/axiosclient';
 import { ServerList } from './ServersList';
 import { NewServerDialog } from './NewServerDialog';
 import { IEnvironmentData } from '../environments/types';
 import { useJupyterhub } from '../common/JupyterhubContext';
+import '../common/style.css';
 
 export interface IAppProps {
   images: IEnvironmentData[];
@@ -21,6 +21,44 @@ export interface IAppProps {
 }
 export default function App(props: IAppProps) {
   const jhData = useJupyterhub();
+
+  const [themeMode, setThemeMode] = useState<'light' | 'dark'>(
+    (document.documentElement.getAttribute('data-bs-theme') as
+      | 'light'
+      | 'dark') || 'light'
+  );
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      const newTheme = document.documentElement.getAttribute(
+        'data-bs-theme'
+      ) as 'light' | 'dark';
+      if (newTheme !== themeMode) {
+        setThemeMode(newTheme);
+      }
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-bs-theme']
+    });
+
+    return () => observer.disconnect();
+  }, [themeMode]);
+
+  // Create theme dynamically based on mode
+  const customTheme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode: themeMode,
+          primary: { main: '#1976D2' },
+          secondary: { main: '#FF4081' }
+        },
+        typography: { fontSize: 22 }
+      }),
+    [themeMode]
+  );
 
   const serviceClient = useMemo(() => {
     const baseUrl = jhData.servicePrefix;
