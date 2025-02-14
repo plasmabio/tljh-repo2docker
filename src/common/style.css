@@ -32,7 +32,8 @@
   font-size: inherit !important;
 }
 .tljh-form-dialog .MuiDivider-wrapper .MuiTypography-root,
-.tljh-form-dialog .MuiDialogContentText-root {
+.tljh-form-dialog .MuiDialogContentText-root,
+.tljh-form-dialog .MuiTypography-body1 {
   font-size: 1.1rem !important;
 }
 .tljh-form-dialog .MuiFormHelperText-root {

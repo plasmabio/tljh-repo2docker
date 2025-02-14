@@ -121,6 +121,7 @@ function _EnvironmentLogButton(props: IEnvironmentLogButton) {
         fullWidth
         maxWidth={'lg'}
         keepMounted={true}
+        className="tljh-form-dialog"
       >
         <DialogTitle>Creating environment {props.name}</DialogTitle>
         <DialogContent>
