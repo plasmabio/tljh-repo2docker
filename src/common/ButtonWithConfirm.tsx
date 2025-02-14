@@ -43,7 +43,13 @@ function _ButtonWithConfirm(props: IButtonWithConfirm) {
         {props.buttonLabel}
       </Button>
 
-      <Dialog open={open} onClose={handleClose} fullWidth maxWidth={'sm'}>
+      <Dialog
+        className="tljh-form-dialog"
+        open={open}
+        onClose={handleClose}
+        fullWidth
+        maxWidth={'sm'}
+      >
         <DialogTitle>{props.dialogTitle}</DialogTitle>
         <DialogContent>
           {!loading && props.dialogBody}
