@@ -38,6 +38,32 @@ jobs:
             dist/tljh_repo2docker*.whl
           if-no-files-found: error
 
+  build-image:
+    name: Build image
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Base Setup
+        uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+      - uses: actions/download-artifact@v4
+        with:
+          name: tljh_repo2docker-artifacts
+      - name: Build image
+        run: |
+          set -eux
+          FILENAME=$(ls tljh_repo2docker*.whl)
+          TAG=$(echo "$FILENAME" | sed -n 's/tljh_repo2docker-\([0-9a-zA-Z.]*\)-py.*/\1/p')
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/k8s-hub-tljh-r2d
+          echo "FULL_IMAGE_NAME=$IMAGE_NAME:$TAG" >> $GITHUB_ENV
+          docker build -t $IMAGE_NAME:$TAG -f Dockerfile .
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+      - name: Push Docker image to GitHub Container Registry
+        run: |
+          docker push $FULL_IMAGE_NAME
+
   isolated-tests:
     name: Isolated tests
     needs: build
