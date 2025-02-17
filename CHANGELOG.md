@@ -59,6 +59,12 @@ You can find below the list of changes since the creation of the plugin.
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.0.0a5
+
+No merged PRs
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.0.0a4
 
 ([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v2.0.0a3...1bd36bae9484728e02036bbeb190745b4be395e5))
@@ -78,8 +84,6 @@ You can find below the list of changes since the creation of the plugin.
 ([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2025-02-17&to=2025-02-17&type=c))
 
 [@dependabot](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Adependabot+updated%3A2025-02-17..2025-02-17&type=Issues) | [@trungleduc](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2025-02-17..2025-02-17&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.0.0a3
 
