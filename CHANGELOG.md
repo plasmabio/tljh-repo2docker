@@ -59,6 +59,26 @@ You can find below the list of changes since the creation of the plugin.
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.0.0a3
+
+([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v2.0.0a2...f955d7a18f5e7e8a4c590370a1181d22aed39fd4))
+
+### Enhancements made
+
+- Restore self.log logger in BaseHandler [#96](https://github.com/plasmabio/tljh-repo2docker/pull/96) ([@TimoRoth](https://github.com/TimoRoth))
+
+### Maintenance and upkeep improvements
+
+- [skip ci] Add token for gh [#97](https://github.com/plasmabio/tljh-repo2docker/pull/97) ([@trungleduc](https://github.com/trungleduc))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2025-02-17&to=2025-02-17&type=c))
+
+[@TimoRoth](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3ATimoRoth+updated%3A2025-02-17..2025-02-17&type=Issues) | [@trungleduc](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2025-02-17..2025-02-17&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.0.0a2
 
 ([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v2.0.0a1...36d6fbb0231498997c79dc254209554952d40025))
@@ -79,8 +99,6 @@ You can find below the list of changes since the creation of the plugin.
 ([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2024-05-15&to=2025-02-17&type=c))
 
 [@dependabot](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Adependabot+updated%3A2024-05-15..2025-02-17&type=Issues) | [@jtpio](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Ajtpio+updated%3A2024-05-15..2025-02-17&type=Issues) | [@Meriem-BenIsmail](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3AMeriem-BenIsmail+updated%3A2024-05-15..2025-02-17&type=Issues) | [@TimoRoth](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3ATimoRoth+updated%3A2024-05-15..2025-02-17&type=Issues) | [@trungleduc](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2024-05-15..2025-02-17&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.0.0a1
 
