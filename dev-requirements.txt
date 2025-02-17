@@ -1,6 +1,6 @@
 git+https://github.com/jupyterhub/the-littlest-jupyterhub@1.0.0
 git+https://github.com/jupyterhub/binderhub.git@main
-jupyterhub>=4,<5
+jupyterhub>=5,<6
 alembic>=1.13.0,<1.14
 pytest
 pytest-aiohttp

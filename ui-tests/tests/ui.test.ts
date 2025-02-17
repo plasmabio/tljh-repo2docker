@@ -98,9 +98,16 @@ test.describe('tljh_repo2docker UI Tests', () => {
       .getByRole('button')
       .first()
       .click();
-    await page.waitForSelector('span:has-text("Successfully tagged")', {
-      timeout: 600000
-    });
+    if (process.env.CONFIG_FILE === 'binderhub') {
+      await page.waitForSelector('span:has-text("Successfully tagged")', {
+        timeout: 600000
+      });
+    } else {
+      await page.waitForSelector('span:has-text("naming to docker")', {
+        timeout: 600000
+      });
+    }
+
     expect(await page.screenshot()).toMatchSnapshot('environment-console.png', {
       maxDiffPixelRatio: 0.05
     });
