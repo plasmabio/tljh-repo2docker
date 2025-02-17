@@ -1,15 +1,15 @@
-name: "Step 2: Publish Release"
+name: 'Step 2: Publish Release'
 on:
   workflow_dispatch:
     inputs:
       branch:
-        description: "The target branch"
+        description: 'The target branch'
         required: false
       release_url:
-        description: "The URL of the draft GitHub release"
+        description: 'The URL of the draft GitHub release'
         required: false
       steps_to_skip:
-        description: "Comma separated list of steps to skip"
+        description: 'Comma separated list of steps to skip'
         required: false
 
 jobs:
@@ -20,7 +20,7 @@ jobs:
       id-token: write
     steps:
       - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
-      
+
       - uses: actions/create-github-app-token@v1
         id: app-token
         with:
@@ -54,3 +54,47 @@ jobs:
         run: |
           echo "Failed to Publish the Draft Release Url:"
           echo ${{ steps.populate-release.outputs.release_url }}
+
+  build-image:
+    name: Build image
+    needs: publish_release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+      - name: Base Setup
+        uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+
+      - name: Pause for 5 seconds
+        run: sleep 10 # Pause for 10 seconds to ensure the release is published
+
+      - name: Download release asset
+        run: |
+          TAG=$(gh release list --repo plasmabio/tljh-repo2docker --limit 1 --exclude-drafts --json tagName --jq '.[0].tagName')
+          gh release download "$TAG" --repo plasmabio/tljh-repo2docker --pattern "*.whl" --dir .
+
+      - name: Build image
+        run: |
+          set -eux
+          FILENAME=$(ls tljh_repo2docker*.whl)
+          VERSION=$(echo "$FILENAME" | sed -n 's/tljh_repo2docker-\([0-9a-zA-Z.]*\)-py.*/\1/p')
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/k8s-hub-tljh-r2d
+          echo "FULL_IMAGE_NAME=$IMAGE_NAME:$VERSION" >> $GITHUB_ENV
+          docker build -t $IMAGE_NAME:$VERSION -f Dockerfile .
+
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Log in to GitHub Container Registry
+        run: echo $GITHUB_REGISTRY_TOKEN | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+        env:
+          GITHUB_REGISTRY_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Push Docker image to GitHub Container Registry
+        run: |
+          docker push $FULL_IMAGE_NAME
