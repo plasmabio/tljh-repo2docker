@@ -87,16 +87,10 @@ jobs:
           echo "FULL_IMAGE_NAME=$IMAGE_NAME:$VERSION" >> $GITHUB_ENV
           docker build -t $IMAGE_NAME:$VERSION -f Dockerfile .
 
-      - uses: actions/create-github-app-token@v1
-        id: app-token
-        with:
-          app-id: ${{ vars.APP_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
-
       - name: Log in to GitHub Container Registry
-        run: echo $GITHUB_REGISTRY_TOKEN | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+        run: echo $REGISTRY_TOKEN | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
         env:
-          GITHUB_REGISTRY_TOKEN: ${{ steps.app-token.outputs.token }}
+          REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
 
       - name: Push Docker image to GitHub Container Registry
         run: |
