@@ -5,6 +5,9 @@
 .MuiScopedCssBaseline-root {
   background-color: var(--bs-body-bg) !important;
 }
+.MuiMenuItem-root {
+  font-size: 1rem !important;
+}
 /*DataGrid custom styling*/
 .tljh-container .MuiDataGrid-root,
 .tljh-form-dialog .MuiDataGrid-root {
