@@ -59,6 +59,7 @@ jobs:
     name: Build image
     needs: publish_release
     runs-on: ubuntu-latest
+    environment: release
     steps:
       - name: Checkout
         uses: actions/checkout@v4
