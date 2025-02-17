@@ -74,6 +74,8 @@ jobs:
         run: |
           TAG=$(gh release list --repo plasmabio/tljh-repo2docker --limit 1 --exclude-drafts --json tagName --jq '.[0].tagName')
           gh release download "$TAG" --repo plasmabio/tljh-repo2docker --pattern "*.whl" --dir .
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Build image
         run: |
