@@ -12,6 +12,7 @@ from jupyterhub.services.auth import HubOAuthenticated
 from jupyterhub.utils import url_path_join
 from sqlalchemy.ext.asyncio import AsyncSession
 from tornado import web
+from tornado.log import app_log
 
 from tljh_repo2docker import TLJH_R2D_ADMIN_SCOPE
 from tljh_repo2docker.database.manager import ImagesDatabaseManager
@@ -46,6 +47,10 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
     """
 
     _client = None
+
+    @property
+    def log(self):
+        return self.settings.get('log', app_log)
 
     @property
     def client(self):
