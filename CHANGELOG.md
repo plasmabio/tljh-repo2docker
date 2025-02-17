@@ -59,6 +59,28 @@ You can find below the list of changes since the creation of the plugin.
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.0.0a4
+
+([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v2.0.0a3...1bd36bae9484728e02036bbeb190745b4be395e5))
+
+### Maintenance and upkeep improvements
+
+- [skip ci] run build-image in release env [#98](https://github.com/plasmabio/tljh-repo2docker/pull/98) ([@trungleduc](https://github.com/trungleduc))
+
+### Other merged PRs
+
+- Bump webpack from 5.90.3 to 5.98.0 [#95](https://github.com/plasmabio/tljh-repo2docker/pull/95) ([@dependabot](https://github.com/dependabot))
+- Bump axios from 1.6.7 to 1.7.4 [#94](https://github.com/plasmabio/tljh-repo2docker/pull/94) ([@dependabot](https://github.com/dependabot))
+- Bump braces from 3.0.2 to 3.0.3 [#93](https://github.com/plasmabio/tljh-repo2docker/pull/93) ([@dependabot](https://github.com/dependabot))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2025-02-17&to=2025-02-17&type=c))
+
+[@dependabot](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Adependabot+updated%3A2025-02-17..2025-02-17&type=Issues) | [@trungleduc](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2025-02-17..2025-02-17&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.0.0a3
 
 ([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v2.0.0a2...f955d7a18f5e7e8a4c590370a1181d22aed39fd4))
@@ -76,8 +98,6 @@ You can find below the list of changes since the creation of the plugin.
 ([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2025-02-17&to=2025-02-17&type=c))
 
 [@TimoRoth](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3ATimoRoth+updated%3A2025-02-17..2025-02-17&type=Issues) | [@trungleduc](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2025-02-17..2025-02-17&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.0.0a2
 
