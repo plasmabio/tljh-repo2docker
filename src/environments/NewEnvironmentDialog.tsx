@@ -154,7 +154,7 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
         });
       }
     },
-    [props.node_selector, updateFormValue]
+    [updateFormValue]
   );
 
   useEffect(() => {
