@@ -23,6 +23,8 @@ class ServersAPIHandler(BaseHandler):
         if not image_name_or_uid:
             raise web.HTTPError(400, "Missing image name")
 
+        image_metadata = {}
+        image_name = image_name_or_uid
         if self.use_binderhub:
             db_context, image_db_manager = self.get_db_handlers()
             if not db_context or not image_db_manager:
@@ -33,18 +35,17 @@ class ServersAPIHandler(BaseHandler):
                 if not image:
                     raise web.HTTPError(404, "Image not found")
                 image_name = image.name
-        else:
-            image_name = image_name_or_uid
-
-        post_data = {"image": image_name}
-
+                image_metadata = image.image_meta.model_dump()
+                
+        post_data = {"image": image_name, "metadata": image_metadata}
+        
         path = ""
         if len(server_name) > 0:
             path = url_path_join("users", user_name, "servers", server_name)
         else:
             path = url_path_join("users", user_name, "server")
         try:
-            response = await self.client.post(path, json=post_data)
+            response = await self.client.post(path, json=post_data, timeout=10)
             response.raise_for_status()
         except Exception:
             raise web.HTTPError(500, "Server error")

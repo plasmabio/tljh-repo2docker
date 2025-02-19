@@ -17,6 +17,7 @@ if (rootElement) {
     default_cpu_limit: '2',
     default_mem_limit: '2G',
     machine_profiles: [],
+    node_selector: {},
     use_binderhub: false
   };
   if (dataElement) {

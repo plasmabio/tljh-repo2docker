@@ -1,7 +1,7 @@
 {% extends "page.html" %} {% block main %}
 <div id="environments-root" class="tljh-container">
   <script id="tljh-page-data" type="application/json">
-    {"repo_providers": {{repo_providers | tojson}}, "use_binderhub": {{use_binderhub | tojson}}, "images": {{ images | tojson  }}, "default_mem_limit": "{{default_mem_limit}}", "default_cpu_limit":"{{default_cpu_limit}}", "machine_profiles": {{ machine_profiles | tojson  }}}
+    {"repo_providers": {{repo_providers | tojson}}, "use_binderhub": {{use_binderhub | tojson}}, "images": {{ images | tojson  }}, "default_mem_limit": "{{default_mem_limit}}", "default_cpu_limit":"{{default_cpu_limit}}", "machine_profiles": {{ machine_profiles | tojson  }}, "node_selector": {{ node_selector | tojson  }}}
   </script>
   <script src="{{ service_prefix }}service_static/js/environments.js"></script>
 </div>

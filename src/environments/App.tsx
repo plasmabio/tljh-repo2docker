@@ -4,7 +4,11 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 import { IEnvironmentData } from './types';
 import { EnvironmentList } from './EnvironmentList';
-import { IMachineProfile, NewEnvironmentDialog } from './NewEnvironmentDialog';
+import {
+  IMachineProfile,
+  INodeSelector,
+  NewEnvironmentDialog
+} from './NewEnvironmentDialog';
 import { AxiosContext } from '../common/AxiosContext';
 import { useEffect, useMemo, useState } from 'react';
 import { AxiosClient } from '../common/axiosclient';
@@ -16,6 +20,7 @@ export interface IAppProps {
   default_cpu_limit: string;
   default_mem_limit: string;
   machine_profiles: IMachineProfile[];
+  node_selector: INodeSelector;
   use_binderhub: boolean;
   repo_providers?: { label: string; value: string }[];
 }
@@ -75,6 +80,7 @@ export default function App(props: IAppProps) {
               default_cpu_limit={props.default_cpu_limit}
               default_mem_limit={props.default_mem_limit}
               machine_profiles={props.machine_profiles}
+              node_selector={props.node_selector}
               use_binderhub={props.use_binderhub}
               repo_providers={props.repo_providers}
             />

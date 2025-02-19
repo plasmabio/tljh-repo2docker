@@ -77,6 +77,7 @@ class BinderHubBuildHandler(BaseHandler):
         memory = data["memory"]
         cpu = data["cpu"]
         provider = data["provider"]
+        node_selector = data["node_selector"]
         if len(repo) == 0:
             raise web.HTTPError(400, "Repository is empty")
 
@@ -115,7 +116,7 @@ class BinderHubBuildHandler(BaseHandler):
             status=BuildStatusType.BUILDING,
             log="",
             image_meta=ImageMetadataType(
-                display_name=name, repo=repo, ref=ref, cpu_limit=cpu, mem_limit=memory
+                display_name=name, repo=repo, ref=ref, cpu_limit=cpu, mem_limit=memory, node_selector= node_selector
             ),
         )
         self.set_status(200)

@@ -16,6 +16,7 @@ class ImageMetadataType(BaseModel):
     ref: str
     cpu_limit: str
     mem_limit: str
+    node_selector: dict
 
 
 class DockerImageCreateSchema(BaseModel):
