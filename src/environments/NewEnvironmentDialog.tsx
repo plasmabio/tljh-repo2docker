@@ -285,15 +285,13 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
             data.memory = data.memory ?? '2';
             data.username = data.username ?? '';
             data.password = data.password ?? '';
-            console.log('submitted data', data);
             const response = await axios.serviceClient.request({
               method: 'post',
               path: ENV_PREFIX,
               data
             });
-            console.log(response);
             if (response?.status === 'ok') {
-              // window.location.reload();
+              window.location.reload();
             } else {
               handleClose();
             }
