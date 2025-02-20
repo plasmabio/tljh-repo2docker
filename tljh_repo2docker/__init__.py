@@ -162,7 +162,7 @@ class Repo2DockerSpawner(SpawnerMixin, DockerSpawner):
     """
 
     async def start(self, *args, **kwargs):
-        #print("SPAWN START", self.user_options)
+        print("SPAWN START", self.user_options)
         await self.set_limits()
         return await super().start(*args, **kwargs)
 

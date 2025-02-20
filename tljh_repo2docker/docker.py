@@ -2,6 +2,7 @@ import json
 from urllib.parse import urlparse
 
 from aiodocker import Docker
+from tornado import web
 
 
 async def list_images():
@@ -20,6 +21,7 @@ async def list_images():
             "display_name": image["Labels"]["tljh_repo2docker.display_name"],
             "mem_limit": image["Labels"]["tljh_repo2docker.mem_limit"],
             "cpu_limit": image["Labels"]["tljh_repo2docker.cpu_limit"],
+            "node_selector": image["Labels"]["tljh_repo2docker.node_selector"],
             "status": "built",
         }
         for image in r2d_images
@@ -45,6 +47,7 @@ async def list_containers():
             "display_name": container["Labels"]["tljh_repo2docker.display_name"],
             "mem_limit": container["Labels"]["tljh_repo2docker.mem_limit"],
             "cpu_limit": container["Labels"]["tljh_repo2docker.cpu_limit"],
+            "node_selector": container["Labels"]["tljh_repo2docker.node_selector"],
             "status": "building",
         }
         for container in r2d_containers
@@ -53,9 +56,32 @@ async def list_containers():
     return containers
 
 
+async def get_image_metadata(image_name):
+    """
+    Retrieve metadata of a specific locally built Docker image.
+    """
+    async with Docker() as docker:
+        images = await docker.images.list(
+            filters=json.dumps({"reference": [image_name]})
+        )
+        if not images:
+            raise web.HTTPError(404, "Image not found")
+
+        image = images[0]
+        return {
+            "repo": image["Labels"].get("repo2docker.repo", ""),
+            "ref": image["Labels"].get("repo2docker.ref", ""),
+            "display_name": image["Labels"].get("tljh_repo2docker.display_name", ""),
+            "mem_limit": image["Labels"].get("tljh_repo2docker.mem_limit", ""),
+            "cpu_limit": image["Labels"].get("tljh_repo2docker.cpu_limit", ""),
+            "node_selector": image["Labels"].get("tljh_repo2docker.node_selector", ""),
+        }
+
+
 async def build_image(
     repo,
     ref,
+    node_selector={},
     name="",
     memory=None,
     cpu=None,
@@ -86,6 +112,7 @@ async def build_image(
         f"tljh_repo2docker.image_name={image_name}",
         f"tljh_repo2docker.mem_limit={memory}",
         f"tljh_repo2docker.cpu_limit={cpu}",
+        f"tljh_repo2docker.node_selector={node_selector}",
     ]
     cmd = [
         "jupyter-repo2docker",
@@ -118,6 +145,7 @@ async def build_image(
             "tljh_repo2docker.display_name": name,
             "tljh_repo2docker.mem_limit": memory,
             "tljh_repo2docker.cpu_limit": cpu,
+            "tljh_repo2docker.node_selector": json.dumps(node_selector),
         },
         "Volumes": {
             "/var/run/docker.sock": {
