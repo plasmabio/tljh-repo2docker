@@ -11,9 +11,7 @@ async def test_add_environment(app, minimal_repo, image_name):
     assert r.status_code == 200
     image = await wait_for_image(image_name=image_name)
     config = image.get("ContainerConfig", image.get("Config", {}))
-    assert (
-        config["Labels"]["tljh_repo2docker.image_name"] == image_name
-    )
+    assert config["Labels"]["tljh_repo2docker.image_name"] == image_name
 
 
 @pytest.mark.asyncio
@@ -43,9 +41,7 @@ async def test_uppercase_repo(app, minimal_repo_uppercase, generated_image_name)
     assert r.status_code == 200
     image = await wait_for_image(image_name=generated_image_name)
     config = image.get("ContainerConfig", image.get("Config", {}))
-    assert (
-        config["Labels"]["tljh_repo2docker.image_name"] == generated_image_name
-    )
+    assert config["Labels"]["tljh_repo2docker.image_name"] == generated_image_name
 
 
 @pytest.mark.asyncio
@@ -57,16 +53,16 @@ async def test_no_repo(app, image_name):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "memory, cpu",
+    "memory, cpu, node_selector",
     [
-        ("abcded", ""),
-        ("", "abcde"),
+        ("abcded", "", {"key": "value"}),
+        ("", "abcde", {"key": "value"}),
     ],
 )
-async def test_wrong_limits(app, minimal_repo, image_name, memory, cpu):
+async def test_wrong_limits(app, minimal_repo, image_name, memory, cpu, node_selector):
     name, ref = image_name.split(":")
     r = await add_environment(
-        app, repo=minimal_repo, name=name, ref=ref, memory=memory, cpu=cpu
+        app, repo=minimal_repo, name=name, ref=ref, memory=memory, cpu=cpu, node_selector=node_selector
     )
     assert r.status_code == 400
     assert "must be a number" in r.text
