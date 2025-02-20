@@ -258,6 +258,7 @@ c.JupyterHub.services.extend(
     ]
 )
 ```
+
 This ensures that workloads are scheduled only on nodes that meet the specified criteria.
 
 ## Accessing Node Selector in Spawner
@@ -269,7 +270,6 @@ user_options["metadata"]["node_selector"]
 ```
 
 ![node_selector](https://github.com/user-attachments/assets/046bee93-2c7c-4e42-a9a0-94ade6f191d9)
-
 
 ### Extra documentation
 
