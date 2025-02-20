@@ -34,11 +34,12 @@ c.JupyterHub.services.extend(
                 "--port",
                 "6789",
                 "--machine_profiles",
-                '{"label": "Small", "cpu": 2, "memory": 2}',
-                "--machine_profiles",
-                '{"label": "Medium", "cpu": 4, "memory": 4}',
-                "--machine_profiles",
-                '{"label": "Large", "cpu": 8, "memory": 8}',
+                '[{"label": "Small", "cpu": 2, "memory": 2},'
+                ' {"label": "Medium", "cpu": 4, "memory": 4},'
+                ' {"label": "Large", "cpu": 8, "memory": 8}]',
+                "--node_selector",
+                '{"gpu": {"description": "GPU description", "values": ["yes", "no"]},'
+                ' "ssd": {"description": "SSD description", "values": ["yes", "no"]}}',
             ],
             "oauth_no_confirm": True,
             "oauth_client_allowed_scopes": [

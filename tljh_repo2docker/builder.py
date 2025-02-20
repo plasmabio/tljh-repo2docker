@@ -39,6 +39,7 @@ class BuildHandler(BaseHandler):
         name = data["name"].lower()
         memory = data["memory"]
         cpu = data["cpu"]
+        node_selector = data.get("node_selector", {})
         buildargs = data.get("buildargs", None)
         username = data.get("username", None)
         password = data.get("password", None)
@@ -71,7 +72,7 @@ class BuildHandler(BaseHandler):
                     raise web.HTTPError(400, "Invalid build argument format")
                 extra_buildargs.append(barg)
         await build_image(
-            repo, ref, name, memory, cpu, username, password, extra_buildargs
+            repo, ref, node_selector, name, memory, cpu, username, password, extra_buildargs
         )
 
         self.set_status(200)

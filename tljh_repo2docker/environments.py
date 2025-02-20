@@ -29,6 +29,7 @@ class EnvironmentsHandler(BaseHandler):
             default_mem_limit=self.settings.get("default_mem_limit"),
             default_cpu_limit=self.settings.get("default_cpu_limit"),
             machine_profiles=self.settings.get("machine_profiles", []),
+            node_selector=self.settings.get("node_selector", {}),
             repo_providers=self.settings.get("repo_providers", None),
             use_binderhub=self.use_binderhub,
         )

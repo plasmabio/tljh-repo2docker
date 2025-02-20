@@ -15,7 +15,7 @@ async def test_images_list_admin(app):
     )
     r.raise_for_status()
     assert (
-        '{"repo_providers": [{"label": "Git", "value": "git"}], "use_binderhub": false, "images": [], "default_mem_limit": "None", "default_cpu_limit":"None", "machine_profiles": []}'
+        '{"repo_providers": [{"label": "Git", "value": "git"}], "use_binderhub": false, "images": [], "default_mem_limit": "None", "default_cpu_limit":"None", "machine_profiles": [], "node_selector": {}}'
         in r.text
     )
 

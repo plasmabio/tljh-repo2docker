@@ -108,6 +108,19 @@ class TljhRepo2Docker(Application):
     def _default_log_level(self):
         return logging.INFO
 
+    node_selector = Dict(
+        config=True,
+        help="""
+        The dictionary Selector labels used to match the Nodes where Pods will be launched.
+
+        Default is None and means it will be launched in any available Node.
+
+        For example to match the Nodes that have a label of `disktype: ssd` use::
+
+           c.KubeSpawner.node_selector = {'disktype': 'ssd'}
+        """,
+    )
+
     machine_profiles = List(
         default_value=[], trait=Dict, config=True, help="Pre-defined machine profiles"
     )
@@ -162,6 +175,7 @@ class TljhRepo2Docker(Application):
         "default_memory_limit": "TljhRepo2Docker.default_memory_limit",
         "default_cpu_limit": "TljhRepo2Docker.default_cpu_limit",
         "machine_profiles": "TljhRepo2Docker.machine_profiles",
+        "node_selector": "TljhRepo2Docker.node_selector",
         "binderhub_url": "TljhRepo2Docker.binderhub_url",
         "db_url": "TljhRepo2Docker.db_url",
     }
@@ -193,6 +207,7 @@ class TljhRepo2Docker(Application):
             default_mem_limit=self.default_memory_limit,
             default_cpu_limit=self.default_cpu_limit,
             machine_profiles=self.machine_profiles,
+            node_selector=self.node_selector,
             binderhub_url=self.binderhub_url,
             repo_providers=self.repo_providers,
         )

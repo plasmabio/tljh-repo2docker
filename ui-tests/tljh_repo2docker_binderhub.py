@@ -6,4 +6,9 @@ c.TljhRepo2Docker.machine_profiles = [
     {"label": "Large", "cpu": 8, "memory": 8},
 ]
 
+c.TljhRepo2Docker.node_selector = {
+    "gpu": {"description": "GPU description", "values": ["yes", "no"]},
+    "ssd": {"description": "SSD description", "values": ["yes", "no"]},
+}
+
 c.TljhRepo2Docker.binderhub_url = "http://localhost:8585/services/binder/"

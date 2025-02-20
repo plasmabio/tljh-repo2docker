@@ -218,7 +218,6 @@ c.JupyterHub.services.extend(
                 '{"label": "Medium", "cpu": 4, "memory": 4}',
                 "--machine_profiles",
                 '{"label": "Large", "cpu": 8, "memory": 8}'
-
             ],
             "oauth_no_confirm": True,
         }
@@ -227,6 +226,50 @@ c.JupyterHub.services.extend(
 ```
 
 ![image](https://github.com/plasmabio/tljh-repo2docker/assets/4451292/c1f0231e-a02d-41dc-85e0-97a97ffa0311)
+
+### Node Selector
+
+`tljh-repo2docker` allows specifying node selectors to control which Kubernetes nodes user environments are scheduled on. This can be useful for assigning workloads to specific nodes based on hardware characteristics like GPUs, SSD storage, or other node labels.
+
+## Configuring Node Selectors
+
+To configure node selectors, add the `--node_selector` argument in the service definition:
+
+```python
+c.JupyterHub.services.extend(
+    [
+        {
+            "name": "tljh_repo2docker",
+            "url": "http://127.0.0.1:6789",
+            "command": [
+                sys.executable,
+                "-m",
+                "tljh_repo2docker",
+                "--ip",
+                "127.0.0.1",
+                "--port",
+                "6789",
+                "--node_selector",
+                '{"gpu": {"description": "GPU availability", "values": ["yes", "no"]},'
+                ' "ssd": {"description": "SSD availability", "values": ["yes", "no"]}}'
+            ],
+            "oauth_no_confirm": True,
+        }
+    ]
+)
+```
+
+This ensures that workloads are scheduled only on nodes that meet the specified criteria.
+
+## Accessing Node Selector in Spawner
+
+The node selector information is passed through the metadata field of `user_options` and can be accessed in the `start` method of the spawner:
+
+```python
+user_options["metadata"]["node_selector"]
+```
+
+![node_selector](https://github.com/user-attachments/assets/046bee93-2c7c-4e42-a9a0-94ade6f191d9)
 
 ### Extra documentation
 

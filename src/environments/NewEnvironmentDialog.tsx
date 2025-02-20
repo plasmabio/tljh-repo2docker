@@ -11,6 +11,7 @@ import {
   MenuItem,
   OutlinedTextFieldProps,
   Select,
+  TextField,
   Typography
 } from '@mui/material';
 import {
@@ -31,10 +32,20 @@ export interface IMachineProfile {
   cpu: string;
   memory: string;
 }
+interface INodeSelectorOption {
+  description: string;
+  values: string[];
+}
+
+export interface INodeSelector {
+  [key: string]: INodeSelectorOption;
+}
+
 export interface INewEnvironmentDialogProps {
   default_cpu_limit: string;
   default_mem_limit: string;
   machine_profiles: IMachineProfile[];
+  node_selector: INodeSelector;
   use_binderhub: boolean;
   repo_providers?: { label: string; value: string }[];
 }
@@ -49,6 +60,7 @@ interface IFormValues {
   buildargs?: string;
   username?: string;
   password?: string;
+  node_selector?: { [key: string]: string | undefined };
 }
 const commonInputProps: OutlinedTextFieldProps = {
   autoFocus: true,
@@ -76,10 +88,14 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
 
   const [formValues, setFormValues] = useState<IFormValues>({});
   const updateFormValue = useCallback(
-    (key: keyof IFormValues, value: string | number) => {
-      setFormValues(old => {
-        return { ...old, [key]: value };
-      });
+    (
+      key: keyof IFormValues,
+      value: string | number | { [key: string]: string | undefined }
+    ) => {
+      setFormValues(old => ({
+        ...old,
+        [key]: value
+      }));
     },
     [setFormValues]
   );
@@ -89,6 +105,15 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
 
   const [selectedProfile, setSelectedProfile] = useState<number>(0);
   const [selectedProvider, setSelectedProvider] = useState<number>(0);
+  const [selectedNodeSelectors, setSelectedNodeSelectors] = useState<{
+    [key: string]: string;
+  }>(() => {
+    const initialSelected: { [key: string]: string } = {};
+    Object.entries(props.node_selector).forEach(([key, option]) => {
+      initialSelected[key] = option.values[0] || '';
+    });
+    return initialSelected;
+  });
 
   const onMachineProfileChange = useCallback(
     (value?: string | number) => {
@@ -118,6 +143,20 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
     },
     [props.repo_providers, updateFormValue]
   );
+
+  const onNodeSelectorChange = useCallback(
+    (key: string, value: string) => {
+      if (value !== undefined) {
+        setSelectedNodeSelectors(prevState => {
+          const newState = { ...prevState, [key]: value };
+          updateFormValue('node_selector', newState);
+          return newState;
+        });
+      }
+    },
+    [updateFormValue]
+  );
+
   useEffect(() => {
     if (props.machine_profiles.length > 0) {
       onMachineProfileChange(0);
@@ -125,11 +164,18 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
     if (props.repo_providers && props.repo_providers.length > 0) {
       onRepoProviderChange(0);
     }
+    if (props.node_selector) {
+      Object.entries(props.node_selector).forEach(([key, option]) => {
+        onNodeSelectorChange(key, option.values[0]);
+      });
+    }
   }, [
     props.machine_profiles,
     props.repo_providers,
+    props.node_selector,
     onMachineProfileChange,
-    onRepoProviderChange
+    onRepoProviderChange,
+    onNodeSelectorChange
   ]);
   const MemoryCpuSelector = useMemo(() => {
     return (
@@ -185,6 +231,27 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
       </FormControl>
     );
   }, [props.machine_profiles, selectedProfile, onMachineProfileChange]);
+
+  const NodeSelectorDropdown = useMemo(() => {
+    return Object.entries(props.node_selector).map(([key, option]) => (
+      <FormControl key={key} fullWidth sx={{ marginTop: '8px' }}>
+        <TextField
+          id={`${key}-select`}
+          value={selectedNodeSelectors[key]}
+          label={key + option.description && `(${option.description})`}
+          size="small"
+          select
+          onChange={e => onNodeSelectorChange(key, e.target.value)}
+        >
+          {option.values.map((val: string) => (
+            <MenuItem key={val} value={val}>
+              {val}
+            </MenuItem>
+          ))}
+        </TextField>
+      </FormControl>
+    ));
+  }, [props.node_selector, selectedNodeSelectors, onNodeSelectorChange]);
 
   return (
     <Fragment>
@@ -292,6 +359,7 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
           {props.machine_profiles.length > 0
             ? MachineProfileSelector
             : MemoryCpuSelector}
+          {props.node_selector && NodeSelectorDropdown}
           {!props.use_binderhub && (
             <Fragment>
               <Divider
