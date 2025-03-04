@@ -1,5 +1,25 @@
 # tljh-repo2docker Changelog
 
+## 2.0.0 - Highlights
+
+Below are the major highlights in tljh-repo2docker 2.0.0
+
+### tljh-repo2docker is now a JupyterHub service
+
+`tljh-repo2docker` can be started as a standalone or hub-managed service.
+
+### New UI to manage environments and user servers
+
+`tljh-repo2docker` 2.0 features a new UI based on React to build docker images and start user servers. Optional names, memory, and CPU limits can also be set for the environment, instead of entering directly the CPU and Memory value, `tljh-repo2docker` can be configured with pre-defined machine profiles and users can only choose from the available options.
+
+### New image build backend
+
+In addition to the local docker engine, `tljh-repo2docker` can use binderhub service as the image build backend
+
+### Backwards-incompatible changes.
+
+- `jupyterhub` < 5 is no longer supported
+
 ## 1.0.0 - Highlights
 
 The purpose of this release is to allow for better compatibility of the plugin with different versions of The Littlest JupyterHub.
@@ -15,7 +35,7 @@ In short:
 
 You can find below the list of changes since the creation of the plugin.
 
-## What's Changed
+### What's Changed
 
 - Add installation instructions to the README by @jtpio in https://github.com/plasmabio/tljh-repo2docker/pull/1
 - Fix manifest by @jtpio in https://github.com/plasmabio/tljh-repo2docker/pull/2
@@ -48,7 +68,7 @@ You can find below the list of changes since the creation of the plugin.
 - Pin `notebook<7` and `sqlalchemy<2` for now by @jtpio in https://github.com/plasmabio/tljh-repo2docker/pull/62
 - Resolve 'Show Logs' issue by adding \_xsrf token by @yamaton in https://github.com/plasmabio/tljh-repo2docker/pull/61
 
-## New Contributors
+### New Contributors
 
 - @jtpio made their first contribution in https://github.com/plasmabio/tljh-repo2docker/pull/1
 - @pierrepo made their first contribution in https://github.com/plasmabio/tljh-repo2docker/pull/33
