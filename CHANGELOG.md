@@ -1,6 +1,6 @@
 # tljh-repo2docker Changelog
 
-## 2.0.0 -  Highlights
+## 2.0.0 - Highlights
 
 Below are the major highlights in tljh-repo2docker 2.0.0
 
@@ -18,7 +18,7 @@ In addition to the local docker engine, `tljh-repo2docker` can use binderhub ser
 
 ### Backwards-incompatible changes.
 
-- `jupyterhub` < 5  is no longer supported
+- `jupyterhub` < 5 is no longer supported
 
 ## 1.0.0 - Highlights
 
