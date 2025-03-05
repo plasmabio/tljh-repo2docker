@@ -79,11 +79,29 @@ You can find below the list of changes since the creation of the plugin.
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.0.0
+
+([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v2.0.0a5...a7a69f45f86bb907ac3936d830dc96ff84ba8870))
+
+### Enhancements made
+
+- Add node selector [#99](https://github.com/plasmabio/tljh-repo2docker/pull/99) ([@Meriem-BenIsmail](https://github.com/Meriem-BenIsmail))
+
+### Documentation improvements
+
+- Update changelog [#100](https://github.com/plasmabio/tljh-repo2docker/pull/100) ([@trungleduc](https://github.com/trungleduc))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2025-02-17&to=2025-03-05&type=c))
+
+[@Meriem-BenIsmail](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3AMeriem-BenIsmail+updated%3A2025-02-17..2025-03-05&type=Issues) | [@trungleduc](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2025-02-17..2025-03-05&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.0.0a5
 
 No merged PRs
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.0.0a4
 
