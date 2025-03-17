@@ -1,5 +1,6 @@
 from aiodocker import Docker
 from dockerspawner import DockerSpawner
+from inspect import isawaitable
 from jinja2 import BaseLoader, Environment
 from jupyter_client.localinterfaces import public_ips
 from jupyterhub.traitlets import ByteSpecification
@@ -148,12 +149,27 @@ class SpawnerMixin(Configurable):
             self.cpu_limit = float(cpu_limit)
 
         if self.cpu_limit:
-            self.extra_host_config.update(
-                {
-                    "cpu_period": CPU_PERIOD,
-                    "cpu_quota": int(float(CPU_PERIOD) * self.cpu_limit),
-                }
-            )
+            cpu_limit_host_config = {
+                "cpu_period": CPU_PERIOD,
+                "cpu_quota": int(float(CPU_PERIOD) * self.cpu_limit),
+            }
+
+            if callable(self.extra_host_config):
+                # Avoid infinitely re-wrapping
+                if not hasattr(self.extra_host_config, "is_tljh_wrapper"):
+                    orig_host_config = self.extra_host_config
+                    async def host_config(spawner):
+                        res = orig_host_config(spawner)
+                        if isawaitable(res):
+                            res = await res
+                        res.update(spawner.tljh_cpu_limit_host_config)
+                        return res
+                    self.extra_host_config = host_config
+                    self.extra_host_config.is_tljh_wrapper = True
+
+                self.tljh_cpu_limit_host_config = cpu_limit_host_config
+            else:
+                self.extra_host_config.update(cpu_limit_host_config)
 
 
 class Repo2DockerSpawner(SpawnerMixin, DockerSpawner):
