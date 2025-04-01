@@ -134,10 +134,11 @@ class SpawnerMixin(Configurable):
         imagename = self.user_options.get("image")
         async with Docker() as docker:
             image = await docker.images.inspect(imagename)
-        config = image.get("ContainerConfig", None)
-        if not config:
-            config = image.get("Config", {})
-        label = config.get("Labels", {})
+        label = {
+            **(image.get("ContainerConfig", {}).get("Labels") or {}),
+            **(image.get("Config", {}).get("Labels") or {})
+            }
+
         mem_limit = label.get("tljh_repo2docker.mem_limit", None)
         cpu_limit = label.get("tljh_repo2docker.cpu_limit", None)
 
