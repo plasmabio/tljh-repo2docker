@@ -152,7 +152,7 @@ test.describe('tljh_repo2docker UI Tests', () => {
     await Promise.all([
       page.waitForResponse(
         response =>
-          response.url().includes('/api/servers') && response.status() === 200
+          response.url().includes('/servers') && response.status() === 200
       ),
       createServer.click()
     ]);
