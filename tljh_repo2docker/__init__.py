@@ -132,28 +132,48 @@ class SpawnerMixin(Configurable):
         Set the user environment limits if they are defined in the image
         """
         imagename = self.user_options.get("image")
-        async with Docker() as docker:
-            image = await docker.images.inspect(imagename)
-        config = image.get("ContainerConfig", None)
-        if not config:
-            config = image.get("Config", {})
-        label = config.get("Labels", {})
-        mem_limit = label.get("tljh_repo2docker.mem_limit", None)
-        cpu_limit = label.get("tljh_repo2docker.cpu_limit", None)
+        if not imagename:
+            self.log.warning("No image specified in user_options")
+            return
 
-        # override the spawner limits if defined in the image
-        if mem_limit:
-            self.mem_limit = mem_limit
-        if cpu_limit:
-            self.cpu_limit = float(cpu_limit)
+        try:
+            async with Docker() as docker:
+                try:
+                    image = await docker.images.inspect(imagename)
+                except Exception as e:
+                    self.log.error(f"Failed to inspect image {imagename}: {str(e)}")
+                    return
 
-        if self.cpu_limit:
-            self.extra_host_config.update(
-                {
-                    "cpu_period": CPU_PERIOD,
-                    "cpu_quota": int(float(CPU_PERIOD) * self.cpu_limit),
-                }
-            )
+            # Handle different Docker API response structures
+            config = image.get("ContainerConfig") or image.get("Config") or {}
+            labels = config.get("Labels") or {}
+
+            if not isinstance(labels, dict):
+                self.log.warning(f"Unexpected labels type: {type(labels)}")
+                labels = {}
+
+            mem_limit = labels.get("tljh_repo2docker.mem_limit")
+            cpu_limit = labels.get("tljh_repo2docker.cpu_limit")
+
+            # override the spawner limits if defined in the image
+            if mem_limit:
+                self.mem_limit = mem_limit
+            if cpu_limit:
+                try:
+                    self.cpu_limit = float(cpu_limit)
+                except (ValueError, TypeError):
+                    self.log.error(f"Invalid CPU limit value: {cpu_limit}")
+
+            if self.cpu_limit:
+                self.extra_host_config.update(
+                    {
+                        "cpu_period": CPU_PERIOD,
+                        "cpu_quota": int(float(CPU_PERIOD) * self.cpu_limit),
+                    }
+                )
+        except Exception as e:
+            self.log.error(f"Error in set_limits: {str(e)}")
+            raise
 
 
 class Repo2DockerSpawner(SpawnerMixin, DockerSpawner):
