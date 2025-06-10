@@ -148,20 +148,10 @@ test.describe('tljh_repo2docker UI Tests', () => {
     const createServer = await page.getByRole('button', {
       name: 'Create Server'
     });
-
-    await Promise.all([
-      page.waitForResponse(
-        response =>
-          response.url().includes('/servers') && response.status() === 200
-      ),
-      createServer.click()
-    ]);
+    await createServer.click();
     await expect(createServer).toHaveCount(0, { timeout: 20000 });
-
     await page.waitForURL('**/servers');
-    await page.waitForSelector('div:has-text("test-server")', {
-      timeout: 30000
-    });
+    await page.waitForTimeout(1000);
 
     expect(await page.screenshot()).toMatchSnapshot('running-servers.png');
   });

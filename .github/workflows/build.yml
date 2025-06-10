@@ -58,7 +58,7 @@ jobs:
           sudo rm -rf $(which node)
           sudo rm -rf $(which node)
 
-          python -m pip install git+https://github.com/jupyterhub/the-littlest-jupyterhub tljh_repo2docker*.whl
+          python -m pip install git+https://github.com/jupyterhub/the-littlest-jupyterhub@2.0.0 tljh_repo2docker*.whl
 
       - name: Test import
         run: python -c "import tljh_repo2docker"

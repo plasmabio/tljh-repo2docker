@@ -24,10 +24,10 @@ sudo apt update && sudo apt install -y docker-ce
 # pull the repo2docker image
 sudo docker pull quay.io/jupyterhub/repo2docker:main
 
-# install TLJH 1.0
+# install TLJH 2.0
 curl https://tljh.jupyter.org/bootstrap.py
   | sudo python3 - \
-    --version 1.0.0 \
+    --version 2.0.0 \
     --admin test:test \
     --plugin tljh-repo2docker
 ```
