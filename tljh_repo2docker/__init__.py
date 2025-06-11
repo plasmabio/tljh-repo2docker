@@ -177,6 +177,7 @@ if hookimpl:
         c.JupyterHub.spawner_class = Repo2DockerSpawner
 
         # spawner
+        c.DockerSpawner.allowed_images = "*"
         c.DockerSpawner.cmd = ["jupyterhub-singleuser"]
         c.DockerSpawner.pull_policy = "Never"
         c.DockerSpawner.remove = True
