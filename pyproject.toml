@@ -10,7 +10,7 @@ dependencies = [
   "httpx",
   "sqlalchemy>=2",
   "pydantic>=2,<3",
-  "alembic>=1.13,<2",
+  "alembic>=1.14,<1.15",
   "jupyter-repo2docker>=2024,<2025",
   "aiosqlite~=0.19.0"
 ]
