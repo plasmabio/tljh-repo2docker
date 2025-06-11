@@ -4,13 +4,13 @@ requires = ["hatchling>=1.5.0,<2", "hatch-nodejs-version>=0.3.2"]
 
 [project]
 dependencies = [
-  "aiodocker~=0.19",
-  "dockerspawner~=12.1",
+  "aiodocker>=0.21.0,<0.22.0",
+  "dockerspawner>=14.0.0,<15.0.0",
   "jupyter_client>=6.1,<8",
   "httpx",
   "sqlalchemy>=2",
   "pydantic>=2,<3",
-  "alembic>=1.13,<2",
+  "alembic>=1.14,<1.15",
   "jupyter-repo2docker>=2024,<2025",
   "aiosqlite~=0.19.0"
 ]
