@@ -11,9 +11,11 @@ async def test_add_environment(app, minimal_repo, image_name):
     r = await add_environment(app, repo=minimal_repo, name=name, ref=ref)
     assert r.status_code == 200
     image = await wait_for_image(image_name=image_name)
-    assert (
-        image["ContainerConfig"]["Labels"]["tljh_repo2docker.image_name"] == image_name
-    )
+    label = {
+        **(image.get("ContainerConfig", {}).get("Labels") or {}),
+        **(image.get("Config", {}).get("Labels") or {})
+    }
+    assert label.get("tljh_repo2docker.image_name", None) == image_name
 
 
 @pytest.mark.asyncio
