@@ -58,6 +58,23 @@ You can find below the list of changes since the creation of the plugin.
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.0.2
+
+([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v1.0.1...1b12651de84aa2fe1a21cf1d89d89f8797064188))
+
+### Maintenance and upkeep improvements
+
+- [1.x] Fix outdated GitHub actions [#113](https://github.com/plasmabio/tljh-repo2docker/pull/113) ([@jtpio](https://github.com/jtpio))
+- [1.x] Backport buildkit-built images fix [#112](https://github.com/plasmabio/tljh-repo2docker/pull/112) ([@jtpio](https://github.com/jtpio))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2024-03-11&to=2025-06-16&type=c))
+
+[@jtpio](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Ajtpio+updated%3A2024-03-11..2025-06-16&type=Issues) | [@trungleduc](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2024-03-11..2025-06-16&type=Issues) | [@yuvipanda](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Ayuvipanda+updated%3A2024-03-11..2025-06-16&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.0.1
 
 ([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v1.0.0...98eaec34e3617c1e9bb83b2b4b09b2e4866fe8a0))
@@ -77,5 +94,3 @@ You can find below the list of changes since the creation of the plugin.
 ([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2023-11-17&to=2024-03-11&type=c))
 
 [@jtpio](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Ajtpio+updated%3A2023-11-17..2024-03-11&type=Issues) | [@trungleduc](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2023-11-17..2024-03-11&type=Issues) | [@yamaton](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Ayamaton+updated%3A2023-11-17..2024-03-11&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
