@@ -42,9 +42,11 @@ async def test_uppercase_repo(app, minimal_repo_uppercase, generated_image_name)
     r = await add_environment(app, repo=minimal_repo_uppercase)
     assert r.status_code == 200
     image = await wait_for_image(image_name=generated_image_name)
-    assert (
-        image["ContainerConfig"]["Labels"]["tljh_repo2docker.image_name"] == generated_image_name
-    )
+    label = {
+        **(image.get("ContainerConfig", {}).get("Labels") or {}),
+        **(image.get("Config", {}).get("Labels") or {})
+    }
+    assert label.get("tljh_repo2docker.image_name", None) == generated_image_name
 
 
 @pytest.mark.asyncio
