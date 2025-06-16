@@ -134,12 +134,13 @@ class SpawnerMixin(Configurable):
         async with Docker() as docker:
             image = await docker.images.inspect(imagename)
 
-        mem_limit = image["ContainerConfig"]["Labels"].get(
-            "tljh_repo2docker.mem_limit", None
-        )
-        cpu_limit = image["ContainerConfig"]["Labels"].get(
-            "tljh_repo2docker.cpu_limit", None
-        )
+        label = {
+            **(image.get("ContainerConfig", {}).get("Labels") or {}),
+            **(image.get("Config", {}).get("Labels") or {})
+        }
+
+        mem_limit = label.get("tljh_repo2docker.mem_limit", None)
+        cpu_limit = label.get("tljh_repo2docker.cpu_limit", None)
 
         # override the spawner limits if defined in the image
         if mem_limit:
