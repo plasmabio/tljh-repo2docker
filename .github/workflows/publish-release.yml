@@ -20,7 +20,7 @@ jobs:
       id-token: write
     steps:
       - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
-      
+
       - uses: actions/create-github-app-token@v1
         id: app-token
         with:
