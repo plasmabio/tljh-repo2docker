@@ -79,6 +79,23 @@ You can find below the list of changes since the creation of the plugin.
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.0b0
+
+([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v3.0.0a0...56f2b0c4e8e2165608765e93c985c040ab1593f8))
+
+### Merged PRs
+
+- hot fix [#116](https://github.com/plasmabio/tljh-repo2docker/pull/116) ([@trungleduc](https://github.com/trungleduc))
+- Bump brace-expansion from 2.0.1 to 2.0.2 in /ui-tests [#110](https://github.com/plasmabio/tljh-repo2docker/pull/110) ([@dependabot](https://github.com/dependabot))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2025-06-11&to=2025-10-02&type=c))
+
+[@dependabot](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Adependabot+updated%3A2025-06-11..2025-10-02&type=Issues) | [@trungleduc](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2025-06-11..2025-10-02&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.0a0
 
 ([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v2.0.0...53522d32f83d39d783d7e149b0b58b84227c8e6b))
@@ -100,8 +117,6 @@ You can find below the list of changes since the creation of the plugin.
 ([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2025-03-05&to=2025-06-11&type=c))
 
 [@dependabot](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Adependabot+updated%3A2025-03-05..2025-06-11&type=Issues) | [@holzman](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Aholzman+updated%3A2025-03-05..2025-06-11&type=Issues) | [@jtpio](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Ajtpio+updated%3A2025-03-05..2025-06-11&type=Issues) | [@TimoRoth](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3ATimoRoth+updated%3A2025-03-05..2025-06-11&type=Issues) | [@trungleduc](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2025-03-05..2025-06-11&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.0.0
 
