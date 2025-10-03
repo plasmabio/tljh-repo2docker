@@ -72,45 +72,64 @@ export default function App(props: IAppProps) {
       const query = new URL(window.location.href).searchParams;
       const requestServerName = query.get('name');
       const requestEnv = query.get('environment');
-
-      if (requestServerName) {
-        setLoading(true);
-        const allServers = Object.fromEntries(
-          props.server_data.map(item => [item.name, item])
-        );
-        if (allServers[requestServerName]) {
-          window.location.replace(allServers[requestServerName].url);
-        } else if (requestEnv) {
-          // Start new server with name and environment directly
-          const allImages = Object.fromEntries(
-            props.images.map(item => [item.display_name, item])
-          );
-          if (allImages[requestEnv]) {
-            const imageData = allImages[requestEnv];
-            const imageName = imageData.uid ?? imageData.image_name;
-            const data: { [key: string]: string } = {
-              imageName,
-              userName: jhData.user,
-              serverName: requestServerName
-            };
-            try {
-              await axios.serviceClient.request({
-                method: 'post',
-                path: SERVER_PREFIX,
-                data
-              });
-              window.location.reload();
-            } catch (e: any) {
-              setLoading(false);
-              alert(e);
-            }
-          } else {
-            setLoading(false);
-            alert(`Environment ${requestEnv} does not exist`);
-          }
-        }
-        setLoading(false);
+      if (!requestServerName) {
+        return;
       }
+
+      setLoading(true);
+
+      const allServers = Object.fromEntries(
+        props.server_data.map(item => [item.name, item])
+      );
+      const allImages = Object.fromEntries(
+        props.images.map(item => [item.display_name, item])
+      );
+
+      const server = allServers[requestServerName];
+      const startServer = async (imageKey: string) => {
+        const imageData = allImages[imageKey];
+        if (!imageData) {
+          setLoading(false);
+          alert(`Environment ${imageKey} does not exist`);
+          return;
+        }
+        const imageName = imageData.uid ?? imageData.image_name;
+        const data = {
+          imageName,
+          userName: jhData.user,
+          serverName: requestServerName
+        };
+
+        try {
+          await axios.serviceClient.request({
+            method: 'post',
+            path: SERVER_PREFIX,
+            data
+          });
+          window.location.reload();
+        } catch (e: any) {
+          setLoading(false);
+          alert(e);
+        }
+      };
+
+      if (server) {
+        if (server.active) {
+          window.location.replace(server.url);
+        } else {
+          const imageDisplayName = server.user_options?.display_name;
+          if (!imageDisplayName) {
+            setLoading(false);
+            alert('Missing image name');
+            return;
+          }
+          await startServer(imageDisplayName);
+        }
+      } else if (requestEnv) {
+        await startServer(requestEnv);
+      }
+
+      setLoading(false);
     })();
   }, [axios, jhData, props.server_data, props.images]);
 

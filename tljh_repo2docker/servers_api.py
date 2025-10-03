@@ -8,6 +8,7 @@ from tljh_repo2docker.docker import get_image_metadata
 from .base import BaseHandler
 from typing import List, Dict
 
+
 class ServersAPIHandler(BaseHandler):
     """
     Handler to manage single servers
@@ -30,8 +31,6 @@ class ServersAPIHandler(BaseHandler):
         image_name_or_uid = data.get("imageName", None)
         user_name = data.get("userName", None)
         server_name = data.get("serverName", "")
-        if server_name in all_server_names:
-            raise web.HTTPError(409, "Server name exists")
         if user_name != self.current_user["name"]:
             raise web.HTTPError(403, "Unauthorized")
         if not image_name_or_uid:
@@ -61,7 +60,6 @@ class ServersAPIHandler(BaseHandler):
             path = url_path_join("users", user_name, "server")
         try:
             response = await self.client.post(path, json=post_data, timeout=10)
-            print('response', response)
             response.raise_for_status()
             return response
         except Exception:
