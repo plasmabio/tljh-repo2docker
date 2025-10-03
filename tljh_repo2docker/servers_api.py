@@ -18,8 +18,8 @@ class ServersAPIHandler(BaseHandler):
         data = self.get_json_body()
 
         user_data = await self.fetch_user()
-        server_data: List[Dict] = user_data.all_spawners()
-        all_server_names =[it.get('name', "") for it in server_data]
+        server_data: List[Dict] = user_data.all_spawners() or []
+        all_server_names =[it.get('name', "") for it in server_data if it]
 
         image_name_or_uid = data.get("imageName", None)
         user_name = data.get("userName", None)
