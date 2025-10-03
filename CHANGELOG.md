@@ -79,6 +79,22 @@ You can find below the list of changes since the creation of the plugin.
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.0b1
+
+([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v3.0.0b0...ec7d55f37b3cf963d1174b323e509b7670762f51))
+
+### Enhancements made
+
+- add url query to server endpoint [#117](https://github.com/plasmabio/tljh-repo2docker/pull/117) ([@trungleduc](https://github.com/trungleduc))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2025-10-02&to=2025-10-03&type=c))
+
+[@trungleduc](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2025-10-02..2025-10-03&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.0b0
 
 ([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v3.0.0a0...56f2b0c4e8e2165608765e93c985c040ab1593f8))
@@ -93,8 +109,6 @@ You can find below the list of changes since the creation of the plugin.
 ([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2025-06-11&to=2025-10-02&type=c))
 
 [@dependabot](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Adependabot+updated%3A2025-06-11..2025-10-02&type=Issues) | [@trungleduc](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2025-06-11..2025-10-02&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.0a0
 
