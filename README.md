@@ -271,6 +271,16 @@ user_options["metadata"]["node_selector"]
 
 ![node_selector](https://github.com/user-attachments/assets/046bee93-2c7c-4e42-a9a0-94ade6f191d9)
 
+### Direct link to server
+
+You can create a direct link to launch a single-user server with a custom environment using the following format:
+
+```
+https://<jupyterhub-server>/services/tljhrepo2docker/servers?name=foo&environment=bar
+```
+
+This link will start a server named `foo` using the `bar` environment. If a server with the same name already exists, it will open automatically; otherwise, `tljh-repo2docker` will initiate a new server for you.
+
 ### Extra documentation
 
 `tljh-repo2docker` is currently developed as part of the [Plasma project](https://github.com/plasmabio/plasma).

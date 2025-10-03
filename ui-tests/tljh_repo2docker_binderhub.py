@@ -12,3 +12,5 @@ c.TljhRepo2Docker.node_selector = {
 }
 
 c.TljhRepo2Docker.binderhub_url = "http://localhost:8585/services/binder/"
+
+c.TljhRepo2Docker.logo_url = "/custom/logo/url"

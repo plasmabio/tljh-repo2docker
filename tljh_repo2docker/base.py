@@ -50,7 +50,7 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
 
     @property
     def log(self):
-        return self.settings.get('log', app_log)
+        return self.settings.get("log", app_log)
 
     @property
     def client(self):
@@ -105,7 +105,7 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
             service_prefix=self.settings.get("service_prefix", "/"),
             hub_prefix=self.settings.get("hub_prefix", "/"),
             base_url=base_url,
-            logo_url=url_path_join(base_url, "hub", "home"),
+            logo_url=self.settings.get("logo_url", "/"),
             logout_url=self.settings.get(
                 "logout_url", url_path_join(base_url, "logout")
             ),
