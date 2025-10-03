@@ -87,8 +87,8 @@ function _ServerList(props: IServerListProps) {
     const allServers = servers.map((it, id) => {
       const newItem: any = { ...it, id };
       newItem.image =
-        it.user_options?.display_name ?? it.user_options.image ?? '';
-      newItem.uid = it.user_options?.uid ?? null;
+        it?.user_options?.display_name ?? it?.user_options?.image ?? '';
+      newItem.uid = it?.user_options?.uid ?? null;
       newItem.last_activity = formatTime(newItem.last_activity);
       return newItem;
     });
