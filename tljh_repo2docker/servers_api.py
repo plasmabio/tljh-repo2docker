@@ -19,7 +19,13 @@ class ServersAPIHandler(BaseHandler):
 
         user_data = await self.fetch_user()
         server_data: List[Dict] = user_data.all_spawners() or []
-        all_server_names =[it.get('name', "") for it in server_data if it]
+
+        all_server_names = []
+        for it in server_data:
+            if not isinstance(it, dict):
+                continue
+            it_name = it.get("name", "")
+            all_server_names.append(it_name)
 
         image_name_or_uid = data.get("imageName", None)
         user_name = data.get("userName", None)

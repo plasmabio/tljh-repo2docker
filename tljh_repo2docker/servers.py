@@ -31,9 +31,12 @@ class ServersHandler(BaseHandler):
         if db_context and image_db_manager:
             async with db_context() as db:
                 for data in server_data:
-                    if data is None:
+                    if not isinstance(data, dict):
                         continue
-                    image_name = data.get("user_options", {}).get("image", None)
+                    user_options = data.get("user_options", {})
+                    if not isinstance(user_options, dict):
+                        continue
+                    image_name = user_options.get("image", None)
                     if image_name:
                         db_data = await image_db_manager.read_by_image_name(
                             db, image_name
