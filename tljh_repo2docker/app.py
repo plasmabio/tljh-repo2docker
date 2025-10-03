@@ -98,6 +98,17 @@ class TljhRepo2Docker(Application):
     def _logo_file_default(self):
         return str(HERE / "static/images/jupyterhub-80.png")
 
+    logo_url = Unicode(
+        "",
+        help="Custom URL for the logo.",
+        allow_none=True,
+        config=True,
+    )
+
+    @default("logo_url")
+    def _logo_url_default(self):
+        return url_path_join(self.base_url, "hub", "home")
+
     tornado_settings = Dict(
         {},
         config=True,
@@ -210,6 +221,7 @@ class TljhRepo2Docker(Application):
             node_selector=self.node_selector,
             binderhub_url=self.binderhub_url,
             repo_providers=self.repo_providers,
+            logo_url=self.logo_url,
         )
         if hasattr(self, "db_context"):
             settings["db_context"] = self.db_context
