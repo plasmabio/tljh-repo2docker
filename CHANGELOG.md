@@ -79,6 +79,22 @@ You can find below the list of changes since the creation of the plugin.
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.0b5
+
+([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v3.0.0b4...d2acfdf05aef5ce55faede8671496b2451f89a8d))
+
+### Merged PRs
+
+- fix starting inactive server [#121](https://github.com/plasmabio/tljh-repo2docker/pull/121) ([@trungleduc](https://github.com/trungleduc))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2025-10-03&to=2025-10-03&type=c))
+
+[@trungleduc](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2025-10-03..2025-10-03&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.0b4
 
 ([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v3.0.0b3...fea11917bacc41ebfb2b2438ae9f9d89d22f9595))
@@ -92,8 +108,6 @@ You can find below the list of changes since the creation of the plugin.
 ([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2025-10-03&to=2025-10-03&type=c))
 
 [@trungleduc](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2025-10-03..2025-10-03&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.0b3
 
