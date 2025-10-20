@@ -11,7 +11,7 @@
     },
     "license": "BSD-3-Clause",
     "dependencies": {
-        "@playwright/test": "^1.31.0",
+        "@playwright/test": "^1.56.1",
         "rimraf": "^4.1.2"
     }
 }
