@@ -101,11 +101,11 @@ function _EnvironmentList(props: IEnvironmentListProps) {
       newItem.cpu_limit =
         newItem.cpu_limit.length > 0
           ? newItem.cpu_limit
-          : props.default_cpu_limit ?? '2';
+          : (props.default_cpu_limit ?? '2');
       newItem.mem_limit =
         newItem.mem_limit.length > 0
           ? newItem.mem_limit
-          : props.default_mem_limit ?? '2';
+          : (props.default_mem_limit ?? '2');
       return newItem;
     });
   }, [props]);
