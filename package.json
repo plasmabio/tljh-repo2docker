@@ -1,5 +1,6 @@
 {
     "name": "tljh_repo2docker_ui",
+    "type": "module",
     "private": "true",
     "version": "3.0.0",
     "description": "tljh_repo2docker frontend package",
@@ -33,6 +34,7 @@
         "css-loader": "^7.1.2",
         "eslint": "^9.39.1",
         "eslint-config-prettier": "^10.1.8",
+        "eslint-define-config": "^2.1.0",
         "eslint-plugin-import": "^2.32.0",
         "eslint-plugin-prettier": "^5.5.4",
         "eslint-plugin-react": "^7.37.5",
@@ -62,73 +64,6 @@
         "url-join": "^5.0.0",
         "xterm": "^5.3.0",
         "xterm-addon-fit": "^0.8.0"
-    },
-    "eslintIgnore": [
-        "node_modules",
-        "ui-tests/playwright-report",
-        "lib",
-        "dist",
-        "coverage",
-        "**/*.d.ts"
-    ],
-    "eslintConfig": {
-        "extends": [
-            "eslint:recommended",
-            "plugin:@typescript-eslint/eslint-recommended",
-            "plugin:@typescript-eslint/recommended",
-            "plugin:prettier/recommended",
-            "plugin:react-hooks/recommended"
-        ],
-        "parser": "@typescript-eslint/parser",
-        "parserOptions": {
-            "project": "tsconfig.json",
-            "sourceType": "module"
-        },
-        "plugins": [
-            "@typescript-eslint"
-        ],
-        "rules": {
-            "@typescript-eslint/naming-convention": [
-                "error",
-                {
-                    "selector": "interface",
-                    "format": [
-                        "PascalCase"
-                    ],
-                    "custom": {
-                        "regex": "^I[A-Z]",
-                        "match": true
-                    }
-                }
-            ],
-            "@typescript-eslint/no-unused-vars": [
-                "warn",
-                {
-                    "args": "none",
-                    "argsIgnorePattern": "^_",
-                    "varsIgnorePattern": "^_",
-                    "caughtErrorsIgnorePattern": "^_"
-                }
-            ],
-            "@typescript-eslint/no-explicit-any": "off",
-            "@typescript-eslint/no-namespace": "off",
-            "@typescript-eslint/no-use-before-define": "off",
-            "@typescript-eslint/quotes": [
-                "error",
-                "single",
-                {
-                    "avoidEscape": true,
-                    "allowTemplateLiterals": false
-                }
-            ],
-            "curly": [
-                "error",
-                "all"
-            ],
-            "eqeqeq": "error",
-            "prefer-arrow-callback": "error",
-            "react-hooks/exhaustive-deps": "error"
-        }
     },
     "prettier": {
         "singleQuote": true,
