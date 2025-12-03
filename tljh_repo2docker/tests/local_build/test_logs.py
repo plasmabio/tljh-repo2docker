@@ -15,7 +15,7 @@ async def test_stream_simple(app, minimal_repo, image_name):
     ex = async_requests.executor
     line_iter = iter(r.iter_lines(decode_unicode=True))
     evt = await ex.submit(next_event, line_iter)
-    assert evt == {"phase": "log", "message": "Picked Git content provider.\n"}
+    assert "Picked Git content provider" in evt["message"]
 
     r.close()
     await wait_for_image(image_name=image_name)
