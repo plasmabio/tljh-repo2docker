@@ -79,6 +79,12 @@ You can find below the list of changes since the creation of the plugin.
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.0
+
+No merged PRs
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.0b6
 
 ([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v3.0.0b5...e070973260589d10f79cfe3da9781f773428c59f))
@@ -92,8 +98,6 @@ You can find below the list of changes since the creation of the plugin.
 ([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2025-10-03&to=2025-12-03&type=c))
 
 [@djangoliv](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Adjangoliv+updated%3A2025-10-03..2025-12-03&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.0b5
 

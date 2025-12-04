@@ -1,7 +1,7 @@
 {
     "name": "tljh_repo2docker_ui",
     "private": "true",
-    "version": "3.0.0-b6",
+    "version": "3.0.0",
     "description": "tljh_repo2docker frontend package",
     "license": "BSD-3-Clause",
     "homepage": "https://github.com/plasmabio/tljh-repo2docker",
