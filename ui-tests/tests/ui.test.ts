@@ -20,7 +20,7 @@ test.describe('tljh_repo2docker UI Tests', () => {
   test('Render Login', async ({ page }) => {
     await page.goto('hub/login');
     await page.getByText('Sign in');
-    expect(await page.screenshot()).toMatchSnapshot('login-page.png');
+    await expect(await page.screenshot()).toMatchSnapshot('login-page.png');
   });
 
   test('Log in with admin account', async ({ page }) => {
@@ -29,7 +29,7 @@ test.describe('tljh_repo2docker UI Tests', () => {
     await page.getByRole('link', { name: 'tljh_repo2docker' }).click();
     await page.waitForURL('**/servers');
     await page.waitForTimeout(500);
-    expect(await page.screenshot()).toMatchSnapshot('admin.png');
+    await expect(await page.screenshot()).toMatchSnapshot('admin.png');
   });
 
   test('Log in with user account', async ({ page }) => {
@@ -38,7 +38,7 @@ test.describe('tljh_repo2docker UI Tests', () => {
     await page.getByRole('link', { name: 'tljh_repo2docker' }).click();
     await page.waitForURL('**/servers');
     await page.waitForTimeout(500);
-    expect(await page.screenshot()).toMatchSnapshot('user.png');
+    await expect(await page.screenshot()).toMatchSnapshot('user.png');
   });
 
   test('Render servers page', async ({ page }) => {
@@ -50,7 +50,7 @@ test.describe('tljh_repo2docker UI Tests', () => {
     await page.waitForSelector('div:has-text("No servers are running")', {
       timeout: 1000
     });
-    expect(await page.screenshot()).toMatchSnapshot('servers-page.png');
+    await expect(await page.screenshot()).toMatchSnapshot('servers-page.png');
   });
 
   test('Render environments page', async ({ page }) => {
@@ -64,7 +64,9 @@ test.describe('tljh_repo2docker UI Tests', () => {
     await page.waitForSelector('div:has-text("No environment available")', {
       timeout: 1000
     });
-    expect(await page.screenshot()).toMatchSnapshot('environments-page.png');
+    await expect(await page.screenshot()).toMatchSnapshot(
+      'environments-page.png'
+    );
   });
 
   test('Render environments dialog', async ({ page }) => {
@@ -74,7 +76,9 @@ test.describe('tljh_repo2docker UI Tests', () => {
     await page.getByRole('button', { name: 'Create new environment' }).click();
     await page.waitForTimeout(1000);
     await page.getByRole('button', { name: 'Create Environment' });
-    expect(await page.screenshot()).toMatchSnapshot('environment-dialog.png');
+    await expect(await page.screenshot()).toMatchSnapshot(
+      'environment-dialog.png'
+    );
   });
 
   test('Create new environments', async ({ page }) => {
@@ -108,12 +112,17 @@ test.describe('tljh_repo2docker UI Tests', () => {
       });
     }
 
-    expect(await page.screenshot()).toMatchSnapshot('environment-console.png', {
-      maxDiffPixelRatio: 0.05
-    });
+    await expect(await page.screenshot()).toMatchSnapshot(
+      'environment-console.png',
+      {
+        maxDiffPixelRatio: 0.05
+      }
+    );
     await page.getByRole('button', { name: 'Close' }).click();
     await page.waitForTimeout(500);
-    expect(await page.screenshot()).toMatchSnapshot('environment-list.png');
+    await expect(await page.screenshot()).toMatchSnapshot(
+      'environment-list.png'
+    );
   });
 
   test('Render servers dialog', async ({ page }) => {
@@ -126,7 +135,7 @@ test.describe('tljh_repo2docker UI Tests', () => {
     await page.getByRole('button', { name: 'Create new Server' }).click();
     await page.waitForTimeout(1000);
     await page.getByText('Server Options').click();
-    expect(await page.screenshot()).toMatchSnapshot('servers-dialog.png');
+    await expect(await page.screenshot()).toMatchSnapshot('servers-dialog.png');
   });
 
   test('Start server', async ({ page }) => {
@@ -149,11 +158,13 @@ test.describe('tljh_repo2docker UI Tests', () => {
       name: 'Create Server'
     });
     await createServer.click();
-    await expect(createServer).toHaveCount(0, { timeout: 20000 });
+    await await expect(createServer).toHaveCount(0, { timeout: 20000 });
     await page.waitForURL('**/servers');
     await page.waitForTimeout(1000);
 
-    expect(await page.screenshot()).toMatchSnapshot('running-servers.png');
+    await expect(await page.screenshot()).toMatchSnapshot(
+      'running-servers.png'
+    );
   });
 
   test('Remove server', async ({ page }) => {
@@ -163,15 +174,15 @@ test.describe('tljh_repo2docker UI Tests', () => {
 
     await page.getByRole('button', { name: 'Stop Server' }).click();
     await page.waitForTimeout(500);
-    expect(await page.screenshot()).toMatchSnapshot(
+    await expect(await page.screenshot()).toMatchSnapshot(
       'server-remove-confirm.png'
     );
     const accept = await page.getByRole('button', { name: 'Accept' });
     await accept.click();
-    await expect(accept).toHaveCount(0);
+    await await expect(accept).toHaveCount(0);
     await page.waitForTimeout(1000);
     await page.waitForURL('**/servers');
-    expect(await page.screenshot()).toMatchSnapshot('server-removed.png');
+    await expect(await page.screenshot()).toMatchSnapshot('server-removed.png');
   });
 
   test('Remove environment', async ({ page }) => {
@@ -180,14 +191,16 @@ test.describe('tljh_repo2docker UI Tests', () => {
     await page.waitForTimeout(1000);
     await page.getByRole('button', { name: 'Remove' }).click();
     await page.waitForTimeout(500);
-    expect(await page.screenshot()).toMatchSnapshot(
+    await expect(await page.screenshot()).toMatchSnapshot(
       'environment-remove-confirm.png'
     );
     const accept = await page.getByRole('button', { name: 'Accept' });
     await accept.click();
-    await expect(accept).toHaveCount(0);
+    await await expect(accept).toHaveCount(0);
     await page.waitForTimeout(1000);
     await page.waitForURL('**/environments');
-    expect(await page.screenshot()).toMatchSnapshot('environment-removed.png');
+    await expect(await page.screenshot()).toMatchSnapshot(
+      'environment-removed.png'
+    );
   });
 });
