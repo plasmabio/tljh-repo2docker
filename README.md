@@ -2,13 +2,19 @@
 
 ![Github Actions Status](https://github.com/plasmabio/tljh-repo2docker/workflows/Tests/badge.svg)
 
-TLJH plugin provides a JupyterHub service to build and use Docker images as user environments. The Docker images can be built locally using [`repo2docker`](https://repo2docker.readthedocs.io/en/latest/) or via the [`binderhub`](https://binderhub.readthedocs.io/en/latest/) service.
+This service allows users to create and use Docker images for their JupyterHub environments, using repositories from platforms like GitHub or GitLab. It can be deployed as part of The Littlest JupyterHub (TLJH) or as a standalone service in any JupyterHub setup.
+The Docker images can be built locally using [`repo2docker`](https://repo2docker.readthedocs.io/en/latest/) or via the [`binderhub`](https://binderhub.readthedocs.io/en/latest/) service.
 
 ## Requirements
 
-This plugin requires [The Littlest JupyterHub](https://tljh.jupyter.org) 1.0 or later (running on JupyterHub 4+).
+This plugin requires:
+
+- JupyterHub 1.0 or later (running on JupyterHub 4+).
+- Optional: [The Littlest JupyterHub](https://tljh.jupyter.org)
 
 ## Installation
+
+### TLJH Installation (Optional)
 
 During the [TLJH installation process](http://tljh.jupyter.org/en/latest/install/index.html), use the following post-installation script:
 
