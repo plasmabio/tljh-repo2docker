@@ -47,7 +47,9 @@ async def list_containers():
             "display_name": container["Labels"]["tljh_repo2docker.display_name"],
             "mem_limit": container["Labels"]["tljh_repo2docker.mem_limit"],
             "cpu_limit": container["Labels"]["tljh_repo2docker.cpu_limit"],
-            "node_selector": container["Labels"].get("tljh_repo2docker.node_selector", ""),
+            "node_selector": container["Labels"].get(
+                "tljh_repo2docker.node_selector", ""
+            ),
             "status": "building",
         }
         for container in r2d_containers

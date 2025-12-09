@@ -50,7 +50,15 @@ def get_service_page(path, app, **kw):
 
 
 async def add_environment(
-    app, *, repo, ref="HEAD", name="", memory="", cpu="", provider=None, node_selector={}
+    app,
+    *,
+    repo,
+    ref="HEAD",
+    name="",
+    memory="",
+    cpu="",
+    provider=None,
+    node_selector={},
 ):
     """Use the POST endpoint to add a new environment"""
     data = {
@@ -59,7 +67,7 @@ async def add_environment(
         "name": name,
         "memory": memory,
         "cpu": cpu,
-        "node_selector": node_selector
+        "node_selector": node_selector,
     }
     if provider:
         data["provider"] = provider

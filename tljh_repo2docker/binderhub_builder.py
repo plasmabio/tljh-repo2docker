@@ -116,7 +116,12 @@ class BinderHubBuildHandler(BaseHandler):
             status=BuildStatusType.BUILDING,
             log="",
             image_meta=ImageMetadataType(
-                display_name=name, repo=repo, ref=ref, cpu_limit=cpu, mem_limit=memory, node_selector= node_selector
+                display_name=name,
+                repo=repo,
+                ref=ref,
+                cpu_limit=cpu,
+                mem_limit=memory,
+                node_selector=node_selector,
             ),
         )
         self.set_status(200)
