@@ -33,7 +33,7 @@ async def test_add_environment(
     assert images_db.name == generated_image_name
     assert images_db.image_meta["display_name"] == name
     assert images_db.image_meta["ref"] == ref
-    assert images_db.image_meta["node_selector"] == node_selector  
+    assert images_db.image_meta["node_selector"] == node_selector
 
 
 @pytest.mark.asyncio
@@ -41,7 +41,7 @@ async def test_delete_environment(
     app, minimal_repo, image_name, generated_image_name, db_session
 ):
     name, ref = image_name.split(":")
-    node_selector = {"key": "value"}  
+    node_selector = {"key": "value"}
     r = await add_environment(
         app,
         repo=minimal_repo,
@@ -97,7 +97,7 @@ async def test_wrong_limits(app, minimal_repo, image_name, memory, cpu, node_sel
         ref=ref,
         memory=memory,
         cpu=cpu,
-        node_selector=node_selector, 
+        node_selector=node_selector,
         provider="git",
     )
     assert r.status_code == 400

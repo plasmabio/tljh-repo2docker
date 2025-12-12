@@ -62,7 +62,13 @@ async def test_no_repo(app, image_name):
 async def test_wrong_limits(app, minimal_repo, image_name, memory, cpu, node_selector):
     name, ref = image_name.split(":")
     r = await add_environment(
-        app, repo=minimal_repo, name=name, ref=ref, memory=memory, cpu=cpu, node_selector=node_selector
+        app,
+        repo=minimal_repo,
+        name=name,
+        ref=ref,
+        memory=memory,
+        cpu=cpu,
+        node_selector=node_selector,
     )
     assert r.status_code == 400
     assert "must be a number" in r.text

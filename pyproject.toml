@@ -8,7 +8,7 @@ dependencies = [
   "dockerspawner>=14.0.0,<15.0.0",
   "jupyter_client>=6.1,<8",
   "httpx",
-  "sqlalchemy>=2",
+  "sqlalchemy>=2,<3",
   "pydantic>=2,<3",
   "alembic>=1.14,<1.15",
   "jupyter-repo2docker>=2024,<2025",
