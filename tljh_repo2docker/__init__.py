@@ -184,7 +184,7 @@ if hookimpl:
 
     @hookimpl
     def tljh_extra_hub_pip_packages():
-        return ["dockerspawner~=12.1", "jupyter_client>=6.1,<8", "aiodocker~=0.19"]
+        return ["dockerspawner~=14.0", "jupyter_client>=6.1,<8", "aiodocker~=0.21"]
 
 else:
     tljh_custom_jupyterhub_config = None
