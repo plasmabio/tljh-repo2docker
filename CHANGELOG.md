@@ -79,6 +79,29 @@ You can find below the list of changes since the creation of the plugin.
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.1
+
+([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v3.0.0...fad5554e2cac7c56eacfa9f7b31ef179529ba2aa))
+
+### Merged PRs
+
+- Fixes [#147](https://github.com/plasmabio/tljh-repo2docker/pull/147) ([@djangoliv](https://github.com/djangoliv), [@SylvainCorlay](https://github.com/SylvainCorlay))
+- upgrade playwright [#146](https://github.com/plasmabio/tljh-repo2docker/pull/146) ([@djangoliv](https://github.com/djangoliv), [@trungleduc](https://github.com/trungleduc))
+- fix: update changelog for 3.0.0 [#144](https://github.com/plasmabio/tljh-repo2docker/pull/144) ([@djangoliv](https://github.com/djangoliv), [@trungleduc](https://github.com/trungleduc))
+- upgrade tests dependencies [#143](https://github.com/plasmabio/tljh-repo2docker/pull/143) ([@djangoliv](https://github.com/djangoliv), [@trungleduc](https://github.com/trungleduc))
+- Upgrade [#141](https://github.com/plasmabio/tljh-repo2docker/pull/141) ([@djangoliv](https://github.com/djangoliv), [@trungleduc](https://github.com/trungleduc))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2025-12-04&to=2025-12-29&type=c))
+
+@djangoliv ([activity](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Adjangoliv+updated%3A2025-12-04..2025-12-29&type=Issues)) | @SylvainCorlay ([activity](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3ASylvainCorlay+updated%3A2025-12-04..2025-12-29&type=Issues)) | @trungleduc ([activity](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2025-12-04..2025-12-29&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.0
 
 ([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v2.0.0...e070973260589d10f79cfe3da9781f773428c59f))
@@ -104,8 +127,6 @@ You can find below the list of changes since the creation of the plugin.
 ([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2025-10-03&to=2025-12-03&type=c))
 
 [@trungleduc](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2025-10-03..2025-12-03&type=Issues) | [@djangoliv](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Adjangoliv+updated%3A2025-10-03..2025-12-03&type=Issues) | [@dependabot](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Adependabot+updated%3A2025-06-11..2025-12-03&type=Issues) | [@holzman](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Aholzman+updated%3A2025-06-11..2025-12-03&type=Issues) | [@Meriem-BenIsmail](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3AMeriem-BenIsmail+updated%3A2025-06-11..2025-12-03&type=Issues) | [@TimoRoth](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3ATimoRoth+updated%3A2025-06-11..2025-12-03&type=Issues) | [@jtpio](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Ajtpio+updated%3A2025-06-11..2025-12-03&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.0b6
 
