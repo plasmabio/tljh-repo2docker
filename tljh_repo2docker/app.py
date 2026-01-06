@@ -179,6 +179,12 @@ class TljhRepo2Docker(Application):
         config=True,
     )
 
+    custom_links = Dict(
+        {},
+        config=True,
+        help="Custom links to add to the header",
+    )
+
     aliases = {
         "port": "TljhRepo2Docker.port",
         "ip": "TljhRepo2Docker.ip",
@@ -189,6 +195,7 @@ class TljhRepo2Docker(Application):
         "node_selector": "TljhRepo2Docker.node_selector",
         "binderhub_url": "TljhRepo2Docker.binderhub_url",
         "db_url": "TljhRepo2Docker.db_url",
+        "custom_links": "TljhRepo2Docker.custom_links",
     }
 
     def init_settings(self) -> tp.Dict:
@@ -222,6 +229,7 @@ class TljhRepo2Docker(Application):
             binderhub_url=self.binderhub_url,
             repo_providers=self.repo_providers,
             logo_url=self.logo_url,
+            custom_links=self.custom_links,
         )
         if hasattr(self, "db_context"):
             settings["db_context"] = self.db_context
