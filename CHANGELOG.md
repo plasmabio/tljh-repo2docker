@@ -79,6 +79,25 @@ You can find below the list of changes since the creation of the plugin.
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.2
+
+([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v3.0.1...c7355d7b4c68822d337aa3bb0c31a25990d0024f))
+
+### Merged PRs
+
+- add the possibility to add custom links in the header [#153](https://github.com/plasmabio/tljh-repo2docker/pull/153) ([@djangoliv](https://github.com/djangoliv), [@trungleduc](https://github.com/trungleduc))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2025-12-29&to=2026-01-07&type=c))
+
+@djangoliv ([activity](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Adjangoliv+updated%3A2025-12-29..2026-01-07&type=Issues)) | @trungleduc ([activity](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2025-12-29..2026-01-07&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.1
 
 ([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v3.0.0...fad5554e2cac7c56eacfa9f7b31ef179529ba2aa))
@@ -99,8 +118,6 @@ See [our definition of contributors](https://github-activity.readthedocs.io/en/l
 ([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2025-12-04&to=2025-12-29&type=c))
 
 @djangoliv ([activity](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Adjangoliv+updated%3A2025-12-04..2025-12-29&type=Issues)) | @SylvainCorlay ([activity](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3ASylvainCorlay+updated%3A2025-12-04..2025-12-29&type=Issues)) | @trungleduc ([activity](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2025-12-04..2025-12-29&type=Issues))
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.0
 
