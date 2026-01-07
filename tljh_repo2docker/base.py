@@ -113,6 +113,7 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
             xsrf_token=self.xsrf_token.decode("ascii"),
             user=user,
             admin_access=user.admin,
+            custom_links=self.settings.get("custom_links"),
         )
         template_ns.update(kwargs)
         template = self.get_template(name)
