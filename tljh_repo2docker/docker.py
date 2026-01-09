@@ -1,5 +1,6 @@
 import json
 from urllib.parse import urlparse
+from datetime import datetime
 
 from aiodocker import Docker
 from tornado import web
@@ -19,6 +20,7 @@ async def list_images():
             "ref": image["Labels"]["repo2docker.ref"],
             "image_name": image["Labels"]["tljh_repo2docker.image_name"],
             "display_name": image["Labels"]["tljh_repo2docker.display_name"],
+            "creation_date": image["Labels"].get("tljh_repo2docker.creation_date", "unknow"),
             "mem_limit": image["Labels"]["tljh_repo2docker.mem_limit"],
             "cpu_limit": image["Labels"]["tljh_repo2docker.cpu_limit"],
             "node_selector": image["Labels"].get("tljh_repo2docker.node_selector", ""),
@@ -74,6 +76,7 @@ async def get_image_metadata(image_name):
             "repo": image["Labels"].get("repo2docker.repo", ""),
             "ref": image["Labels"].get("repo2docker.ref", ""),
             "display_name": image["Labels"].get("tljh_repo2docker.display_name", ""),
+            "creation_date": image["Labels"].get("tljh_repo2docker.creation_date", ""),
             "mem_limit": image["Labels"].get("tljh_repo2docker.mem_limit", ""),
             "cpu_limit": image["Labels"].get("tljh_repo2docker.cpu_limit", ""),
             "node_selector": image["Labels"].get("tljh_repo2docker.node_selector", ""),
@@ -108,10 +111,14 @@ async def build_image(
     memory = f"{memory}G" if memory else ""
     cpu = cpu or ""
 
+    # creation_date
+    creation_date = datetime.now().strftime("%d/%m/%Y")
+
     # add extra labels to set additional image properties
     labels = [
         f"tljh_repo2docker.display_name={name}",
         f"tljh_repo2docker.image_name={image_name}",
+        f"tljh_repo2docker.creation_date={creation_date}",
         f"tljh_repo2docker.mem_limit={memory}",
         f"tljh_repo2docker.cpu_limit={cpu}",
         f"tljh_repo2docker.node_selector={node_selector}",
