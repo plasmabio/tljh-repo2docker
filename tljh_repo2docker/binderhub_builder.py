@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import re
 from urllib.parse import quote
@@ -109,6 +110,8 @@ class BinderHubBuildHandler(BaseHandler):
         if not db_context or not image_db_manager:
             return
 
+        creation_date = datetime.now().strftime("%d/%m/%Y")
+
         uid = uuid4()
         image_in = DockerImageCreateSchema(
             uid=uid,
@@ -121,6 +124,7 @@ class BinderHubBuildHandler(BaseHandler):
                 ref=ref,
                 cpu_limit=cpu,
                 mem_limit=memory,
+                creation_date=creation_date,
                 node_selector=node_selector,
             ),
         )
