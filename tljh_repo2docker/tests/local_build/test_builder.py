@@ -10,6 +10,7 @@ async def test_add_environment(app, minimal_repo, image_name):
     r = await add_environment(app, repo=minimal_repo, name=name, ref=ref)
     assert r.status_code == 200
     image = await wait_for_image(image_name=image_name)
+    assert image is not None, "Docker image was not found after build"
     config = image.get("ContainerConfig", image.get("Config", {}))
     assert config["Labels"]["tljh_repo2docker.image_name"] == image_name
 
