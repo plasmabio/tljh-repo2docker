@@ -79,6 +79,26 @@ You can find below the list of changes since the creation of the plugin.
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.3
+
+([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v3.0.2...df4b514f1b8953b85bcb0279e33d5bb8cf5b0970))
+
+### Merged PRs
+
+- fix unit test on python 3.12 [#160](https://github.com/plasmabio/tljh-repo2docker/pull/160) ([@djangoliv](https://github.com/djangoliv))
+- add the creation date to environments table [#154](https://github.com/plasmabio/tljh-repo2docker/pull/154) ([@djangoliv](https://github.com/djangoliv), [@trungleduc](https://github.com/trungleduc))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2026-01-07&to=2026-01-13&type=c))
+
+@djangoliv ([activity](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Adjangoliv+updated%3A2026-01-07..2026-01-13&type=Issues)) | @trungleduc ([activity](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2026-01-07..2026-01-13&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.2
 
 ([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v3.0.1...c7355d7b4c68822d337aa3bb0c31a25990d0024f))
@@ -95,8 +115,6 @@ See [our definition of contributors](https://github-activity.readthedocs.io/en/l
 ([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2025-12-29&to=2026-01-07&type=c))
 
 @djangoliv ([activity](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Adjangoliv+updated%3A2025-12-29..2026-01-07&type=Issues)) | @trungleduc ([activity](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2025-12-29..2026-01-07&type=Issues))
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.1
 
