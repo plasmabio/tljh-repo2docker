@@ -86,10 +86,9 @@ test.describe('tljh_repo2docker UI Tests', () => {
     await page.goto('/services/tljh_repo2docker/environments');
     await page.waitForTimeout(1000);
     await page.getByRole('button', { name: 'Create new environment' }).click();
-    // TODO : test with https://github.com/plasmabio/template-python
     await page
       .getByLabel('Repository URL *')
-      .fill('https://github.com/djangoliv/plasmabio-template-python');
+      .fill('https://github.com/plasmabio/template-python');
     await page.getByPlaceholder('HEAD').fill('HEAD');
     await page
       .getByPlaceholder('Example: course-python-101-B37')
