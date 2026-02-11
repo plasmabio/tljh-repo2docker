@@ -58,7 +58,7 @@
         "@mui/icons-material": "^7.3.5",
         "@mui/material": "^7.3.5",
         "@mui/x-data-grid": "^7.29.12",
-        "axios": "^1.13.2",
+        "axios": "^1.13.5",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
         "url-join": "^5.0.0",
