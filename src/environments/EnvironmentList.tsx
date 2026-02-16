@@ -1,7 +1,12 @@
 import { IconButton } from '@mui/material';
-import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
+import {
+  DataGrid,
+  GridColDef,
+  GridRowSelectionModel,
+  GridColumnVisibilityModel
+} from '@mui/x-data-grid';
 import { IEnvironmentData } from './types';
-import { memo, useMemo } from 'react';
+import { memo, useMemo, useState } from 'react';
 import CheckIcon from '@mui/icons-material/Check';
 
 import { Box } from '@mui/system';
@@ -100,6 +105,19 @@ export interface IEnvironmentListProps {
 }
 
 function _EnvironmentList(props: IEnvironmentListProps) {
+  const [columnVisibility, setColumnVisibility] =
+    useState<GridColumnVisibilityModel>({
+      display_name: true,
+      repo: true,
+      ref: true,
+      mem_limit: true,
+      cpu_limit: true,
+      creation_date: true,
+      owner: true,
+      status: true,
+      remove: !props.hideRemoveButton
+    });
+
   const rows = useMemo(() => {
     return props.images.map((it, id) => {
       const newItem = { ...it, id };
@@ -134,7 +152,10 @@ function _EnvironmentList(props: IEnvironmentListProps) {
             overflow: rows.length > 0 ? 'auto' : 'hidden'
           }
         }}
-        columnVisibilityModel={{ remove: !props.hideRemoveButton }}
+        columnVisibilityModel={columnVisibility}
+        onColumnVisibilityModelChange={newVisibility =>
+          setColumnVisibility(newVisibility)
+        }
         checkboxSelection={Boolean(props.selectable)}
         rowSelectionModel={props.rowSelectionModel}
         onRowSelectionModelChange={props.setRowSelectionModel}
