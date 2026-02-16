@@ -4,6 +4,7 @@ export interface IEnvironmentData {
   cpu_limit: string;
   display_name: string;
   creation_date: string;
+  owner: string;
   mem_limit: string;
   ref: string;
   repo: string;

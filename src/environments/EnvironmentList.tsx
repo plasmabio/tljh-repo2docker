@@ -57,6 +57,11 @@ const columns: GridColDef[] = [
     width: 150
   },
   {
+    field: 'owner',
+    headerName: 'Owner',
+    width: 150
+  },
+  {
     field: 'status',
     headerName: 'Status',
     width: 150,

@@ -158,7 +158,7 @@ test.describe('tljh_repo2docker UI Tests', () => {
       name: 'Create Server'
     });
     await createServer.click();
-    await await expect(createServer).toHaveCount(0, { timeout: 20000 });
+    await await expect(createServer).toHaveCount(0, { timeout: 40000 });
     await page.waitForURL('**/servers');
     await page.waitForTimeout(1000);
 

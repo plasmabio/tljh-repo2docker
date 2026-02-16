@@ -15,6 +15,7 @@ class ImageMetadataType(BaseModel):
     repo: str
     ref: str
     creation_date: str
+    owner: str
     cpu_limit: str
     mem_limit: str
     node_selector: dict
