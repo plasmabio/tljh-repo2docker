@@ -131,6 +131,9 @@ jobs:
           python -m pip install tljh_repo2docker*.whl
           npm -g install configurable-http-proxy
 
+      - name: Pre-pull repo2docker image
+        run: docker pull quay.io/jupyterhub/repo2docker:2025.12.0
+
       - name: Install UI test dependencies
         working-directory: ui-tests
         env:

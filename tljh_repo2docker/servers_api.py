@@ -83,5 +83,6 @@ class ServersAPIHandler(BaseHandler):
         try:
             response = await self.client.request("DELETE", path, json=post_data)
             response.raise_for_status()
+            return response
         except Exception:
             raise web.HTTPError(500, "Server error")
