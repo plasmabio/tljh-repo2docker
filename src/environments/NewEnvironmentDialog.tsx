@@ -290,7 +290,7 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
               path: ENV_PREFIX,
               data
             });
-            if (response?.status === 'ok') {
+            if (response?.status === 200) {
               window.location.reload();
             } else {
               handleClose();

@@ -1,6 +1,6 @@
 import urlJoin from 'url-join';
 import { encodeUriComponents } from './utils';
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
 export class AxiosClient {
   constructor(options: AxiosClient.IOptions) {
@@ -17,7 +17,7 @@ export class AxiosClient {
     query?: string;
     data?: { [key: string]: any } | FormData;
     params?: { [key: string]: string };
-  }): Promise<T> {
+  }): Promise<AxiosResponse<T>> {
     const { method, path, params } = args;
     const prefix = 'api';
     const data = args.data ?? {};
@@ -36,7 +36,7 @@ export class AxiosClient {
       data,
       params
     });
-    return response.data;
+    return response;
   }
 
   private _baseUrl: string;

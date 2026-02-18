@@ -20,10 +20,12 @@ function _RemoveEnvironmentButton(props: IRemoveEnvironmentButton) {
       path: ENV_PREFIX,
       data: { name: props.image }
     });
-    if (response?.status === 'ok') {
-      window.location.reload();
+    if (response?.status === 200) {
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } else {
-      /* */
+      console.error(response);
     }
   }, [props.image, axios]);
 

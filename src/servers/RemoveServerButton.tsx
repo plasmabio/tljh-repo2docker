@@ -16,7 +16,7 @@ function _RemoveServerButton(props: IRemoveServerButton) {
   const jhData = useJupyterhub();
   const removeEnv = useCallback(async () => {
     try {
-      await axios.serviceClient.request({
+      const response = await axios.serviceClient.request({
         method: 'delete',
         path: SERVER_PREFIX,
         data: {
@@ -24,7 +24,13 @@ function _RemoveServerButton(props: IRemoveServerButton) {
           serverName: props.server
         }
       });
-      window.location.reload();
+      if (response?.status === 200) {
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      } else {
+        console.error(response);
+      }
     } catch (e: any) {
       console.error(e);
     }

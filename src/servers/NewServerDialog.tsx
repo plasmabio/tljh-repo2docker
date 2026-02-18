@@ -73,18 +73,20 @@ function _NewServerDialog(props: INewServerDialogProps) {
       userName: jhData.user,
       serverName
     };
+    setLoading(true);
     try {
-      setLoading(true);
       await axios.serviceClient.request({
         method: 'post',
         path: SERVER_PREFIX,
         data
       });
-      window.location.reload();
     } catch (e: any) {
-      setLoading(false);
       alert(e);
+    } finally {
+      setLoading(false);
     }
+    window.location.reload();
+    setOpen(false);
   }, [serverName, rowSelectionModel, props.images, axios, jhData]);
   const disabled = useMemo(() => {
     if (rowSelectionModel.length === 0) {

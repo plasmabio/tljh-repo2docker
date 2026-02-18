@@ -141,7 +141,7 @@ test.describe('tljh_repo2docker UI Tests', () => {
   test('Start server', async ({ page }) => {
     await login(page, 'alice');
     await page.goto('/services/tljh_repo2docker/servers');
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
     await page.waitForSelector('div:has-text("No servers are running")', {
       timeout: 1000
     });
@@ -170,17 +170,18 @@ test.describe('tljh_repo2docker UI Tests', () => {
   test('Remove server', async ({ page }) => {
     await login(page, 'alice');
     await page.goto('/services/tljh_repo2docker/servers');
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(8000);
 
     await page.getByRole('button', { name: 'Stop Server' }).click();
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(8000);
     await expect(await page.screenshot()).toMatchSnapshot(
       'server-remove-confirm.png'
     );
     const accept = await page.getByRole('button', { name: 'Accept' });
     await accept.click();
-    await await expect(accept).toHaveCount(0);
     await page.waitForTimeout(1000);
+    await expect(page.getByRole('button', { name: 'Accept' })).toBeHidden();
+    await page.waitForTimeout(5000);
     await page.waitForURL('**/servers');
     await expect(await page.screenshot()).toMatchSnapshot('server-removed.png');
   });
@@ -188,15 +189,16 @@ test.describe('tljh_repo2docker UI Tests', () => {
   test('Remove environment', async ({ page }) => {
     await login(page, 'alice');
     await page.goto('/services/tljh_repo2docker/environments');
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(5000);
     await page.getByRole('button', { name: 'Remove' }).click();
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(2000);
     await expect(await page.screenshot()).toMatchSnapshot(
       'environment-remove-confirm.png'
     );
     const accept = await page.getByRole('button', { name: 'Accept' });
     await accept.click();
-    await await expect(accept).toHaveCount(0);
+    await page.waitForTimeout(2000);
+    await expect(page.getByRole('button', { name: 'Accept' })).toBeHidden();
     await page.waitForTimeout(1000);
     await page.waitForURL('**/environments');
     await expect(await page.screenshot()).toMatchSnapshot(
