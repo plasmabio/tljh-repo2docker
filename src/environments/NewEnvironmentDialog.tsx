@@ -17,6 +17,7 @@ import {
   Typography
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import {
   Fragment,
   memo,
@@ -256,9 +257,16 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
     ));
   }, [props.node_selector, selectedNodeSelectors, onNodeSelectorChange]);
 
+  const reload = () => {
+    window.location.reload();
+  };
+
   return (
     <Fragment>
       <Box sx={{ display: 'flex', flexDirection: 'row-reverse' }}>
+        <Button onClick={reload} variant="outlined">
+          <RefreshIcon />
+        </Button>
         <Button onClick={handleOpen} variant="contained">
           Create new environment
         </Button>
@@ -294,10 +302,9 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
               data
             });
             if (response?.status === 200) {
-              window.location.reload();
-            } else {
-              handleClose();
+              reload();
             }
+            handleClose();
           }
         }}
       >
