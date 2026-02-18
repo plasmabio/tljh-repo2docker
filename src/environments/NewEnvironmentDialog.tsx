@@ -1,11 +1,13 @@
 import {
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
   Box,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  Divider,
   FormControl,
   InputLabel,
   MenuItem,
@@ -14,6 +16,8 @@ import {
   TextField,
   Typography
 } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import {
   Fragment,
   memo,
@@ -253,9 +257,16 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
     ));
   }, [props.node_selector, selectedNodeSelectors, onNodeSelectorChange]);
 
+  const reload = () => {
+    window.location.reload();
+  };
+
   return (
     <Fragment>
       <Box sx={{ display: 'flex', flexDirection: 'row-reverse' }}>
+        <Button onClick={reload} variant="outlined">
+          <RefreshIcon />
+        </Button>
         <Button onClick={handleOpen} variant="contained">
           Create new environment
         </Button>
@@ -291,10 +302,9 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
               data
             });
             if (response?.status === 200) {
-              window.location.reload();
-            } else {
-              handleClose();
+              reload();
             }
+            handleClose();
           }
         }}
       >
@@ -361,62 +371,60 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
             : MemoryCpuSelector}
           {props.node_selector && NodeSelectorDropdown}
           {!props.use_binderhub && (
-            <Fragment>
-              <Divider
-                variant="fullWidth"
-                textAlign="left"
-                sx={{ marginTop: '6px' }}
-              >
+            <Accordion sx={{ mt: 1 }} elevation={0}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography sx={{ fontWeight: 500, fontSize: '1.4rem' }}>
                   Advanced
                 </Typography>
-              </Divider>
-              <SmallTextField
-                {...commonInputProps}
-                id="build_args"
-                name="build_args"
-                label="Build arguments"
-                type="text"
-                size="small"
-                multiline
-                rows={4}
-                required={false}
-                placeholder="Build arguments in the form of arg1=val1..."
-                onChange={e => updateFormValue('buildargs', e.target.value)}
-              />
-            </Fragment>
+              </AccordionSummary>
+              <AccordionDetails>
+                <SmallTextField
+                  {...commonInputProps}
+                  id="build_args"
+                  name="build_args"
+                  label="Build arguments"
+                  type="text"
+                  size="small"
+                  multiline
+                  rows={4}
+                  required={false}
+                  placeholder="Build arguments in the form of arg1=val1..."
+                  onChange={e => updateFormValue('buildargs', e.target.value)}
+                />
+              </AccordionDetails>
+            </Accordion>
           )}
           {!props.use_binderhub && (
-            <Fragment>
-              <Divider
-                variant="fullWidth"
-                textAlign="left"
-                sx={{ marginTop: '6px' }}
-              >
+            <Accordion sx={{ mt: 1 }} elevation={0}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography sx={{ fontWeight: 500, fontSize: '1.4rem' }}>
                   Credentials
                 </Typography>
-              </Divider>
-              <SmallTextField
-                {...commonInputProps}
-                id="git_user"
-                name="git_user"
-                size="small"
-                label="Git user name"
-                type="text"
-                required={false}
-                onChange={e => updateFormValue('username', e.target.value)}
-              />
-              <SmallTextField
-                {...commonInputProps}
-                id="git_password"
-                name="git_password"
-                size="small"
-                label="Git password"
-                type="password"
-                required={false}
-              />
-            </Fragment>
+              </AccordionSummary>
+
+              <AccordionDetails>
+                <SmallTextField
+                  {...commonInputProps}
+                  id="git_user"
+                  name="git_user"
+                  size="small"
+                  label="Git user name"
+                  type="text"
+                  required={false}
+                  onChange={e => updateFormValue('username', e.target.value)}
+                />
+
+                <SmallTextField
+                  {...commonInputProps}
+                  id="git_password"
+                  name="git_password"
+                  size="small"
+                  label="Git password"
+                  type="password"
+                  required={false}
+                />
+              </AccordionDetails>
+            </Accordion>
           )}
         </DialogContent>
         <DialogActions>

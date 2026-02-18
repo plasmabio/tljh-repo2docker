@@ -21,6 +21,7 @@ async def list_images():
             "image_name": image["Labels"]["tljh_repo2docker.image_name"],
             "display_name": image["Labels"]["tljh_repo2docker.display_name"],
             "creation_date": image["Labels"].get("tljh_repo2docker.creation_date", "unknow"),
+            "owner": image["Labels"].get("tljh_repo2docker.owner", "unknow"),
             "mem_limit": image["Labels"]["tljh_repo2docker.mem_limit"],
             "cpu_limit": image["Labels"]["tljh_repo2docker.cpu_limit"],
             "node_selector": image["Labels"].get("tljh_repo2docker.node_selector", ""),
@@ -77,6 +78,7 @@ async def get_image_metadata(image_name):
             "ref": image["Labels"].get("repo2docker.ref", ""),
             "display_name": image["Labels"].get("tljh_repo2docker.display_name", ""),
             "creation_date": image["Labels"].get("tljh_repo2docker.creation_date", ""),
+            "owner": image["Labels"].get("tljh_repo2docker.owner", ""),
             "mem_limit": image["Labels"].get("tljh_repo2docker.mem_limit", ""),
             "cpu_limit": image["Labels"].get("tljh_repo2docker.cpu_limit", ""),
             "node_selector": image["Labels"].get("tljh_repo2docker.node_selector", ""),
@@ -88,10 +90,11 @@ async def build_image(
     ref,
     node_selector={},
     name="",
+    owner="",
     memory=None,
     cpu=None,
-    username=None,
-    password=None,
+    git_username=None,
+    git_password=None,
     extra_buildargs=None,
 ):
     """
@@ -119,6 +122,7 @@ async def build_image(
         f"tljh_repo2docker.display_name={name}",
         f"tljh_repo2docker.image_name={image_name}",
         f"tljh_repo2docker.creation_date={creation_date}",
+        f"tljh_repo2docker.owner={owner}",
         f"tljh_repo2docker.mem_limit={memory}",
         f"tljh_repo2docker.cpu_limit={cpu}",
         f"tljh_repo2docker.node_selector={node_selector}",
@@ -171,10 +175,10 @@ async def build_image(
         "OpenStdin": False,
     }
 
-    if username and password:
+    if git_username and git_password:
         config.update(
             {
-                "Env": [f"GIT_CREDENTIAL_ENV=username={username}\npassword={password}"],
+                "Env": [f"GIT_CREDENTIAL_ENV=username={git_username}\npassword={git_password}"],
             }
         )
 

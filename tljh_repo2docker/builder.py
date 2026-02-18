@@ -41,8 +41,9 @@ class BuildHandler(BaseHandler):
         cpu = data["cpu"]
         node_selector = data.get("node_selector", {})
         buildargs = data.get("buildargs", None)
-        username = data.get("username", None)
-        password = data.get("password", None)
+        git_username = data.get("username", None)
+        git_password = data.get("password", None)
+        owner = self.get_current_user().get('name', 'unknow')
 
         if not repo:
             raise web.HTTPError(400, "Repository is empty")
@@ -76,10 +77,11 @@ class BuildHandler(BaseHandler):
             ref,
             node_selector,
             name,
+            owner,
             memory,
             cpu,
-            username,
-            password,
+            git_username,
+            git_password,
             extra_buildargs,
         )
 

@@ -119,9 +119,16 @@ function _EnvironmentLogButton(props: IEnvironmentLogButton) {
         open={open}
         onClose={handleClose}
         fullWidth
-        maxWidth={'lg'}
         keepMounted={true}
         className="tljh-form-dialog"
+        PaperProps={{
+          sx: {
+            width: theme => theme.breakpoints.values.lg,
+            maxWidth: '90vw',
+            resize: 'both',
+            overflow: 'auto'
+          }
+        }}
       >
         <DialogTitle>Creating environment {props.name}</DialogTitle>
         <DialogContent>

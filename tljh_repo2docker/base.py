@@ -236,6 +236,7 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
                 - display_name (str): The user defined name of the image.
                 - repo (str): Source repo used to build the image.
                 - creation_date: The creation Date of the docker image.
+                - owner: The creator of the docker image.
                 - ref (str): Commit reference.
                 - cpu_limit (str): CPU limit.
                 - mem_limit (str): Memory limit.

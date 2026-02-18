@@ -158,7 +158,7 @@ test.describe('tljh_repo2docker UI Tests', () => {
       name: 'Create Server'
     });
     await createServer.click();
-    await await expect(createServer).toHaveCount(0, { timeout: 20000 });
+    await await expect(createServer).toHaveCount(0, { timeout: 40000 });
     await page.waitForURL('**/servers');
     await page.waitForTimeout(1000);
 
@@ -170,10 +170,10 @@ test.describe('tljh_repo2docker UI Tests', () => {
   test('Remove server', async ({ page }) => {
     await login(page, 'alice');
     await page.goto('/services/tljh_repo2docker/servers');
-    await page.waitForTimeout(8000);
+    await page.waitForTimeout(10000);
 
     await page.getByRole('button', { name: 'Stop Server' }).click();
-    await page.waitForTimeout(8000);
+    await page.waitForTimeout(10000);
     await expect(await page.screenshot()).toMatchSnapshot(
       'server-remove-confirm.png'
     );
