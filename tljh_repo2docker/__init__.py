@@ -31,63 +31,36 @@ class SpawnerMixin(Configurable):
     image_form_template = Unicode(
         """
         <style>
-            #image-list {
-                max-height: 600px;
-                overflow: auto;
+            .feedback-container {
+                display: none;
             }
-            .image-info {
-                font-weight: normal;
-            }
+        .col-md-8 {
+        width: 80%;
+        }
         </style>
-        <div class='form-group' id='image-list'>
-        {% for image in image_list %}
-        <label for='image-item-{{ loop.index0 }}' class='form-control input-group'>
-            <div class='col-md-1'>
-                <input type='radio' name='image' id='image-item-{{ loop.index0 }}' value='{{ image.image_name }}' />
-            </div>
-            <div class='col-md-11'>
-                <strong>{{ image.display_name }}</strong>
-                <div class='row image-info'>
-                    <div class='col-md-4'>
-                        Repository:
-                    </div>
-                    <div class='col-md-8'>
-                        <a href="{{ image.repo }}" target="_blank">{{ image.repo }}</a>
-                    </div>
-                </div>
-                <div class='row image-info'>
-                    <div class='col-md-4'>
-                        Reference:
-                    </div>
-                    <div class='col-md-8'>
-                        <a href="{{ image.repo }}/tree/{{ image.ref }}" target="_blank">{{ image.ref }}</a>
-                    </div>
-                </div>
-                <div class='row image-info'>
-                    <div class='col-md-4'>
-                        Memory Limit (GB):
-                    </div>
-                    <div class='col-md-8'>
-                        <strong>{{ image.mem_limit | replace("G", "") }}</strong>
-                    </div>
-                </div>
-                <div class='row image-info'>
-                    <div class='col-md-4'>
-                        CPU Limit:
-                    </div>
-                    <div class='col-md-8'>
-                        <strong>{{ image.cpu_limit }}</strong>
-                    </div>
-                </div>
-            </div>
-        </label>
-        {% endfor %}
-        </div>
+        <script>
+          window.imageList = {{ image_list | tojson }};
+        </script>
+        <br />
+        <div id="image-table-container" class="tljh-container"></div>
+        <script src="/services/tljh_repo2docker/service_static/js/spawn.js"></script>
+        <script>
+           document.addEventListener('DOMContentLoaded', function() {
+           const imageList = {{ image_list | tojson }};
+           const container = document.getElementById('image-table-container');
+           if (container) {
+               const root = ReactDOM.createRoot(container);
+               root.render(
+                  React.createElement(ImageTable, { rows: window.imageList })
+               );
+           }
+         });
+        </script>
         """,
         config=True,
         help="""
         Jinja2 template for constructing the list of images shown to the user.
-        """,
+        """
     )
 
     async def list_images(self):
