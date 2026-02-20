@@ -44,4 +44,14 @@ const serversPageConfig = {
   ...config
 };
 
-export default [environmentsPageConfig, serversPageConfig];
+const spawnPageConfig = {
+  name: 'spawn',
+  entry: './src/spawn/main.tsx',
+  output: {
+    path: distRoot,
+    filename: 'spawn.js'
+  },
+  ...config
+};
+
+export default [environmentsPageConfig, serversPageConfig, spawnPageConfig];
