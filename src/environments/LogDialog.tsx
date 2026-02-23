@@ -33,6 +33,7 @@ function _EnvironmentLogButton(props: IEnvironmentLogButton) {
   const terminalRef = useRef<{ terminal: Terminal; fitAddon: FitAddon }>(
     terminalFactory()
   );
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const handleOpen = useCallback(() => {
     setOpen(true);
     if (divRef.current) {
@@ -42,6 +43,12 @@ function _EnvironmentLogButton(props: IEnvironmentLogButton) {
 
       terminal.open(divRef.current);
       fitAddon.fit();
+
+      resizeObserverRef.current = new ResizeObserver(() => {
+        fitAddon.fit();
+      });
+      resizeObserverRef.current.observe(divRef.current);
+
       const { servicePrefix, xsrfToken } = jhData;
 
       let logsUrl = urlJoin(
@@ -87,6 +94,10 @@ function _EnvironmentLogButton(props: IEnvironmentLogButton) {
     if (divRef.current) {
       divRef.current.innerHTML = '';
     }
+
+    resizeObserverRef.current?.disconnect();
+    resizeObserverRef.current = null;
+
     setOpen(false);
   };
 
@@ -125,14 +136,31 @@ function _EnvironmentLogButton(props: IEnvironmentLogButton) {
           sx: {
             width: theme => theme.breakpoints.values.lg,
             maxWidth: '90vw',
+            height: '80vh',
             resize: 'both',
-            overflow: 'auto'
+            overflow: 'auto',
+            display: 'flex',
+            flexDirection: 'column'
           }
         }}
       >
         <DialogTitle>Creating environment {props.name}</DialogTitle>
-        <DialogContent>
-          <div ref={divRef} />
+        <DialogContent
+          sx={{
+            flex: 1,
+            display: 'flex',
+            overflow: 'hidden',
+            padding: 0
+          }}
+        >
+          <div
+            ref={divRef}
+            style={{
+              flex: 1,
+              width: '100%',
+              height: '100%'
+            }}
+          />
         </DialogContent>
         <DialogActions>
           <Button variant="contained" onClick={handleClose}>
