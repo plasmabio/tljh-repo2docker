@@ -128,7 +128,7 @@ const ImageTable: React.FC<{ rows: IImage[] }> = ({ rows }) => {
         console.error('Error starting the server:', error);
       }
     } else {
-      console.error('IImage name and ref are required');
+      console.error('Image name and ref are required');
     }
   };
 
@@ -163,7 +163,7 @@ const ImageTable: React.FC<{ rows: IImage[] }> = ({ rows }) => {
 
       <Dialog open={openDialog} onClose={handleCloseDialog}>
         <DialogTitle>
-          <strong>IImage Informations</strong>
+          <strong>Image Informations</strong>
         </DialogTitle>
         <DialogContent>
           {imageInfo && (
