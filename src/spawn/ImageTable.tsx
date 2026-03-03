@@ -64,11 +64,12 @@ const ImageTable: React.FC<{ rows: IImage[] }> = ({ rows }) => {
     {
       field: 'action',
       headerName: '',
-      flex: 1,
+      width: 120,
+      minWidth: 90,
       align: 'center',
       renderCell: params =>
         renderButton(
-          <PlayCircleIcon style={{ fontSize: 18, marginRight: '8px' }} />,
+          <PlayCircleIcon style={{ fontSize: 28, marginRight: '8px' }} />,
           e => handleStartServer(e, params.row.display_name, params.row.ref),
           'Start'
         ),
@@ -80,16 +81,17 @@ const ImageTable: React.FC<{ rows: IImage[] }> = ({ rows }) => {
     {
       field: 'display_name',
       headerName: 'Display Name',
+      flex: 1,
       width: 280,
       headerClassName: 'bold-header'
     },
-    { field: 'mem_limit', headerName: 'Memory Limit', width: 180 },
-    { field: 'cpu_limit', headerName: 'CPU Limit', width: 150 },
-    { field: 'creation_date', headerName: 'Creation Date', width: 150 },
+    { field: 'mem_limit', headerName: 'Memory Limit', width: 170 },
+    { field: 'cpu_limit', headerName: 'CPU Limit', width: 140 },
+    { field: 'creation_date', headerName: 'Creation Date', width: 170 },
     {
       field: 'info',
       headerName: '',
-      width: 80,
+      width: 60,
       align: 'center',
       renderCell: params => (
         <button
@@ -101,7 +103,7 @@ const ImageTable: React.FC<{ rows: IImage[] }> = ({ rows }) => {
             cursor: 'pointer'
           }}
         >
-          <InfoIcon style={{ fontSize: 20, color: '#1976d2' }} />
+          <InfoIcon style={{ fontSize: 22, color: '#1976d2' }} />
         </button>
       ),
       disableColumnMenu: true,
