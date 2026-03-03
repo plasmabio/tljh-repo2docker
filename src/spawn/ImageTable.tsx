@@ -71,7 +71,11 @@ const ImageTable: React.FC<{ rows: IImage[] }> = ({ rows }) => {
           <PlayCircleIcon style={{ fontSize: 18, marginRight: '8px' }} />,
           e => handleStartServer(e, params.row.display_name, params.row.ref),
           'Start'
-        )
+        ),
+      disableColumnMenu: true,
+      sortable: false,
+      filterable: false,
+      editable: false
     },
     {
       field: 'display_name',
@@ -99,7 +103,11 @@ const ImageTable: React.FC<{ rows: IImage[] }> = ({ rows }) => {
         >
           <InfoIcon style={{ fontSize: 20, color: '#1976d2' }} />
         </button>
-      )
+      ),
+      disableColumnMenu: true,
+      sortable: false,
+      filterable: false,
+      editable: false
     }
   ];
 
