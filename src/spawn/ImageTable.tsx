@@ -62,6 +62,18 @@ const ImageTable: React.FC<{ rows: IImage[] }> = ({ rows }) => {
 
   const columns: GridColDef[] = [
     {
+      field: 'action',
+      headerName: '',
+      flex: 1,
+      align: 'center',
+      renderCell: params =>
+        renderButton(
+          <PlayCircleIcon style={{ fontSize: 18, marginRight: '8px' }} />,
+          e => handleStartServer(e, params.row.display_name, params.row.ref),
+          'Start'
+        )
+    },
+    {
       field: 'display_name',
       headerName: 'Display Name',
       width: 280,
@@ -88,18 +100,6 @@ const ImageTable: React.FC<{ rows: IImage[] }> = ({ rows }) => {
           <InfoIcon style={{ fontSize: 20, color: '#1976d2' }} />
         </button>
       )
-    },
-    {
-      field: 'action',
-      headerName: '',
-      flex: 1,
-      align: 'center',
-      renderCell: params =>
-        renderButton(
-          <PlayCircleIcon style={{ fontSize: 18, marginRight: '8px' }} />,
-          e => handleStartServer(e, params.row.display_name, params.row.ref),
-          'Start'
-        )
     }
   ];
 
