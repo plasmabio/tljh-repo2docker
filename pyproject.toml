@@ -75,6 +75,7 @@ version_cmd = "hatch version"
 before-build-npm = ["npm install", "npm run build:prod"]
 before-build-python = ["npm run clean"]
 before-bump-version = ["python -m pip install hatch"]
+after-bump-version = ["bash scripts/update-example-dockerfile.sh"]
 
 [tool.check-wheel-contents]
 ignore = ["W002"]
