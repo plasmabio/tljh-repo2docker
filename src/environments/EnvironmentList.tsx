@@ -17,12 +17,14 @@ const columns: GridColDef[] = [
   {
     field: 'display_name',
     headerName: 'Name',
-    flex: 1
+    flex: 1,
+    minWidth: 200
   },
   {
     field: 'repo',
     headerName: 'Repository URL',
     flex: 1,
+    minWidth: 100,
     renderCell: params => {
       return (
         <a title={params.value} href={params.value} target="_blank">
@@ -34,7 +36,7 @@ const columns: GridColDef[] = [
   {
     field: 'ref',
     headerName: 'Reference',
-    width: 200,
+    width: 130,
     renderCell: params => {
       return (
         <a href={`${params.row.repo}/tree/${params.value}`}>{params.value}</a>
@@ -44,12 +46,12 @@ const columns: GridColDef[] = [
   {
     field: 'mem_limit',
     headerName: 'Mem. Limit (GB)',
-    width: 200
+    width: 180
   },
   {
     field: 'cpu_limit',
     headerName: 'CPU Limit',
-    width: 150
+    width: 130
   },
   {
     field: 'creation_date',

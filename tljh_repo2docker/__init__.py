@@ -44,18 +44,6 @@ class SpawnerMixin(Configurable):
         <br />
         <div id="image-table-container" class="tljh-container"></div>
         <script src="/services/tljh_repo2docker/service_static/js/spawn.js"></script>
-        <script>
-           document.addEventListener('DOMContentLoaded', function() {
-           const imageList = {{ image_list | tojson }};
-           const container = document.getElementById('image-table-container');
-           if (container) {
-               const root = ReactDOM.createRoot(container);
-               root.render(
-                  React.createElement(ImageTable, { rows: window.imageList })
-               );
-           }
-         });
-        </script>
         """,
         config=True,
         help="""
