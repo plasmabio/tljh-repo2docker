@@ -1,5 +1,5 @@
 git+https://github.com/jupyterhub/the-littlest-jupyterhub@2.0.0
-git+https://github.com/jupyterhub/binderhub.git@main
+git+https://github.com/jupyterhub/binderhub.git@4307beb
 jupyterhub>=5,<6
 alembic>=1.14,<1.15
 pytest
