@@ -165,7 +165,7 @@ const ImageTable: React.FC<{ rows: IImage[] }> = ({ rows }) => {
           '& .MuiDataGrid-row:hover': {
             backgroundColor: '#f5f5f5'
           },
-          '& .MuiDataGrid-row:nth-child(even)': {
+          '& .MuiDataGrid-row:nth-of-type(even)': {
             backgroundColor: '#fafafa'
           }
         }}
