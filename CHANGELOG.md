@@ -79,6 +79,28 @@ You can find below the list of changes since the creation of the plugin.
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.9
+
+([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v3.0.8...a6667bfc9466c6bd6df1626937100710f14922d7))
+
+### Merged PRs
+
+- upgrade js libs [#185](https://github.com/plasmabio/tljh-repo2docker/pull/185) ([@djangoliv](https://github.com/djangoliv))
+- upgrade libs [#178](https://github.com/plasmabio/tljh-repo2docker/pull/178) ([@djangoliv](https://github.com/djangoliv))
+- Fixes [#177](https://github.com/plasmabio/tljh-repo2docker/pull/177) ([@djangoliv](https://github.com/djangoliv))
+- Bump minimatch from 10.1.1 to 10.2.4 in /ui-tests [#174](https://github.com/plasmabio/tljh-repo2docker/pull/174) ([@djangoliv](https://github.com/djangoliv))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2026-03-03&to=2026-04-21&type=c))
+
+@djangoliv ([activity](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Adjangoliv+updated%3A2026-03-03..2026-04-21&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.8
 
 ([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v3.0.7...1cf8c135b01ad98439f1d2667743478b527fce72))
@@ -96,8 +118,6 @@ See [our definition of contributors](https://github-activity.readthedocs.io/en/l
 ([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2026-02-23&to=2026-03-03&type=c))
 
 @djangoliv ([activity](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Adjangoliv+updated%3A2026-02-23..2026-03-03&type=Issues))
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.7
 
