@@ -14,11 +14,23 @@ async def test_stream_simple(app, minimal_repo, image_name):
     assert r.headers["content-type"] == "text/event-stream"
     ex = async_requests.executor
     line_iter = iter(r.iter_lines(decode_unicode=True))
-    evt = await ex.submit(next_event, line_iter)
-    assert "Picked Git content provider" in evt["message"]
+
+    # Read all events until build finishes (DB-based streaming sends incremental
+    # updates; we accumulate the full log across events)
+    full_log = ""
+    final_phase = None
+    while True:
+        evt = await ex.submit(next_event, line_iter)  # type: ignore[misc]
+        if evt is None:
+            break
+        full_log += evt.get("message", "")
+        if evt.get("phase") in ("built", "error"):
+            final_phase = evt["phase"]
+            break
 
     r.close()
-    await wait_for_image(image_name=image_name)
+    assert final_phase == "built"
+    assert "Picked Git content provider" in full_log
 
 
 @pytest.mark.asyncio
