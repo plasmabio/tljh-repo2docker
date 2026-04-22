@@ -1,7 +1,6 @@
 import json
 import re
 from datetime import datetime
-from urllib.parse import urlparse
 from uuid import UUID, uuid4
 
 from aiodocker import Docker, DockerError
@@ -14,7 +13,7 @@ from .database.schemas import (
     DockerImageUpdateSchema,
     ImageMetadataType,
 )
-from .docker import build_image
+from .docker import build_image, compute_image_name
 
 IMAGE_NAME_RE = r"^[a-z0-9-_]+$"
 
@@ -99,12 +98,7 @@ class BuildHandler(BaseHandler):
                     raise web.HTTPError(400, "Invalid build argument format")
                 extra_buildargs.append(barg)
 
-        # Compute image_name (mirrors logic in docker.py so DB entry matches)
-        ref_norm = ref or "HEAD"
-        ref_short = ref_norm[:7] if len(ref_norm) >= 40 else ref_norm
-        name_norm = name or urlparse(repo).path.strip("/")
-        name_norm = name_norm.lower().replace("/", "-")
-        image_name = f"{name_norm}:{ref_short}"
+        image_name, ref_norm, name_norm = compute_image_name(repo, ref, name)
 
         creation_date = datetime.now().strftime("%d/%m/%Y")
 

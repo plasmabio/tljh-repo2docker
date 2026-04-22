@@ -1,9 +1,21 @@
 import json
-from urllib.parse import urlparse
 from datetime import datetime
+from urllib.parse import urlparse
 
 from aiodocker import Docker
 from tornado import web
+
+from .database.schemas import BuildStatusType, DockerImageUpdateSchema
+
+
+def compute_image_name(repo, ref, name):
+    """Return the Docker image name derived from repo/ref/name."""
+    ref = ref or "HEAD"
+    if len(ref) >= 40:
+        ref = ref[:7]
+    name = name or urlparse(repo).path.strip("/")
+    name = name.lower().replace("/", "-")
+    return f"{name}:{ref}", ref, name
 
 
 async def list_images():
@@ -96,19 +108,16 @@ async def build_image(
     git_username=None,
     git_password=None,
     extra_buildargs=None,
+    uid=None,
+    db_context=None,
+    image_db_manager=None,
 ):
     """
-    Build an image given a repo, ref and limits
+    Build an image given a repo, ref and limits.
+    When uid/db_context/image_db_manager are provided, logs are streamed to
+    the database in real time and the final status (built/failed) is persisted.
     """
-    ref = ref or "HEAD"
-    if len(ref) >= 40:
-        ref = ref[:7]
-
-    # default to the repo name if no name specified
-    # and sanitize the name of the docker image
-    name = name or urlparse(repo).path.strip("/")
-    name = name.lower().replace("/", "-")
-    image_name = f"{name}:{ref}"
+    image_name, ref, name = compute_image_name(repo, ref, name)
 
     # memory is specified in GB
     memory = f"{memory}G" if memory else ""
@@ -183,4 +192,47 @@ async def build_image(
         )
 
     async with Docker() as docker:
-        await docker.containers.run(config=config)
+        container = await docker.containers.run(config=config)
+
+        try:
+            if uid and db_context and image_db_manager:
+                log_parts = []
+                pending = 0
+                async for line in container.log(
+                    stdout=True, stderr=True, follow=True
+                ):
+                    log_parts.append(line)
+                    pending += 1
+                    if pending >= 10:
+                        async with db_context() as db:
+                            await image_db_manager.update(
+                                db,
+                                DockerImageUpdateSchema(
+                                    uid=uid, log="".join(log_parts)
+                                ),
+                            )
+                        pending = 0
+                # Flush remaining lines
+                if pending:
+                    async with db_context() as db:
+                        await image_db_manager.update(
+                            db,
+                            DockerImageUpdateSchema(uid=uid, log="".join(log_parts)),
+                        )
+
+                result = await container.wait()
+                exit_code = result.get("StatusCode", -1)
+                status = (
+                    BuildStatusType.BUILT if exit_code == 0 else BuildStatusType.FAILED
+                )
+                async with db_context() as db:
+                    await image_db_manager.update(
+                        db, DockerImageUpdateSchema(uid=uid, status=status)
+                    )
+            else:
+                # No DB context: drain logs to allow the container to finish
+                async for _ in container.log(stdout=True, stderr=True, follow=True):
+                    pass
+                await container.wait()
+        finally:
+            await container.delete()

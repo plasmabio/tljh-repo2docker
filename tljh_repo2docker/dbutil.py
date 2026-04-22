@@ -197,7 +197,22 @@ def async_session_context_factory(async_db_url: str):
     - AsyncContextManager[AsyncSession]: An asynchronous context manager that yields
       an async session for database interactions within the context.
     """
-    async_engine = create_async_engine(async_db_url)
+    connect_args = {}
+    if async_db_url.startswith("sqlite"):
+        # Allow up to 30 s of retrying on lock; enable WAL for concurrent access
+        connect_args = {"timeout": 30, "check_same_thread": False}
+
+    async_engine = create_async_engine(
+        async_db_url,
+        connect_args=connect_args,
+    )
+
+    if async_db_url.startswith("sqlite"):
+        from sqlalchemy import event as sa_event
+
+        @sa_event.listens_for(async_engine.sync_engine, "connect")
+        def set_wal_mode(dbapi_conn, _):
+            dbapi_conn.execute("PRAGMA journal_mode=WAL")
     async_session_maker = async_sessionmaker(
         async_engine,
         class_=AsyncSession,
