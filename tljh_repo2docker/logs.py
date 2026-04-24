@@ -9,6 +9,7 @@ from .base import BaseHandler, require_admin_role
 from .database.schemas import BuildStatusType
 
 TIME_OUT = 3600
+POLL_INTERVAL = 3
 
 
 class LogsHandler(BaseHandler):
@@ -50,8 +51,8 @@ class LogsHandler(BaseHandler):
 
         elapsed = 0
         while elapsed < TIME_OUT:
-            elapsed += 1
-            await asyncio.sleep(1)
+            elapsed += POLL_INTERVAL
+            await asyncio.sleep(POLL_INTERVAL)
             image = await self._lookup(name, db_context, image_db_manager)
             if not image:
                 await self._emit({"phase": "error", "message": "Image not found"})
