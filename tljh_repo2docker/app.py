@@ -17,6 +17,7 @@ from .binderhub_builder import BinderHubBuildHandler
 from .binderhub_log import BinderHubLogsHandler
 from .builder import BuildHandler
 from .database.manager import ImagesDatabaseManager
+from .database.schemas import BuildStatusType, DockerImageUpdateSchema
 from .dbutil import async_session_context_factory, sync_to_async_url, upgrade_if_needed
 from .environments import EnvironmentsHandler
 from .logs import LogsHandler
@@ -333,6 +334,30 @@ class TljhRepo2Docker(Application):
         application.listen(self.port, self.ip)
         return application
 
+    async def _cleanup_stale_builds(self):
+        """Mark BUILDING entries as FAILED on startup (server was restarted mid-build)."""
+        if not hasattr(self, "db_context") or not hasattr(self, "image_db_manager"):
+            return
+        async with self.db_context() as db:
+            all_entries = await self.image_db_manager.read_all(db)
+        stale = [e for e in all_entries if e.status == BuildStatusType.BUILDING]
+        if not stale:
+            return
+        self.log.warning(
+            "Found %d build(s) stuck in BUILDING state — marking as FAILED", len(stale)
+        )
+        for entry in stale:
+            async with self.db_context() as db:
+                await self.image_db_manager.update(
+                    db,
+                    DockerImageUpdateSchema(
+                        uid=entry.uid,
+                        status=BuildStatusType.FAILED,
+                        log=(entry.log or "")
+                        + "\n[Build interrupted: server restarted]\n",
+                    ),
+                )
+
     def start(self):
         """Start the server."""
         self.init_db()
@@ -345,6 +370,7 @@ class TljhRepo2Docker(Application):
 
         self.app.listen(self.port, self.ip)
         self.ioloop = ioloop.IOLoop.current()
+        self.ioloop.add_callback(self._cleanup_stale_builds)
         try:
             self.log.info(
                 f"tljh-repo2docker service listening on {self.ip}:{self.port}"
