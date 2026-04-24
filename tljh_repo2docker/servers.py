@@ -43,9 +43,9 @@ class ServersHandler(BaseHandler):
                         )
                         if db_data:
                             data["user_options"]["uid"] = str(db_data.uid)
-                            data["user_options"][
-                                "display_name"
-                            ] = db_data.image_meta.display_name
+                            data["user_options"]["display_name"] = (
+                                db_data.image_meta.display_name
+                            )
         named_server_limit = 0
         result = self.render_template(
             "servers.html",

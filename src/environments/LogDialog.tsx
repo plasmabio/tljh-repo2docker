@@ -1,6 +1,7 @@
 import 'xterm/css/xterm.css';
 
 import CheckIcon from '@mui/icons-material/Check';
+import ErrorIcon from '@mui/icons-material/Error';
 import SyncIcon from '@mui/icons-material/Sync';
 import { Button, IconButton } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
@@ -16,6 +17,7 @@ import { useJupyterhub } from '../common/JupyterhubContext';
 interface IEnvironmentLogButton {
   name: string;
   image: string;
+  status?: 'building' | 'failed' | 'built';
 }
 
 const terminalFactory = () => {
@@ -27,13 +29,17 @@ const terminalFactory = () => {
 
 function _EnvironmentLogButton(props: IEnvironmentLogButton) {
   const jhData = useJupyterhub();
+  const status = props.status ?? 'building';
   const [open, setOpen] = useState(false);
-  const [built, setBuilt] = useState(false);
+  const [buildResult, setBuildResult] = useState<'built' | 'failed' | null>(
+    null
+  );
   const divRef = useRef<HTMLDivElement>(null);
   const terminalRef = useRef<{ terminal: Terminal; fitAddon: FitAddon }>(
     terminalFactory()
   );
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
+
   const handleOpen = useCallback(() => {
     setOpen(true);
     if (divRef.current) {
@@ -59,7 +65,6 @@ function _EnvironmentLogButton(props: IEnvironmentLogButton) {
         'logs'
       );
       if (xsrfToken) {
-        // add xsrf token to url parameter
         const sep = logsUrl.indexOf('?') === -1 ? '?' : '&';
         logsUrl = logsUrl + sep + '_xsrf=' + xsrfToken;
       }
@@ -72,16 +77,32 @@ function _EnvironmentLogButton(props: IEnvironmentLogButton) {
       eventSource.onmessage = event => {
         const data = JSON.parse(event.data);
 
-        terminal.write(data.message);
-        fitAddon.fit();
         if (data.phase === 'built') {
+          terminal.reset();
+          if (data.message) {
+            terminal.write(data.message);
+            fitAddon.fit();
+          }
           eventSource.close();
-          setBuilt(true);
+          setBuildResult('built');
           return;
         }
+        if (data.phase === 'error') {
+          terminal.reset();
+          if (data.message) {
+            terminal.write(data.message);
+            fitAddon.fit();
+          }
+          eventSource.close();
+          setBuildResult('failed');
+          return;
+        }
+        terminal.write(data.message);
+        fitAddon.fit();
       };
     }
   }, [jhData, props.image]);
+
   const handleClose = (
     event?: any,
     reason?: 'backdropClick' | 'escapeKeyDown'
@@ -101,31 +122,45 @@ function _EnvironmentLogButton(props: IEnvironmentLogButton) {
     setOpen(false);
   };
 
+  const effectiveStatus = buildResult ?? status;
+  const dialogTitle =
+    effectiveStatus === 'failed'
+      ? `Build failed: ${props.name}`
+      : effectiveStatus === 'built'
+        ? `Build logs: ${props.name}`
+        : `Creating environment ${props.name}`;
+
+  const triggerButton =
+    effectiveStatus === 'failed' ? (
+      <IconButton onClick={handleOpen} title="View error logs">
+        <ErrorIcon color="error" />
+      </IconButton>
+    ) : effectiveStatus === 'built' ? (
+      <IconButton onClick={handleOpen} title="View build logs">
+        <CheckIcon color="success" />
+      </IconButton>
+    ) : (
+      <IconButton onClick={handleOpen}>
+        <SyncIcon
+          sx={{
+            animation: 'spin 2s linear infinite',
+            '@keyframes spin': {
+              '0%': {
+                transform: 'rotate(360deg)'
+              },
+              '100%': {
+                transform: 'rotate(0deg)'
+              }
+            }
+          }}
+          htmlColor="orange"
+        />
+      </IconButton>
+    );
+
   return (
     <Fragment>
-      {!built && (
-        <IconButton onClick={handleOpen}>
-          <SyncIcon
-            sx={{
-              animation: 'spin 2s linear infinite',
-              '@keyframes spin': {
-                '0%': {
-                  transform: 'rotate(360deg)'
-                },
-                '100%': {
-                  transform: 'rotate(0deg)'
-                }
-              }
-            }}
-            htmlColor="orange"
-          />
-        </IconButton>
-      )}
-      {built && (
-        <IconButton>
-          <CheckIcon color="success" />
-        </IconButton>
-      )}
+      {triggerButton}
       <Dialog
         open={open}
         onClose={handleClose}
@@ -144,7 +179,7 @@ function _EnvironmentLogButton(props: IEnvironmentLogButton) {
           }
         }}
       >
-        <DialogTitle>Creating environment {props.name}</DialogTitle>
+        <DialogTitle>{dialogTitle}</DialogTitle>
         <DialogContent
           sx={{
             flex: 1,

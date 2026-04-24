@@ -1,15 +1,22 @@
+import asyncio
 import json
+from uuid import UUID
 
-from aiodocker import Docker
 from tornado import web
 from tornado.iostream import StreamClosedError
 
 from .base import BaseHandler, require_admin_role
+from .database.schemas import BuildStatusType
+
+TIME_OUT = 3600
+POLL_INTERVAL = 3
 
 
 class LogsHandler(BaseHandler):
     """
     Expose a handler to follow the build logs.
+    Reads from the database (polling for BUILDING, immediate for BUILT/FAILED).
+    Accepts both a UUID or an image name as the identifier.
     """
 
     @web.authenticated
@@ -18,18 +25,59 @@ class LogsHandler(BaseHandler):
         self.set_header("Content-Type", "text/event-stream")
         self.set_header("Cache-Control", "no-cache")
 
-        async with Docker() as docker:
-            containers = await docker.containers.list(
-                filters=json.dumps({"label": [f"repo2docker.build={name}"]})
-            )
+        db_context = self.settings.get("db_context")
+        image_db_manager = self.settings.get("image_db_manager")
 
-            if not containers:
-                raise web.HTTPError(404, f"No logs for image: {name}")
+        if not db_context or not image_db_manager:
+            raise web.HTTPError(500, "Database not configured")
 
-            async for line in containers[0].log(stdout=True, stderr=True, follow=True):
-                await self._emit({"phase": "log", "message": line})
+        image = await self._lookup(name, db_context, image_db_manager)
+        if not image:
+            raise web.HTTPError(404, f"No logs for image: {name}")
 
-        await self._emit({"phase": "built", "message": "built"})
+        status = image.status
+
+        if status == BuildStatusType.FAILED:
+            await self._emit({"phase": "error", "message": image.log or ""})
+            return
+
+        if status == BuildStatusType.BUILT:
+            await self._emit({"phase": "built", "message": image.log or ""})
+            return
+
+        # BUILDING: send what we have, then poll for new lines
+        current_log_length = len(image.log or "")
+        await self._emit({"phase": "log", "message": image.log or ""})
+
+        elapsed = 0
+        while elapsed < TIME_OUT:
+            elapsed += POLL_INTERVAL
+            await asyncio.sleep(POLL_INTERVAL)
+            image = await self._lookup(name, db_context, image_db_manager)
+            if not image:
+                await self._emit({"phase": "error", "message": "Image not found"})
+                return
+            log = image.log or ""
+            if len(log) > current_log_length:
+                await self._emit({"phase": "log", "message": log[current_log_length:]})
+                current_log_length = len(log)
+            status = image.status
+            if status == BuildStatusType.FAILED:
+                await self._emit({"phase": "error", "message": log})
+                return
+            if status == BuildStatusType.BUILT:
+                await self._emit({"phase": "built", "message": log})
+                return
+
+        await self._emit({"phase": "error", "message": "Build timed out"})
+
+    async def _lookup(self, name, db_context, image_db_manager):
+        """Look up an image by UUID or image name."""
+        async with db_context() as db:
+            try:
+                return await image_db_manager.read(db, UUID(name))
+            except ValueError:
+                return await image_db_manager.read_by_image_name(db, name)
 
     async def _emit(self, msg):
         try:

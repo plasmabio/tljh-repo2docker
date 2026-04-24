@@ -16,7 +16,6 @@ from .schemas import (
 
 
 class ImagesDatabaseManager:
-
     @property
     def _table(self) -> Type[DockerImageSQL]:
         return DockerImageSQL

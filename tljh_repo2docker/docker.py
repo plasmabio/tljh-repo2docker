@@ -1,9 +1,31 @@
+import collections
 import json
-from urllib.parse import urlparse
 from datetime import datetime
+from urllib.parse import urlparse
 
 from aiodocker import Docker
 from tornado import web
+
+from .database.schemas import BuildStatusType, DockerImageUpdateSchema
+
+LOG_HEAD_LINES = 10
+LOG_TAIL_LINES = 300
+
+
+def _build_log(head, tail, truncated):
+    if not truncated:
+        return "".join(list(head) + list(tail))
+    return "".join(head) + "\n[...truncated...]\n" + "".join(tail)
+
+
+def compute_image_name(repo, ref, name):
+    """Return the Docker image name derived from repo/ref/name."""
+    ref = ref or "HEAD"
+    if len(ref) >= 40:
+        ref = ref[:7]
+    name = name or urlparse(repo).path.strip("/")
+    name = name.lower().replace("/", "-")
+    return f"{name}:{ref}", ref, name
 
 
 async def list_images():
@@ -20,7 +42,9 @@ async def list_images():
             "ref": image["Labels"]["repo2docker.ref"],
             "image_name": image["Labels"]["tljh_repo2docker.image_name"],
             "display_name": image["Labels"]["tljh_repo2docker.display_name"],
-            "creation_date": image["Labels"].get("tljh_repo2docker.creation_date", "unknow"),
+            "creation_date": image["Labels"].get(
+                "tljh_repo2docker.creation_date", "unknow"
+            ),
             "owner": image["Labels"].get("tljh_repo2docker.owner", "unknow"),
             "mem_limit": image["Labels"]["tljh_repo2docker.mem_limit"],
             "cpu_limit": image["Labels"]["tljh_repo2docker.cpu_limit"],
@@ -96,19 +120,16 @@ async def build_image(
     git_username=None,
     git_password=None,
     extra_buildargs=None,
+    uid=None,
+    db_context=None,
+    image_db_manager=None,
 ):
     """
-    Build an image given a repo, ref and limits
+    Build an image given a repo, ref and limits.
+    When uid/db_context/image_db_manager are provided, logs are streamed to
+    the database in real time and the final status (built/failed) is persisted.
     """
-    ref = ref or "HEAD"
-    if len(ref) >= 40:
-        ref = ref[:7]
-
-    # default to the repo name if no name specified
-    # and sanitize the name of the docker image
-    name = name or urlparse(repo).path.strip("/")
-    name = name.lower().replace("/", "-")
-    image_name = f"{name}:{ref}"
+    image_name, ref, name = compute_image_name(repo, ref, name)
 
     # memory is specified in GB
     memory = f"{memory}G" if memory else ""
@@ -178,9 +199,64 @@ async def build_image(
     if git_username and git_password:
         config.update(
             {
-                "Env": [f"GIT_CREDENTIAL_ENV=username={git_username}\npassword={git_password}"],
+                "Env": [
+                    f"GIT_CREDENTIAL_ENV=username={git_username}\npassword={git_password}"
+                ],
             }
         )
 
     async with Docker() as docker:
-        await docker.containers.run(config=config)
+        container = await docker.containers.run(config=config)
+
+        try:
+            if uid and db_context and image_db_manager:
+                head_parts = []
+                tail_parts = collections.deque(maxlen=LOG_TAIL_LINES)
+                line_count = 0
+                pending = 0
+                async for line in container.log(stdout=True, stderr=True, follow=True):
+                    if line_count < LOG_HEAD_LINES:
+                        head_parts.append(line)
+                    else:
+                        tail_parts.append(line)
+                    line_count += 1
+                    pending += 1
+                    if pending >= 10:
+                        truncated = line_count > LOG_HEAD_LINES + LOG_TAIL_LINES
+                        async with db_context() as db:
+                            await image_db_manager.update(
+                                db,
+                                DockerImageUpdateSchema(
+                                    uid=uid,
+                                    log=_build_log(head_parts, tail_parts, truncated),
+                                ),
+                            )
+                        pending = 0
+                # Flush remaining lines
+                if pending:
+                    truncated = line_count > LOG_HEAD_LINES + LOG_TAIL_LINES
+                    async with db_context() as db:
+                        await image_db_manager.update(
+                            db,
+                            DockerImageUpdateSchema(
+                                uid=uid,
+                                log=_build_log(head_parts, tail_parts, truncated),
+                            ),
+                        )
+
+                result = await container.wait()
+                exit_code = result.get("StatusCode", -1)
+                status = (
+                    BuildStatusType.BUILT if exit_code == 0 else BuildStatusType.FAILED
+                )
+                async with db_context() as db:
+                    await image_db_manager.update(
+                        db, DockerImageUpdateSchema(uid=uid, status=status)
+                    )
+            else:
+                # No DB context: drain logs to allow the container to finish
+                async for _ in container.log(stdout=True, stderr=True, follow=True):
+                    pass
+                await container.wait()
+        finally:
+            await container.delete()

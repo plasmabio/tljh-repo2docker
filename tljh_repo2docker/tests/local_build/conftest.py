@@ -1,9 +1,11 @@
 import sys
 
 import pytest
+import sqlalchemy as sa
 from traitlets.config import Config
 
 from tljh_repo2docker import tljh_custom_jupyterhub_config
+from tljh_repo2docker.database.model import DockerImageSQL
 
 
 @pytest.fixture(scope="module")
@@ -51,3 +53,16 @@ async def app(hub_app):
 
     app = await hub_app(config=config)
     return app
+
+
+@pytest.fixture(autouse=True)
+def clean_db():
+    """Delete all DB entries after each test to avoid cross-test contamination."""
+    yield
+    try:
+        engine = sa.create_engine("sqlite:///tljh_repo2docker.sqlite")
+        with engine.begin() as conn:
+            conn.execute(sa.delete(DockerImageSQL))
+        engine.dispose()
+    except Exception:
+        pass

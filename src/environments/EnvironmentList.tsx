@@ -1,4 +1,3 @@
-import { IconButton } from '@mui/material';
 import {
   DataGrid,
   GridColDef,
@@ -7,7 +6,6 @@ import {
 } from '@mui/x-data-grid';
 import { IEnvironmentData } from './types';
 import { memo, useMemo, useState } from 'react';
-import CheckIcon from '@mui/icons-material/Check';
 
 import { Box } from '@mui/system';
 import { RemoveEnvironmentButton } from './RemoveEnvironmentButton';
@@ -69,16 +67,24 @@ const columns: GridColDef[] = [
     width: 150,
     hideSortIcons: true,
     renderCell: params => {
-      return params.value === 'built' ? (
-        <IconButton>
-          <CheckIcon color="success" />
-        </IconButton>
-      ) : params.value === 'building' ? (
-        <EnvironmentLogButton
-          name={params.row.display_name}
-          image={params.row.uid ?? params.row.image_name}
-        />
-      ) : null;
+      const image = params.row.uid ?? params.row.image_name;
+      const name = params.row.display_name;
+      if (params.value === 'built') {
+        return (
+          <EnvironmentLogButton name={name} image={image} status="built" />
+        );
+      }
+      if (params.value === 'building') {
+        return (
+          <EnvironmentLogButton name={name} image={image} status="building" />
+        );
+      }
+      if (params.value === 'failed') {
+        return (
+          <EnvironmentLogButton name={name} image={image} status="failed" />
+        );
+      }
+      return null;
     }
   },
   {

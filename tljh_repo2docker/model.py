@@ -3,7 +3,6 @@ from dataclasses import dataclass, fields
 
 @dataclass
 class UserModel:
-
     name: str
     admin: bool
     servers: dict

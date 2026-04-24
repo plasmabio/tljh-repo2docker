@@ -96,6 +96,9 @@ def db_session():
     )
 
     session = Session()
+    # Clean any leftover entries from previous test suites
+    session.query(DockerImageSQL).delete()
+    session.commit()
     yield session
     session.query(DockerImageSQL).delete()
     session.commit()

@@ -79,3 +79,26 @@ async def test_wrong_limits(app, minimal_repo, image_name, memory, cpu, node_sel
 async def test_wrong_name(app, minimal_repo):
     r = await add_environment(app, repo=minimal_repo, name="#WRONG_NAME#")
     assert r.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_build_response_contains_uid(app, minimal_repo, image_name):
+    name, ref = image_name.split(":")
+    r = await add_environment(app, repo=minimal_repo, name=name, ref=ref)
+    assert r.status_code == 200
+    data = r.json()
+    assert "uid" in data
+    assert data["uid"]
+    await wait_for_image(image_name=image_name)
+
+
+@pytest.mark.asyncio
+async def test_delete_by_uid(app, minimal_repo, image_name):
+    name, ref = image_name.split(":")
+    r = await add_environment(app, repo=minimal_repo, name=name, ref=ref)
+    assert r.status_code == 200
+    uid = r.json()["uid"]
+    await wait_for_image(image_name=image_name)
+
+    r = await remove_environment(app, image_name=uid)
+    assert r.status_code == 200
