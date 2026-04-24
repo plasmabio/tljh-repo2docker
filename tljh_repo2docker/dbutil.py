@@ -213,6 +213,7 @@ def async_session_context_factory(async_db_url: str):
         @sa_event.listens_for(async_engine.sync_engine, "connect")
         def set_wal_mode(dbapi_conn, _):
             dbapi_conn.execute("PRAGMA journal_mode=WAL")
+
     async_session_maker = async_sessionmaker(
         async_engine,
         class_=AsyncSession,

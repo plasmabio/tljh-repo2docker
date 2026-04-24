@@ -42,5 +42,4 @@ class DockerImageUpdateSchema(DockerImageCreateSchema):
 
 
 class DockerImageOutSchema(DockerImageCreateSchema):
-
     model_config = ConfigDict(use_enum_values=True, from_attributes=True)

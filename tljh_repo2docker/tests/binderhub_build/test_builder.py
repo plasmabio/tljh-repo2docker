@@ -30,9 +30,13 @@ async def test_add_environment(
 
     await wait_for_image(image_name=generated_image_name)
     await asyncio.sleep(3)
-    images_db = db_session.execute(
-        sa.select(DockerImageSQL).where(DockerImageSQL.uid == UUID(uid))
-    ).scalars().first()
+    images_db = (
+        db_session.execute(
+            sa.select(DockerImageSQL).where(DockerImageSQL.uid == UUID(uid))
+        )
+        .scalars()
+        .first()
+    )
     assert images_db is not None
     assert images_db.name == generated_image_name
     assert images_db.image_meta["display_name"] == name

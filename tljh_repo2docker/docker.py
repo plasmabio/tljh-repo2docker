@@ -42,7 +42,9 @@ async def list_images():
             "ref": image["Labels"]["repo2docker.ref"],
             "image_name": image["Labels"]["tljh_repo2docker.image_name"],
             "display_name": image["Labels"]["tljh_repo2docker.display_name"],
-            "creation_date": image["Labels"].get("tljh_repo2docker.creation_date", "unknow"),
+            "creation_date": image["Labels"].get(
+                "tljh_repo2docker.creation_date", "unknow"
+            ),
             "owner": image["Labels"].get("tljh_repo2docker.owner", "unknow"),
             "mem_limit": image["Labels"]["tljh_repo2docker.mem_limit"],
             "cpu_limit": image["Labels"]["tljh_repo2docker.cpu_limit"],
@@ -197,7 +199,9 @@ async def build_image(
     if git_username and git_password:
         config.update(
             {
-                "Env": [f"GIT_CREDENTIAL_ENV=username={git_username}\npassword={git_password}"],
+                "Env": [
+                    f"GIT_CREDENTIAL_ENV=username={git_username}\npassword={git_password}"
+                ],
             }
         )
 
@@ -210,9 +214,7 @@ async def build_image(
                 tail_parts = collections.deque(maxlen=LOG_TAIL_LINES)
                 line_count = 0
                 pending = 0
-                async for line in container.log(
-                    stdout=True, stderr=True, follow=True
-                ):
+                async for line in container.log(stdout=True, stderr=True, follow=True):
                     if line_count < LOG_HEAD_LINES:
                         head_parts.append(line)
                     else:

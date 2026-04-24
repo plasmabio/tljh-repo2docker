@@ -48,7 +48,7 @@ class SpawnerMixin(Configurable):
         config=True,
         help="""
         Jinja2 template for constructing the list of images shown to the user.
-        """
+        """,
     )
 
     async def list_images(self):

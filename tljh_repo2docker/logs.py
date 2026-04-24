@@ -58,9 +58,7 @@ class LogsHandler(BaseHandler):
                 return
             log = image.log or ""
             if len(log) > current_log_length:
-                await self._emit(
-                    {"phase": "log", "message": log[current_log_length:]}
-                )
+                await self._emit({"phase": "log", "message": log[current_log_length:]})
                 current_log_length = len(log)
             status = image.status
             if status == BuildStatusType.FAILED:

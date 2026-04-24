@@ -26,9 +26,7 @@ def test_compute_image_name_short_ref_not_truncated():
 
 
 def test_compute_image_name_empty_ref_defaults_to_head():
-    image_name, ref, _ = compute_image_name(
-        "https://github.com/foo/bar", "", "myenv"
-    )
+    image_name, ref, _ = compute_image_name("https://github.com/foo/bar", "", "myenv")
     assert ref == "HEAD"
     assert image_name == "myenv:HEAD"
 

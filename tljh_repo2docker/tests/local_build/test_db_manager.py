@@ -34,9 +34,7 @@ async def db_session():
     await engine.dispose()
 
 
-def _make_schema(
-    uid=None, name="test-image:HEAD", status=BuildStatusType.BUILDING
-):
+def _make_schema(uid=None, name="test-image:HEAD", status=BuildStatusType.BUILDING):
     return DockerImageCreateSchema(
         uid=uid or uuid4(),
         name=name,

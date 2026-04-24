@@ -79,7 +79,7 @@ class BinderHubBuildHandler(BaseHandler):
         cpu = data["cpu"]
         provider = data["provider"]
         node_selector = data.get("node_selector", {})
-        owner = self.get_current_user().get('name', 'unknow')
+        owner = self.get_current_user().get("name", "unknow")
 
         if len(repo) == 0:
             raise web.HTTPError(400, "Repository is empty")
