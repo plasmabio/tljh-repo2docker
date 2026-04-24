@@ -77,18 +77,28 @@ function _EnvironmentLogButton(props: IEnvironmentLogButton) {
       eventSource.onmessage = event => {
         const data = JSON.parse(event.data);
 
-        terminal.write(data.message);
-        fitAddon.fit();
         if (data.phase === 'built') {
+          terminal.reset();
+          if (data.message) {
+            terminal.write(data.message);
+            fitAddon.fit();
+          }
           eventSource.close();
           setBuildResult('built');
           return;
         }
         if (data.phase === 'error') {
+          terminal.reset();
+          if (data.message) {
+            terminal.write(data.message);
+            fitAddon.fit();
+          }
           eventSource.close();
           setBuildResult('failed');
           return;
         }
+        terminal.write(data.message);
+        fitAddon.fit();
       };
     }
   }, [jhData, props.image]);
