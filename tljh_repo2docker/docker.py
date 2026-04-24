@@ -1,3 +1,4 @@
+import collections
 import json
 from datetime import datetime
 from urllib.parse import urlparse
@@ -6,6 +7,15 @@ from aiodocker import Docker
 from tornado import web
 
 from .database.schemas import BuildStatusType, DockerImageUpdateSchema
+
+LOG_HEAD_LINES = 10
+LOG_TAIL_LINES = 300
+
+
+def _build_log(head, tail, truncated):
+    if not truncated:
+        return "".join(list(head) + list(tail))
+    return "".join(head) + "\n[...truncated...]\n" + "".join(tail)
 
 
 def compute_image_name(repo, ref, name):
@@ -196,28 +206,40 @@ async def build_image(
 
         try:
             if uid and db_context and image_db_manager:
-                log_parts = []
+                head_parts = []
+                tail_parts = collections.deque(maxlen=LOG_TAIL_LINES)
+                line_count = 0
                 pending = 0
                 async for line in container.log(
                     stdout=True, stderr=True, follow=True
                 ):
-                    log_parts.append(line)
+                    if line_count < LOG_HEAD_LINES:
+                        head_parts.append(line)
+                    else:
+                        tail_parts.append(line)
+                    line_count += 1
                     pending += 1
                     if pending >= 10:
+                        truncated = line_count > LOG_HEAD_LINES + LOG_TAIL_LINES
                         async with db_context() as db:
                             await image_db_manager.update(
                                 db,
                                 DockerImageUpdateSchema(
-                                    uid=uid, log="".join(log_parts)
+                                    uid=uid,
+                                    log=_build_log(head_parts, tail_parts, truncated),
                                 ),
                             )
                         pending = 0
                 # Flush remaining lines
                 if pending:
+                    truncated = line_count > LOG_HEAD_LINES + LOG_TAIL_LINES
                     async with db_context() as db:
                         await image_db_manager.update(
                             db,
-                            DockerImageUpdateSchema(uid=uid, log="".join(log_parts)),
+                            DockerImageUpdateSchema(
+                                uid=uid,
+                                log=_build_log(head_parts, tail_parts, truncated),
+                            ),
                         )
 
                 result = await container.wait()
