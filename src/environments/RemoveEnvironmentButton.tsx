@@ -1,3 +1,4 @@
+import DeleteIcon from '@mui/icons-material/Delete';
 import { Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import { memo, useCallback } from 'react';
@@ -31,7 +32,8 @@ function _RemoveEnvironmentButton(props: IRemoveEnvironmentButton) {
 
   return (
     <ButtonWithConfirm
-      buttonLabel="Remove"
+      buttonLabel="Remove environment"
+      icon={<DeleteIcon />}
       dialogTitle="Remove environment"
       dialogBody={
         <Box>
