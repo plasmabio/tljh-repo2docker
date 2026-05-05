@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTheme } from '@mui/material/styles';
 import { DataGrid, GridColDef, GridRowsProp } from '@mui/x-data-grid';
 import {
   Box,
@@ -23,6 +24,7 @@ interface IImage {
 }
 
 const ImageTable: React.FC<{ rows: IImage[] }> = ({ rows }) => {
+  const theme = useTheme();
   const [openDialog, setOpenDialog] = useState(false);
   const [imageInfo, setImageInfo] = useState<IImage | null>(null);
 
@@ -52,7 +54,7 @@ const ImageTable: React.FC<{ rows: IImage[] }> = ({ rows }) => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        color: '#1976d2'
+        color: theme.palette.primary.main
       }}
     >
       {icon}
@@ -103,7 +105,9 @@ const ImageTable: React.FC<{ rows: IImage[] }> = ({ rows }) => {
             cursor: 'pointer'
           }}
         >
-          <InfoIcon style={{ fontSize: 22, color: '#1976d2' }} />
+          <InfoIcon
+            style={{ fontSize: 22, color: theme.palette.primary.main }}
+          />
         </button>
       ),
       disableColumnMenu: true,
@@ -150,7 +154,7 @@ const ImageTable: React.FC<{ rows: IImage[] }> = ({ rows }) => {
         disableRowSelectionOnClick
         sx={{
           '& .MuiDataGrid-columnHeader': {
-            backgroundColor: '#f7f7f7'
+            backgroundColor: theme.palette.action.hover
           },
           '& .MuiDataGrid-columnHeaderTitle': {
             fontWeight: 'bold',
@@ -163,10 +167,10 @@ const ImageTable: React.FC<{ rows: IImage[] }> = ({ rows }) => {
             alignItems: 'center'
           },
           '& .MuiDataGrid-row:hover': {
-            backgroundColor: '#f5f5f5'
+            backgroundColor: theme.palette.action.hover
           },
           '& .MuiDataGrid-row:nth-of-type(even)': {
-            backgroundColor: '#fafafa'
+            backgroundColor: theme.palette.action.selected
           }
         }}
       />
@@ -187,7 +191,10 @@ const ImageTable: React.FC<{ rows: IImage[] }> = ({ rows }) => {
                   href={imageInfo.repo}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ color: '#1976d2', textDecoration: 'underline' }}
+                  style={{
+                    color: theme.palette.primary.main,
+                    textDecoration: 'underline'
+                  }}
                 >
                   {imageInfo.repo}
                 </a>
