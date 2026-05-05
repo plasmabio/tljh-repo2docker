@@ -82,7 +82,7 @@ async def add_environment(
 
 async def wait_for_image(*, image_name):
     """wait until an image is built"""
-    count, retries = 0, 60 * 10
+    count, retries = 0, 60 * 20
     async with Docker() as docker:
         while count < retries:
             await asyncio.sleep(1)

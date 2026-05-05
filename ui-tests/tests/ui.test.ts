@@ -104,11 +104,11 @@ test.describe('tljh_repo2docker UI Tests', () => {
       .click();
     if (process.env.CONFIG_FILE === 'binderhub') {
       await page.waitForSelector('span:has-text("Successfully tagged")', {
-        timeout: 600000
+        timeout: 1600000
       });
     } else {
       await page.waitForSelector('span:has-text("naming to docker")', {
-        timeout: 600000
+        timeout: 1600000
       });
     }
 
