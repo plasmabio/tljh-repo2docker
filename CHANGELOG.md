@@ -79,6 +79,26 @@ You can find below the list of changes since the creation of the plugin.
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.11
+
+([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v3.0.10...6f35dadd102aebc279e0f7da50f5fc0abd21deb6))
+
+### Merged PRs
+
+- feat(spawn): support dark mode in image table [#189](https://github.com/plasmabio/tljh-repo2docker/pull/189) ([@djangoliv](https://github.com/djangoliv))
+- upgrade k8s-hub image [#188](https://github.com/plasmabio/tljh-repo2docker/pull/188) ([@djangoliv](https://github.com/djangoliv))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2026-04-24&to=2026-05-05&type=c))
+
+@djangoliv ([activity](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Adjangoliv+updated%3A2026-04-24..2026-05-05&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.10
 
 ([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v3.0.9...b8916c67b03d1c0d30c5e053821ea0be2d41d4f7))
@@ -96,8 +116,6 @@ See [our definition of contributors](https://github-activity.readthedocs.io/en/l
 ([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2026-04-21&to=2026-04-24&type=c))
 
 @djangoliv ([activity](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Adjangoliv+updated%3A2026-04-21..2026-04-24&type=Issues)) | @trungleduc ([activity](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Atrungleduc+updated%3A2026-04-21..2026-04-24&type=Issues))
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.9
 
