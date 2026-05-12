@@ -6,6 +6,7 @@ from tornado import web
 from tljh_repo2docker.docker import get_image_metadata
 
 from .base import BaseHandler
+from .database.schemas import BuildStatusType
 from typing import List, Dict
 
 
@@ -43,10 +44,17 @@ class ServersAPIHandler(BaseHandler):
             if not db_context or not image_db_manager:
                 raise web.HTTPError(500, "Server error, missing database")
 
+            try:
+                image_uid = UUID(image_name_or_uid)
+            except (ValueError, AttributeError, TypeError):
+                raise web.HTTPError(400, "Invalid image identifier")
+
             async with db_context() as db:
-                image = await image_db_manager.read(db, UUID(image_name_or_uid))
+                image = await image_db_manager.read(db, image_uid)
                 if not image:
                     raise web.HTTPError(404, "Image not found")
+                if image.status != BuildStatusType.BUILT:
+                    raise web.HTTPError(409, "Image is not ready")
                 image_name = image.name
                 image_metadata = image.image_meta.model_dump()
         else:
