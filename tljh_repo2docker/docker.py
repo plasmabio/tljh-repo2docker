@@ -192,6 +192,13 @@ async def build_image(
             "tljh_repo2docker.cpu_limit": cpu,
             "tljh_repo2docker.node_selector": json.dumps(node_selector),
         },
+        # SECURITY: repo2docker needs access to the host Docker daemon to
+        # build and load images, so /var/run/docker.sock is mounted in. This
+        # is a documented trust assumption: only admins can trigger builds,
+        # and the repo2docker image itself must be trusted. A malicious repo
+        # could still pivot via the socket. Hardening below (no-new-privileges)
+        # is defense in depth, not a full mitigation. The proper fix is to
+        # switch to a rootless / BuildKit-based builder.
         "Volumes": {
             "/var/run/docker.sock": {
                 "bind": "/var/run/docker.sock",
@@ -200,6 +207,7 @@ async def build_image(
         },
         "HostConfig": {
             "Binds": ["/var/run/docker.sock:/var/run/docker.sock"],
+            "SecurityOpt": ["no-new-privileges:true"],
         },
         "Tty": False,
         "AttachStdout": False,
