@@ -10,6 +10,17 @@ from .database.schemas import BuildStatusType, DockerImageUpdateSchema
 
 LOG_HEAD_LINES = 10
 LOG_TAIL_LINES = 300
+REDACTED = "[redacted]"
+
+
+def _redact(line, secrets):
+    """Replace each non-empty secret occurrence in ``line`` with [redacted]."""
+    if isinstance(line, bytes):
+        line = line.decode("utf-8", errors="replace")
+    for secret in secrets:
+        if secret:
+            line = line.replace(secret, REDACTED)
+    return line
 
 
 def _build_log(head, tail, truncated):
@@ -205,6 +216,8 @@ async def build_image(
             }
         )
 
+    secrets = [s for s in (git_password, git_username) if s]
+
     async with Docker() as docker:
         container = await docker.containers.run(config=config)
 
@@ -215,6 +228,7 @@ async def build_image(
                 line_count = 0
                 pending = 0
                 async for line in container.log(stdout=True, stderr=True, follow=True):
+                    line = _redact(line, secrets)
                     if line_count < LOG_HEAD_LINES:
                         head_parts.append(line)
                     else:
