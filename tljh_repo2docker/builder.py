@@ -150,8 +150,11 @@ class BuildHandler(BaseHandler):
                 db_context=db_context,
                 image_db_manager=image_db_manager,
             )
-        except Exception as e:
-            self.log.error("Build failed with exception: %s", e, exc_info=True)
+        except Exception:
+            # Log the full exception server-side, but persist a generic
+            # message in the DB to avoid leaking credentials or repo URLs
+            # via the admin-visible build log.
+            self.log.exception("Build failed for image %s", image_name)
             if db_context and image_db_manager:
                 async with db_context() as db:
                     await image_db_manager.update(
@@ -159,6 +162,6 @@ class BuildHandler(BaseHandler):
                         DockerImageUpdateSchema(
                             uid=uid,
                             status=BuildStatusType.FAILED,
-                            log=str(e),
+                            log="Build failed. See service logs for details.",
                         ),
                     )
