@@ -7,6 +7,7 @@ docs/_build
 docs/build
 .ipynb_checkpoints
 jupyterhub_cookie_secret
+**/tljh_repo2docker_cookie_secret
 **/jupyterhub.sqlite
 **/jupyterhub-proxy.pid
 *.egg-info
