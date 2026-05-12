@@ -154,6 +154,17 @@ class TljhRepo2Docker(Application):
         config=True,
     )
 
+    cookie_secret_file = Unicode(
+        "tljh_repo2docker_cookie_secret",
+        help=(
+            "Path to a file storing the cookie secret. If the file does not "
+            "exist, a fresh 32-byte secret is generated and written to it. "
+            "Persisting the secret keeps sessions and XSRF tokens valid "
+            "across service restarts."
+        ),
+        config=True,
+    )
+
     config_file = Unicode(
         "tljh_repo2docker_config.py",
         help="""
@@ -196,8 +207,28 @@ class TljhRepo2Docker(Application):
         "node_selector": "TljhRepo2Docker.node_selector",
         "binderhub_url": "TljhRepo2Docker.binderhub_url",
         "db_url": "TljhRepo2Docker.db_url",
+        "cookie_secret_file": "TljhRepo2Docker.cookie_secret_file",
         "custom_links": "TljhRepo2Docker.custom_links",
     }
+
+    def _load_cookie_secret(self) -> bytes:
+        """Load the cookie secret from disk or generate and persist a new one."""
+        path = Path(self.cookie_secret_file)
+        if path.exists():
+            secret = path.read_bytes().strip()
+            if len(secret) >= 32:
+                return secret
+            self.log.warning(
+                "Cookie secret at %s is too short, regenerating", path
+            )
+        secret = os.urandom(32)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(secret)
+        try:
+            os.chmod(path, 0o600)
+        except OSError:
+            self.log.warning("Could not chmod 0600 on cookie secret %s", path)
+        return secret
 
     def init_settings(self) -> tp.Dict:
         """Initialize settings for the service application."""
@@ -219,7 +250,7 @@ class TljhRepo2Docker(Application):
             static_path=static_path,
             static_url_prefix=static_url_prefix,
             jinja2_env=env,
-            cookie_secret=os.urandom(32),
+            cookie_secret=self._load_cookie_secret(),
             base_url=self.base_url,
             hub_prefix=url_path_join(self.base_url, "/hub/"),
             service_prefix=self.service_prefix,
