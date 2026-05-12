@@ -18,7 +18,7 @@
         base_url: "{{base_url}}",
         hub_prefix: "{{hub_prefix}}",
         {% if user %}
-        user: "{{ user.name | safe }}",
+        user: {{ user.name | tojson }},
         {% endif %}
         {% if admin_access %}
         admin_access: true,
