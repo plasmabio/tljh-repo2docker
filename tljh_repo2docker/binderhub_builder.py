@@ -18,6 +18,10 @@ from .database.schemas import (
 
 IMAGE_NAME_RE = r"^[a-z0-9-_]+$"
 
+# Max time we'll keep the BinderHub SSE connection open for a single build.
+# Builds longer than this should be killed; this also bounds DB session reuse.
+BUILD_STREAM_TIMEOUT = 60 * 60  # 1h
+
 
 class BinderHubBuildHandler(BaseHandler):
     """
@@ -135,27 +139,34 @@ class BinderHubBuildHandler(BaseHandler):
         self.set_header("content-type", "application/json")
         self.finish(json.dumps({"uid": str(uid), "status": "ok"}))
 
-        log = ""
         async with db_context() as db:
             await image_db_manager.create(db, image_in)
-            async with self.client.stream("GET", url, params=params, timeout=None) as r:
-                async for line in r.aiter_lines():
-                    if line.startswith("data:"):
-                        json_log = json.loads(line.split(":", 1)[1])
-                        phase = json_log.get("phase", None)
-                        message = json_log.get("message", "")
-                        if phase != "unknown":
-                            log += message
-                        update_data = DockerImageUpdateSchema(uid=uid, log=log)
-                        stop = False
-                        if phase == "ready" or phase == "built":
-                            image_name = json_log.get("imageName", name)
-                            update_data.status = BuildStatusType.BUILT
-                            update_data.name = image_name
-                            stop = True
-                        elif phase == "failed":
-                            update_data.status = BuildStatusType.FAILED
-                            stop = True
-                        await image_db_manager.update(db, update_data)
-                        if stop:
-                            return
+
+        log = ""
+        # Open a short-lived session per write so a slow BinderHub stream
+        # cannot keep a DB transaction open for the entire build.
+        async with self.client.stream(
+            "GET", url, params=params, timeout=BUILD_STREAM_TIMEOUT
+        ) as r:
+            async for line in r.aiter_lines():
+                if not line.startswith("data:"):
+                    continue
+                json_log = json.loads(line.split(":", 1)[1])
+                phase = json_log.get("phase", None)
+                message = json_log.get("message", "")
+                if phase != "unknown":
+                    log += message
+                update_data = DockerImageUpdateSchema(uid=uid, log=log)
+                stop = False
+                if phase == "ready" or phase == "built":
+                    image_name = json_log.get("imageName", name)
+                    update_data.status = BuildStatusType.BUILT
+                    update_data.name = image_name
+                    stop = True
+                elif phase == "failed":
+                    update_data.status = BuildStatusType.FAILED
+                    stop = True
+                async with db_context() as db:
+                    await image_db_manager.update(db, update_data)
+                if stop:
+                    return
