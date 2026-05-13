@@ -53,7 +53,13 @@ class BinderHubBuildHandler(BaseHandler):
                     async with Docker() as docker:
                         await docker.images.delete(image.name)
                 except Exception:
-                    pass
+                    # The DB row is the source of truth for the UI; the Docker
+                    # image may already be gone or unreachable. Keep going with
+                    # the DB delete but record what happened.
+                    self.log.exception(
+                        "Failed to delete Docker image %s, continuing with DB delete",
+                        image.name,
+                    )
                 deleted = await image_db_manager.delete(db, uid)
 
         self.set_header("content-type", "application/json")

@@ -119,9 +119,13 @@ class ImagesDatabaseManager:
         statement = sa.select(self._table).where(self._table.name == image)
         try:
             result = await db.execute(statement)
-            return self._schema_out.model_validate(result.scalars().first())
-        except Exception:
+        except SQLAlchemyError:
+            logging.exception("read_by_image_name: query failed for %r", image)
             return None
+        row = result.scalars().first()
+        if row is None:
+            return None
+        return self._schema_out.model_validate(row)
 
     async def update(
         self, db: AsyncSession, obj_in: DockerImageUpdateSchema, optimistic: bool = True
