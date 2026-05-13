@@ -422,6 +422,7 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
                   label="Git password"
                   type="password"
                   required={false}
+                  onChange={e => updateFormValue('password', e.target.value)}
                 />
               </AccordionDetails>
             </Accordion>
