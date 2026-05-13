@@ -103,6 +103,22 @@ function _EnvironmentLogButton(props: IEnvironmentLogButton) {
     }
   }, [jhData, props.image]);
 
+  const handleCopy = useCallback(() => {
+    const { terminal } = terminalRef.current;
+    const hadSelection = terminal.hasSelection();
+    if (!hadSelection) {
+      terminal.selectAll();
+    }
+    const text = terminal.getSelection();
+    if (!hadSelection) {
+      terminal.clearSelection();
+    }
+    if (!text) {
+      return;
+    }
+    void navigator.clipboard.writeText(text);
+  }, []);
+
   const handleClose = (
     event?: any,
     reason?: 'backdropClick' | 'escapeKeyDown'
@@ -198,6 +214,7 @@ function _EnvironmentLogButton(props: IEnvironmentLogButton) {
           />
         </DialogContent>
         <DialogActions>
+          <Button onClick={handleCopy}>Copy logs</Button>
           <Button variant="contained" onClick={handleClose}>
             Close
           </Button>
