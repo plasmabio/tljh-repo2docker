@@ -1,7 +1,7 @@
 import collections
 import json
 from datetime import datetime
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 
 from aiodocker import Docker
 from tornado import web
@@ -24,6 +24,25 @@ def _redact(line, secrets):
     if len(line) > MAX_LINE_CHARS:
         line = line[:MAX_LINE_CHARS] + "...[line truncated]\n"
     return line
+
+
+def _embed_credentials(repo: str, username: str, password: str) -> str:
+    """Return ``repo`` with HTTP basic-auth credentials embedded.
+
+    Used because the upstream ``repo2docker`` image no longer honours the
+    ``GIT_CREDENTIAL_ENV`` variable, so the only reliable way to clone a
+    private HTTPS repo from inside the build container is to pass the
+    token directly in the URL. Returns the URL unchanged for schemes
+    other than http(s).
+    """
+    parsed = urlparse(repo)
+    if parsed.scheme not in ("http", "https"):
+        return repo
+    host = parsed.hostname or ""
+    if parsed.port:
+        host = f"{host}:{parsed.port}"
+    netloc = f"{quote(username, safe='')}:{quote(password, safe='')}@{host}"
+    return parsed._replace(netloc=netloc).geturl()
 
 
 def _build_log(head, tail, truncated):
@@ -181,7 +200,11 @@ async def build_image(
     for barg in extra_buildargs or []:
         cmd += ["--build-arg", barg]
 
-    cmd.append(repo)
+    authed_repo = repo
+    if git_username and git_password:
+        authed_repo = _embed_credentials(repo, git_username, git_password)
+
+    cmd.append(authed_repo)
 
     config = {
         "Cmd": cmd,
@@ -218,16 +241,16 @@ async def build_image(
         "OpenStdin": False,
     }
 
-    if git_username and git_password:
-        config.update(
-            {
-                "Env": [
-                    f"GIT_CREDENTIAL_ENV=username={git_username}\npassword={git_password}"
-                ],
-            }
-        )
-
+    # NOTE: previous versions exported GIT_CREDENTIAL_ENV here for repo2docker
+    # to consume, but upstream removed that integration. Credentials are now
+    # embedded in the URL above; nothing else to inject in the container env.
     secrets = [s for s in (git_password, git_username) if s]
+    if authed_repo != repo:
+        secrets.append(authed_repo)
+    # URL-encoding may transform the password (e.g. special chars); also
+    # redact the encoded form so it cannot leak partially.
+    if git_password and quote(git_password, safe="") != git_password:
+        secrets.append(quote(git_password, safe=""))
 
     async with Docker() as docker:
         container = await docker.containers.run(config=config)
