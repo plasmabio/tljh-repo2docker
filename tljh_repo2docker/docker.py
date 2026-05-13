@@ -10,6 +10,17 @@ from .database.schemas import BuildStatusType, DockerImageUpdateSchema
 
 LOG_HEAD_LINES = 10
 LOG_TAIL_LINES = 300
+REDACTED = "[redacted]"
+
+
+def _redact(line, secrets):
+    """Replace each non-empty secret occurrence in ``line`` with [redacted]."""
+    if isinstance(line, bytes):
+        line = line.decode("utf-8", errors="replace")
+    for secret in secrets:
+        if secret:
+            line = line.replace(secret, REDACTED)
+    return line
 
 
 def _build_log(head, tail, truncated):
@@ -181,6 +192,13 @@ async def build_image(
             "tljh_repo2docker.cpu_limit": cpu,
             "tljh_repo2docker.node_selector": json.dumps(node_selector),
         },
+        # SECURITY: repo2docker needs access to the host Docker daemon to
+        # build and load images, so /var/run/docker.sock is mounted in. This
+        # is a documented trust assumption: only admins can trigger builds,
+        # and the repo2docker image itself must be trusted. A malicious repo
+        # could still pivot via the socket. Hardening below (no-new-privileges)
+        # is defense in depth, not a full mitigation. The proper fix is to
+        # switch to a rootless / BuildKit-based builder.
         "Volumes": {
             "/var/run/docker.sock": {
                 "bind": "/var/run/docker.sock",
@@ -189,6 +207,7 @@ async def build_image(
         },
         "HostConfig": {
             "Binds": ["/var/run/docker.sock:/var/run/docker.sock"],
+            "SecurityOpt": ["no-new-privileges:true"],
         },
         "Tty": False,
         "AttachStdout": False,
@@ -205,6 +224,8 @@ async def build_image(
             }
         )
 
+    secrets = [s for s in (git_password, git_username) if s]
+
     async with Docker() as docker:
         container = await docker.containers.run(config=config)
 
@@ -215,6 +236,7 @@ async def build_image(
                 line_count = 0
                 pending = 0
                 async for line in container.log(stdout=True, stderr=True, follow=True):
+                    line = _redact(line, secrets)
                     if line_count < LOG_HEAD_LINES:
                         head_parts.append(line)
                     else:

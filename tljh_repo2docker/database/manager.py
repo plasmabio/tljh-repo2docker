@@ -142,8 +142,10 @@ class ImagesDatabaseManager:
         Raises:
             DatabaseError: If `db.commit()` failed.
         """
-        if not (obj_db := await self.read(db=db, uid=obj_in.uid)):
-            await self.create(db, obj_in)
+        obj_db = await self.read(db=db, uid=obj_in.uid)
+        if obj_db is None:
+            # Row missing: fall back to create() and return its result.
+            return await self.create(db, obj_in)
 
         update_data = obj_in.model_dump(exclude_none=True)
 

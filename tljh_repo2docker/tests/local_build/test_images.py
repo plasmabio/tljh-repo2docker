@@ -1,11 +1,25 @@
+import json
+import re
+
 import pytest
 from jupyterhub.tests.utils import get_page
 
 from ..utils import add_environment, get_service_page, wait_for_image
 
+PAGE_DATA_RE = re.compile(
+    r'<script id="tljh-page-data" type="application/json">\s*(.*?)\s*</script>',
+    re.DOTALL,
+)
+
+
+def _extract_page_data(html):
+    match = PAGE_DATA_RE.search(html)
+    assert match, "tljh-page-data block not found in response"
+    return json.loads(match.group(1))
+
 
 @pytest.mark.asyncio
-async def test_images_list_admin(app):
+async def test_images_list_admin(app, image_name):
     cookies = await app.login_user("admin")
     r = await get_service_page(
         "environments",
@@ -14,10 +28,18 @@ async def test_images_list_admin(app):
         allow_redirects=True,
     )
     r.raise_for_status()
-    assert (
-        '{"repo_providers": [{"label": "Git", "value": "git"}], "use_binderhub": false, "images": [], "default_mem_limit": "None", "default_cpu_limit":"None", "machine_profiles": [], "node_selector": {}}'
-        in r.text
-    )
+
+    page_data = _extract_page_data(r.text)
+    assert page_data["repo_providers"] == [{"label": "Git", "value": "git"}]
+    assert page_data["use_binderhub"] is False
+    assert page_data["default_mem_limit"] == "None"
+    assert page_data["default_cpu_limit"] == "None"
+    assert page_data["machine_profiles"] == []
+    assert page_data["node_selector"] == {}
+    # The test image must not be built yet. Other Docker images on the host
+    # (left over from manual dev runs) are tolerated so the test stays
+    # hermetic to the developer's local environment.
+    assert all(img["image_name"] != image_name for img in page_data["images"])
 
 
 @pytest.mark.asyncio
