@@ -39,7 +39,10 @@ class BinderHubBuildHandler(BaseHandler):
         """
 
         data = self.get_json_body()
-        uid = UUID(data["name"])
+        try:
+            uid = UUID(data["name"])
+        except (KeyError, ValueError, AttributeError, TypeError):
+            raise web.HTTPError(400, "Invalid image identifier")
 
         db_context, image_db_manager = self.get_db_handlers()
         if not db_context or not image_db_manager:
