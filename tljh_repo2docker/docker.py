@@ -10,6 +10,7 @@ from .database.schemas import BuildStatusType, DockerImageUpdateSchema
 
 LOG_HEAD_LINES = 10
 LOG_TAIL_LINES = 300
+MAX_LINE_CHARS = 4096
 REDACTED = "[redacted]"
 
 
@@ -20,6 +21,8 @@ def _redact(line, secrets):
     for secret in secrets:
         if secret:
             line = line.replace(secret, REDACTED)
+    if len(line) > MAX_LINE_CHARS:
+        line = line[:MAX_LINE_CHARS] + "...[line truncated]\n"
     return line
 
 

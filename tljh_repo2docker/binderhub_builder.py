@@ -22,6 +22,36 @@ IMAGE_NAME_RE = r"^[a-z0-9-_]+$"
 # Builds longer than this should be killed; this also bounds DB session reuse.
 BUILD_STREAM_TIMEOUT = 60 * 60  # 1h
 
+# Caps for the buffered build log (chars). The BinderHub SSE stream can emit
+# arbitrarily many messages, so without these bounds images.log could grow
+# without limit and exhaust the DB. Total persisted log size is at most
+# MAX_LOG_HEAD + MAX_LOG_TAIL plus the truncation marker.
+MAX_LOG_HEAD = 32 * 1024
+MAX_LOG_TAIL = 32 * 1024
+TRUNCATION_MARKER = "\n[...truncated...]\n"
+
+
+class _BoundedLog:
+    """Append-only log buffer that keeps the first MAX_LOG_HEAD chars and
+    the most recent MAX_LOG_TAIL chars."""
+
+    def __init__(self) -> None:
+        self._head = ""
+        self._tail = ""
+
+    def append(self, chunk: str) -> None:
+        if len(self._head) < MAX_LOG_HEAD:
+            room = MAX_LOG_HEAD - len(self._head)
+            self._head += chunk[:room]
+            chunk = chunk[room:]
+        if chunk:
+            self._tail = (self._tail + chunk)[-MAX_LOG_TAIL:]
+
+    def render(self) -> str:
+        if not self._tail:
+            return self._head
+        return self._head + TRUNCATION_MARKER + self._tail
+
 
 class BinderHubBuildHandler(BaseHandler):
     """
@@ -151,7 +181,7 @@ class BinderHubBuildHandler(BaseHandler):
         async with db_context() as db:
             await image_db_manager.create(db, image_in)
 
-        log = ""
+        log_buf = _BoundedLog()
         # Open a short-lived session per write so a slow BinderHub stream
         # cannot keep a DB transaction open for the entire build.
         async with self.client.stream(
@@ -164,8 +194,8 @@ class BinderHubBuildHandler(BaseHandler):
                 phase = json_log.get("phase", None)
                 message = json_log.get("message", "")
                 if phase != "unknown":
-                    log += message
-                update_data = DockerImageUpdateSchema(uid=uid, log=log)
+                    log_buf.append(message)
+                update_data = DockerImageUpdateSchema(uid=uid, log=log_buf.render())
                 stop = False
                 if phase == "ready" or phase == "built":
                     image_name = json_log.get("imageName", name)
