@@ -48,6 +48,12 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
 
     _client = None
 
+    # Default timeout (seconds) applied to every request that does not pass
+    # its own ``timeout=`` argument. Bounded so a stuck JupyterHub API cannot
+    # block a handler indefinitely. Long-running calls (build log streaming)
+    # are expected to override this explicitly.
+    DEFAULT_REQUEST_TIMEOUT = 30.0
+
     @property
     def log(self):
         return self.settings.get("log", app_log)
@@ -56,6 +62,10 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
     def client(self):
         """
         Get the asynchronous HTTP client with valid authorization token.
+
+        The client is a process-wide singleton. The JupyterHub API token is
+        captured the first time the property is read; rotating the token
+        therefore requires a service restart.
         """
         if not BaseHandler._client:
             api_url = os.environ.get("JUPYTERHUB_API_URL", "")
@@ -63,6 +73,7 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
             BaseHandler._client = AsyncClient(
                 base_url=api_url,
                 headers={"Authorization": f"Bearer {api_token}"},
+                timeout=self.DEFAULT_REQUEST_TIMEOUT,
             )
         return BaseHandler._client
 
