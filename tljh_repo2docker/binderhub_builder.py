@@ -135,13 +135,15 @@ class BinderHubBuildHandler(BaseHandler):
 
         if memory:
             try:
-                float(memory)
+                if float(memory) <= 0:
+                    raise web.HTTPError(400, "Memory Limit must be a positive number")
             except ValueError:
                 raise web.HTTPError(400, "Memory Limit must be a number")
 
         if cpu:
             try:
-                float(cpu)
+                if float(cpu) <= 0:
+                    raise web.HTTPError(400, "CPU Limit must be a positive number")
             except ValueError:
                 raise web.HTTPError(400, "CPU Limit must be a number")
 

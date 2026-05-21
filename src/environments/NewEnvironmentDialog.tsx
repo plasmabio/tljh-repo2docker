@@ -193,6 +193,7 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
           type="number"
           helperText="If empty, defaults to 2 GB"
           required={false}
+          inputProps={{ min: 0, step: 'any' }}
           onChange={e => updateFormValue('memory', e.target.value)}
         />
         <SmallTextField
@@ -204,6 +205,7 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
           type="number"
           helperText="If empty, defaults to 2 cores"
           required={false}
+          inputProps={{ min: 0, step: 'any' }}
           onChange={e => updateFormValue('cpu', e.target.value)}
         />
       </Fragment>

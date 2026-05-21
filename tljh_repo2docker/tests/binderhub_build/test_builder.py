@@ -90,13 +90,19 @@ async def test_no_repo(app, image_name):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "memory, cpu, node_selector",
+    "memory, cpu, node_selector, expected_error",
     [
-        ("abcded", "", {"key": "value"}),
-        ("", "abcde", {"key": "value"}),
+        ("abcded", "", {"key": "value"}, "must be a number"),
+        ("", "abcde", {"key": "value"}, "must be a number"),
+        ("-1", "", {"key": "value"}, "must be a positive number"),
+        ("", "-2", {"key": "value"}, "must be a positive number"),
+        ("0", "", {"key": "value"}, "must be a positive number"),
+        ("", "0", {"key": "value"}, "must be a positive number"),
     ],
 )
-async def test_wrong_limits(app, minimal_repo, image_name, memory, cpu, node_selector):
+async def test_wrong_limits(
+    app, minimal_repo, image_name, memory, cpu, node_selector, expected_error
+):
     name, ref = image_name.split(":")
     r = await add_environment(
         app,
@@ -109,7 +115,7 @@ async def test_wrong_limits(app, minimal_repo, image_name, memory, cpu, node_sel
         provider="git",
     )
     assert r.status_code == 400
-    assert "must be a number" in r.text
+    assert expected_error in r.text
 
 
 @pytest.mark.asyncio
