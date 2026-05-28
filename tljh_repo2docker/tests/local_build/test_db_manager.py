@@ -138,6 +138,21 @@ async def test_update_log_accumulation(db_session):
     assert "line3" in updated.log
 
 
+async def test_update_missing_returns_none(db_session):
+    """Updating a deleted row must not resurrect it from a partial payload."""
+    manager = ImagesDatabaseManager()
+    missing_uid = uuid4()
+
+    result = await manager.update(
+        db_session,
+        DockerImageUpdateSchema(uid=missing_uid, log="late log line"),
+    )
+
+    assert result is None
+    # The row must not have been recreated with NULL name/status.
+    assert await manager.read(db_session, missing_uid) is None
+
+
 async def test_delete(db_session):
     manager = ImagesDatabaseManager()
     schema = _make_schema()

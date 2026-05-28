@@ -45,6 +45,23 @@ class BuildHandler(BaseHandler):
                     db_entry_deleted = True
 
         async with Docker() as docker:
+            # Kill any in-progress build container for this image. Without
+            # this, deleting an environment mid-build leaves the repo2docker
+            # container running: list_containers() keeps showing it as
+            # "building" while the DB row (and its log) is gone.
+            containers = await docker.containers.list(
+                filters=json.dumps(
+                    {"label": [f"repo2docker.build={image_name}"]}
+                )
+            )
+            for container in containers:
+                try:
+                    await container.delete(force=True)
+                except DockerError:
+                    self.log.exception(
+                        "Failed to delete build container for %s", image_name
+                    )
+
             try:
                 await docker.images.delete(image_name)
             except DockerError as e:

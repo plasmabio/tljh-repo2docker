@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 from urllib.parse import quote, urlparse
 
-from aiodocker import Docker
+from aiodocker import Docker, DockerError
 from tornado import web
 
 from .database.schemas import BuildStatusType, DockerImageUpdateSchema
@@ -307,4 +307,10 @@ async def build_image(
                     pass
                 await container.wait()
         finally:
-            await container.delete()
+            try:
+                await container.delete()
+            except DockerError:
+                # Container may already be gone if the user deleted the
+                # environment mid-build (BuildHandler.delete force-removes
+                # the in-flight container). Best-effort cleanup.
+                pass

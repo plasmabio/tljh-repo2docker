@@ -148,8 +148,10 @@ class ImagesDatabaseManager:
         """
         obj_db = await self.read(db=db, uid=obj_in.uid)
         if obj_db is None:
-            # Row missing: fall back to create() and return its result.
-            return await self.create(db, obj_in)
+            # Row gone (e.g. deleted while a build was still in flight): do
+            # not silently re-create it from a partial update payload — that
+            # would resurrect a stale entry with NULL name/status.
+            return None
 
         update_data = obj_in.model_dump(exclude_none=True)
 
