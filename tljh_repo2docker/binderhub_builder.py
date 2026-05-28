@@ -15,12 +15,43 @@ from .database.schemas import (
     DockerImageUpdateSchema,
     ImageMetadataType,
 )
+from .docker import split_url_credentials
 
 IMAGE_NAME_RE = r"^[a-z0-9-_]+$"
 
 # Max time we'll keep the BinderHub SSE connection open for a single build.
 # Builds longer than this should be killed; this also bounds DB session reuse.
 BUILD_STREAM_TIMEOUT = 60 * 60  # 1h
+
+# Caps for the buffered build log (chars). The BinderHub SSE stream can emit
+# arbitrarily many messages, so without these bounds images.log could grow
+# without limit and exhaust the DB. Total persisted log size is at most
+# MAX_LOG_HEAD + MAX_LOG_TAIL plus the truncation marker.
+MAX_LOG_HEAD = 32 * 1024
+MAX_LOG_TAIL = 32 * 1024
+TRUNCATION_MARKER = "\n[...truncated...]\n"
+
+
+class _BoundedLog:
+    """Append-only log buffer that keeps the first MAX_LOG_HEAD chars and
+    the most recent MAX_LOG_TAIL chars."""
+
+    def __init__(self) -> None:
+        self._head = ""
+        self._tail = ""
+
+    def append(self, chunk: str) -> None:
+        if len(self._head) < MAX_LOG_HEAD:
+            room = MAX_LOG_HEAD - len(self._head)
+            self._head += chunk[:room]
+            chunk = chunk[room:]
+        if chunk:
+            self._tail = (self._tail + chunk)[-MAX_LOG_TAIL:]
+
+    def render(self) -> str:
+        if not self._tail:
+            return self._head
+        return self._head + TRUNCATION_MARKER + self._tail
 
 
 class BinderHubBuildHandler(BaseHandler):
@@ -39,7 +70,10 @@ class BinderHubBuildHandler(BaseHandler):
         """
 
         data = self.get_json_body()
-        uid = UUID(data["name"])
+        try:
+            uid = UUID(data["name"])
+        except (KeyError, ValueError, AttributeError, TypeError):
+            raise web.HTTPError(400, "Invalid image identifier")
 
         db_context, image_db_manager = self.get_db_handlers()
         if not db_context or not image_db_manager:
@@ -53,7 +87,13 @@ class BinderHubBuildHandler(BaseHandler):
                     async with Docker() as docker:
                         await docker.images.delete(image.name)
                 except Exception:
-                    pass
+                    # The DB row is the source of truth for the UI; the Docker
+                    # image may already be gone or unreachable. Keep going with
+                    # the DB delete but record what happened.
+                    self.log.exception(
+                        "Failed to delete Docker image %s, continuing with DB delete",
+                        image.name,
+                    )
                 deleted = await image_db_manager.delete(db, uid)
 
         self.set_header("content-type", "application/json")
@@ -88,6 +128,12 @@ class BinderHubBuildHandler(BaseHandler):
         if len(repo) == 0:
             raise web.HTTPError(400, "Repository is empty")
 
+        # Strip any credentials embedded in the repo URL so they are not
+        # persisted in the DB / forwarded to BinderHub. BinderHub does not
+        # support HTTP basic-auth via URL, so dropping them silently is the
+        # safe option.
+        repo, _, _ = split_url_credentials(repo)
+
         if name and not re.match(IMAGE_NAME_RE, name):
             raise web.HTTPError(
                 400,
@@ -96,13 +142,15 @@ class BinderHubBuildHandler(BaseHandler):
 
         if memory:
             try:
-                float(memory)
+                if float(memory) <= 0:
+                    raise web.HTTPError(400, "Memory Limit must be a positive number")
             except ValueError:
                 raise web.HTTPError(400, "Memory Limit must be a number")
 
         if cpu:
             try:
-                float(cpu)
+                if float(cpu) <= 0:
+                    raise web.HTTPError(400, "CPU Limit must be a positive number")
             except ValueError:
                 raise web.HTTPError(400, "CPU Limit must be a number")
 
@@ -142,7 +190,7 @@ class BinderHubBuildHandler(BaseHandler):
         async with db_context() as db:
             await image_db_manager.create(db, image_in)
 
-        log = ""
+        log_buf = _BoundedLog()
         # Open a short-lived session per write so a slow BinderHub stream
         # cannot keep a DB transaction open for the entire build.
         async with self.client.stream(
@@ -155,8 +203,8 @@ class BinderHubBuildHandler(BaseHandler):
                 phase = json_log.get("phase", None)
                 message = json_log.get("message", "")
                 if phase != "unknown":
-                    log += message
-                update_data = DockerImageUpdateSchema(uid=uid, log=log)
+                    log_buf.append(message)
+                update_data = DockerImageUpdateSchema(uid=uid, log=log_buf.render())
                 stop = False
                 if phase == "ready" or phase == "built":
                     image_name = json_log.get("imageName", name)

@@ -71,6 +71,9 @@ class ServersAPIHandler(BaseHandler):
             response.raise_for_status()
             return response
         except Exception:
+            self.log.exception(
+                "Failed to start server %r for user %r", server_name, user_name
+            )
             raise web.HTTPError(500, "Server error")
 
     @web.authenticated
@@ -93,4 +96,7 @@ class ServersAPIHandler(BaseHandler):
             response.raise_for_status()
             return response
         except Exception:
+            self.log.exception(
+                "Failed to stop server %r for user %r", server_name, user_name
+            )
             raise web.HTTPError(500, "Server error")

@@ -1,15 +1,16 @@
 import collections
 import json
 from datetime import datetime
-from urllib.parse import urlparse
+from urllib.parse import quote, unquote, urlparse
 
-from aiodocker import Docker
+from aiodocker import Docker, DockerError
 from tornado import web
 
 from .database.schemas import BuildStatusType, DockerImageUpdateSchema
 
 LOG_HEAD_LINES = 10
 LOG_TAIL_LINES = 300
+MAX_LINE_CHARS = 4096
 REDACTED = "[redacted]"
 
 
@@ -20,7 +21,54 @@ def _redact(line, secrets):
     for secret in secrets:
         if secret:
             line = line.replace(secret, REDACTED)
+    if len(line) > MAX_LINE_CHARS:
+        line = line[:MAX_LINE_CHARS] + "...[line truncated]\n"
     return line
+
+
+def split_url_credentials(url: str) -> tuple[str, str, str]:
+    """Strip and return any user:password embedded in an http(s) URL.
+
+    Returns ``(cleaned_url, username, password)``. ``username`` / ``password``
+    are URL-decoded. For non-http(s) URLs or URLs without an embedded
+    userinfo block, returns ``(url, "", "")`` unchanged.
+
+    Used to avoid persisting credentials pasted into the repo URL field
+    (DB, Docker labels, build logs).
+    """
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        return url, "", ""
+    if not (parsed.username or parsed.password):
+        return url, "", ""
+    host = parsed.hostname or ""
+    if parsed.port:
+        host = f"{host}:{parsed.port}"
+    cleaned = parsed._replace(netloc=host).geturl()
+    return (
+        cleaned,
+        unquote(parsed.username or ""),
+        unquote(parsed.password or ""),
+    )
+
+
+def _embed_credentials(repo: str, username: str, password: str) -> str:
+    """Return ``repo`` with HTTP basic-auth credentials embedded.
+
+    Used because the upstream ``repo2docker`` image no longer honours the
+    ``GIT_CREDENTIAL_ENV`` variable, so the only reliable way to clone a
+    private HTTPS repo from inside the build container is to pass the
+    token directly in the URL. Returns the URL unchanged for schemes
+    other than http(s).
+    """
+    parsed = urlparse(repo)
+    if parsed.scheme not in ("http", "https"):
+        return repo
+    host = parsed.hostname or ""
+    if parsed.port:
+        host = f"{host}:{parsed.port}"
+    netloc = f"{quote(username, safe='')}:{quote(password, safe='')}@{host}"
+    return parsed._replace(netloc=netloc).geturl()
 
 
 def _build_log(head, tail, truncated):
@@ -178,7 +226,11 @@ async def build_image(
     for barg in extra_buildargs or []:
         cmd += ["--build-arg", barg]
 
-    cmd.append(repo)
+    authed_repo = repo
+    if git_username and git_password:
+        authed_repo = _embed_credentials(repo, git_username, git_password)
+
+    cmd.append(authed_repo)
 
     config = {
         "Cmd": cmd,
@@ -215,16 +267,18 @@ async def build_image(
         "OpenStdin": False,
     }
 
-    if git_username and git_password:
-        config.update(
-            {
-                "Env": [
-                    f"GIT_CREDENTIAL_ENV=username={git_username}\npassword={git_password}"
-                ],
-            }
-        )
-
+    # NOTE: previous versions exported GIT_CREDENTIAL_ENV here for repo2docker
+    # to consume, but upstream removed that integration. Credentials are now
+    # embedded in the URL above; nothing else to inject in the container env.
     secrets = [s for s in (git_password, git_username) if s]
+    if authed_repo != repo:
+        secrets.append(authed_repo)
+    # URL-encoding may transform creds (e.g. when they contain special
+    # characters such as '@' or ':'); redact the encoded forms too so a
+    # partial leak cannot slip through.
+    for s in (git_password, git_username):
+        if s and quote(s, safe="") != s:
+            secrets.append(quote(s, safe=""))
 
     async with Docker() as docker:
         container = await docker.containers.run(config=config)
@@ -281,4 +335,10 @@ async def build_image(
                     pass
                 await container.wait()
         finally:
-            await container.delete()
+            try:
+                await container.delete()
+            except DockerError:
+                # Container may already be gone if the user deleted the
+                # environment mid-build (BuildHandler.delete force-removes
+                # the in-flight container). Best-effort cleanup.
+                pass

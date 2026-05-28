@@ -13,7 +13,7 @@ from .database.schemas import (
     DockerImageUpdateSchema,
     ImageMetadataType,
 )
-from .docker import build_image, compute_image_name
+from .docker import build_image, compute_image_name, split_url_credentials
 
 IMAGE_NAME_RE = r"^[a-z0-9-_]+$"
 
@@ -45,6 +45,23 @@ class BuildHandler(BaseHandler):
                     db_entry_deleted = True
 
         async with Docker() as docker:
+            # Kill any in-progress build container for this image. Without
+            # this, deleting an environment mid-build leaves the repo2docker
+            # container running: list_containers() keeps showing it as
+            # "building" while the DB row (and its log) is gone.
+            containers = await docker.containers.list(
+                filters=json.dumps(
+                    {"label": [f"repo2docker.build={image_name}"]}
+                )
+            )
+            for container in containers:
+                try:
+                    await container.delete(force=True)
+                except DockerError:
+                    self.log.exception(
+                        "Failed to delete build container for %s", image_name
+                    )
+
             try:
                 await docker.images.delete(image_name)
             except DockerError as e:
@@ -73,15 +90,26 @@ class BuildHandler(BaseHandler):
         if not repo:
             raise web.HTTPError(400, "Repository is empty")
 
+        # Strip credentials embedded in the repo URL so they are never
+        # persisted in the DB or Docker labels. Form values take priority;
+        # URL-embedded creds are only used when the form is empty.
+        repo, url_user, url_pass = split_url_credentials(repo)
+        if not git_username:
+            git_username = url_user
+        if not git_password:
+            git_password = url_pass
+
         if memory:
             try:
-                float(memory)
+                if float(memory) <= 0:
+                    raise web.HTTPError(400, "Memory Limit must be a positive number")
             except ValueError:
                 raise web.HTTPError(400, "Memory Limit must be a number")
 
         if cpu:
             try:
-                float(cpu)
+                if float(cpu) <= 0:
+                    raise web.HTTPError(400, "CPU Limit must be a positive number")
             except ValueError:
                 raise web.HTTPError(400, "CPU Limit must be a number")
 
