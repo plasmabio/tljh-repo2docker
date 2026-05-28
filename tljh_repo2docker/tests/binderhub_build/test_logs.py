@@ -5,7 +5,7 @@ from ..utils import add_environment, api_request, next_event, wait_for_image
 
 
 @pytest.mark.asyncio
-async def test_stream_simple(app, minimal_repo, image_name):
+async def test_stream_simple(app, minimal_repo, image_name, generated_image_name):
     name, ref = image_name.split(":")
     build_response = await add_environment(
         app, repo=minimal_repo, name=name, ref=ref, provider="git"
@@ -24,7 +24,10 @@ async def test_stream_simple(app, minimal_repo, image_name):
     assert "Picked Git content provider." in msg
 
     r.close()
-    await wait_for_image(image_name=image_name)
+    # BinderHub tags the produced image with a content-hash name (see
+    # generated_image_name fixture), not the user-supplied image_name —
+    # waiting on the latter would always hit the timeout.
+    await wait_for_image(image_name=generated_image_name)
 
 
 @pytest.mark.asyncio
