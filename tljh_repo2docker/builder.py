@@ -13,7 +13,7 @@ from .database.schemas import (
     DockerImageUpdateSchema,
     ImageMetadataType,
 )
-from .docker import build_image, compute_image_name
+from .docker import build_image, compute_image_name, split_url_credentials
 
 IMAGE_NAME_RE = r"^[a-z0-9-_]+$"
 
@@ -89,6 +89,15 @@ class BuildHandler(BaseHandler):
 
         if not repo:
             raise web.HTTPError(400, "Repository is empty")
+
+        # Strip credentials embedded in the repo URL so they are never
+        # persisted in the DB or Docker labels. Form values take priority;
+        # URL-embedded creds are only used when the form is empty.
+        repo, url_user, url_pass = split_url_credentials(repo)
+        if not git_username:
+            git_username = url_user
+        if not git_password:
+            git_password = url_pass
 
         if memory:
             try:

@@ -15,6 +15,7 @@ from .database.schemas import (
     DockerImageUpdateSchema,
     ImageMetadataType,
 )
+from .docker import split_url_credentials
 
 IMAGE_NAME_RE = r"^[a-z0-9-_]+$"
 
@@ -126,6 +127,12 @@ class BinderHubBuildHandler(BaseHandler):
 
         if len(repo) == 0:
             raise web.HTTPError(400, "Repository is empty")
+
+        # Strip any credentials embedded in the repo URL so they are not
+        # persisted in the DB / forwarded to BinderHub. BinderHub does not
+        # support HTTP basic-auth via URL, so dropping them silently is the
+        # safe option.
+        repo, _, _ = split_url_credentials(repo)
 
         if name and not re.match(IMAGE_NAME_RE, name):
             raise web.HTTPError(

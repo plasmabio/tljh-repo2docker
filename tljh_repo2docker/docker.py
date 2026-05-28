@@ -1,7 +1,7 @@
 import collections
 import json
 from datetime import datetime
-from urllib.parse import quote, urlparse
+from urllib.parse import quote, unquote, urlparse
 
 from aiodocker import Docker, DockerError
 from tornado import web
@@ -24,6 +24,32 @@ def _redact(line, secrets):
     if len(line) > MAX_LINE_CHARS:
         line = line[:MAX_LINE_CHARS] + "...[line truncated]\n"
     return line
+
+
+def split_url_credentials(url: str) -> tuple[str, str, str]:
+    """Strip and return any user:password embedded in an http(s) URL.
+
+    Returns ``(cleaned_url, username, password)``. ``username`` / ``password``
+    are URL-decoded. For non-http(s) URLs or URLs without an embedded
+    userinfo block, returns ``(url, "", "")`` unchanged.
+
+    Used to avoid persisting credentials pasted into the repo URL field
+    (DB, Docker labels, build logs).
+    """
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        return url, "", ""
+    if not (parsed.username or parsed.password):
+        return url, "", ""
+    host = parsed.hostname or ""
+    if parsed.port:
+        host = f"{host}:{parsed.port}"
+    cleaned = parsed._replace(netloc=host).geturl()
+    return (
+        cleaned,
+        unquote(parsed.username or ""),
+        unquote(parsed.password or ""),
+    )
 
 
 def _embed_credentials(repo: str, username: str, password: str) -> str:
@@ -247,10 +273,12 @@ async def build_image(
     secrets = [s for s in (git_password, git_username) if s]
     if authed_repo != repo:
         secrets.append(authed_repo)
-    # URL-encoding may transform the password (e.g. special chars); also
-    # redact the encoded form so it cannot leak partially.
-    if git_password and quote(git_password, safe="") != git_password:
-        secrets.append(quote(git_password, safe=""))
+    # URL-encoding may transform creds (e.g. when they contain special
+    # characters such as '@' or ':'); redact the encoded forms too so a
+    # partial leak cannot slip through.
+    for s in (git_password, git_username):
+        if s and quote(s, safe="") != s:
+            secrets.append(quote(s, safe=""))
 
     async with Docker() as docker:
         container = await docker.containers.run(config=config)

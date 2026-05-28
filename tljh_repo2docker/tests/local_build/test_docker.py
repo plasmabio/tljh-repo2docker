@@ -1,4 +1,8 @@
-from tljh_repo2docker.docker import _embed_credentials, compute_image_name
+from tljh_repo2docker.docker import (
+    _embed_credentials,
+    compute_image_name,
+    split_url_credentials,
+)
 
 
 def test_compute_image_name_explicit():
@@ -75,3 +79,43 @@ def test_embed_credentials_skips_non_http_scheme():
     # sense for them and rewriting could corrupt the URL.
     out = _embed_credentials("git@github.com:foo/bar.git", "u", "p")
     assert out == "git@github.com:foo/bar.git"
+
+
+def test_split_url_credentials_extracts_user_and_password():
+    url, user, password = split_url_credentials(
+        "https://alice:ghp_secret@github.com/foo/bar.git"
+    )
+    assert url == "https://github.com/foo/bar.git"
+    assert user == "alice"
+    assert password == "ghp_secret"
+
+
+def test_split_url_credentials_decodes_percent_encoded_creds():
+    url, user, password = split_url_credentials(
+        "https://foo%40bar.com:p%40ss@github.com/x/y.git"
+    )
+    assert url == "https://github.com/x/y.git"
+    assert user == "foo@bar.com"
+    assert password == "p@ss"
+
+
+def test_split_url_credentials_preserves_port():
+    url, _, _ = split_url_credentials(
+        "https://u:p@gitlab.local:8443/x/y.git"
+    )
+    assert url == "https://gitlab.local:8443/x/y.git"
+
+
+def test_split_url_credentials_noop_when_no_userinfo():
+    url, user, password = split_url_credentials("https://github.com/foo/bar.git")
+    assert url == "https://github.com/foo/bar.git"
+    assert user == ""
+    assert password == ""
+
+
+def test_split_url_credentials_skips_non_http_scheme():
+    # SSH-style URLs (no scheme) carry no basic-auth — return unchanged.
+    url, user, password = split_url_credentials("git@github.com:foo/bar.git")
+    assert url == "git@github.com:foo/bar.git"
+    assert user == ""
+    assert password == ""
