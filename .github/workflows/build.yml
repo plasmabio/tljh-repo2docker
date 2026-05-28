@@ -145,11 +145,21 @@ jobs:
         with:
           path: |
             ${{ github.workspace }}/pw-browsers
-          key: ${{ runner.os }}-${{ hashFiles('ui-tests/package-lock.json') }}
+          key: ${{ runner.os }}-pw-${{ hashFiles('ui-tests/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-pw-
 
       - name: Install browser
-        run: npx playwright install chromium
+        timeout-minutes: 5
         working-directory: ui-tests
+        run: |
+          for i in 1 2 3; do
+            npx playwright install chromium && exit 0
+            echo "Attempt $i failed, retrying after 10s..."
+            sleep 10
+          done
+          echo "playwright install chromium failed 3 times"
+          exit 1
 
       - name: Execute integration tests with ${{ matrix.build-backend }} build backend
         working-directory: ui-tests
