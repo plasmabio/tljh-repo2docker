@@ -88,7 +88,8 @@ test.describe('tljh_repo2docker UI Tests', () => {
     await page.getByRole('button', { name: 'Create new environment' }).click();
     await page
       .getByLabel('Repository URL *')
-      .fill('https://github.com/plasmabio/template-python');
+      // Use the minimal test repo (README + start script only)
+      .fill('https://github.com/plasmabio/tljh-repo2docker-test-binder');
     await page.getByPlaceholder('HEAD').fill('HEAD');
     await page
       .getByPlaceholder('Example: course-python-101-B37')
