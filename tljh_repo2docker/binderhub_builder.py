@@ -183,12 +183,12 @@ class BinderHubBuildHandler(BaseHandler):
                 node_selector=node_selector,
             ),
         )
+        async with db_context() as db:
+            await image_db_manager.create(db, image_in)
+
         self.set_status(200)
         self.set_header("content-type", "application/json")
         self.finish(json.dumps({"uid": str(uid), "status": "ok"}))
-
-        async with db_context() as db:
-            await image_db_manager.create(db, image_in)
 
         log_buf = _BoundedLog()
         # Open a short-lived session per write so a slow BinderHub stream
