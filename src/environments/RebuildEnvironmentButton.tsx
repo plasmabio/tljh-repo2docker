@@ -11,6 +11,7 @@ import { IEnvironmentData } from './types';
 
 interface IRebuildEnvironmentButtonProps extends IEnvironmentDialogConfigProps {
   environment: IEnvironmentData;
+  onRefresh?: () => void;
 }
 
 function _RebuildEnvironmentButton(props: IRebuildEnvironmentButtonProps) {
@@ -44,6 +45,7 @@ function _RebuildEnvironmentButton(props: IRebuildEnvironmentButtonProps) {
       <EnvironmentFormDialog
         open={open}
         onClose={handleClose}
+        onRefresh={props.onRefresh}
         default_cpu_limit={props.default_cpu_limit}
         default_mem_limit={props.default_mem_limit}
         machine_profiles={props.machine_profiles}

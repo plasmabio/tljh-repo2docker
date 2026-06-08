@@ -16,6 +16,7 @@ from .database.schemas import (
     ImageMetadataType,
 )
 from .docker import split_url_credentials
+from .environments import build_image_list
 
 IMAGE_NAME_RE = r"^[a-z0-9-_]+$"
 
@@ -58,6 +59,13 @@ class BinderHubBuildHandler(BaseHandler):
     """
     Handle requests to build user environments using BinderHub service
     """
+
+    @web.authenticated
+    @require_admin_role
+    async def get(self):
+        images = await build_image_list(self)
+        self.set_header("content-type", "application/json")
+        self.finish(json.dumps({"images": images}))
 
     @web.authenticated
     @require_admin_role

@@ -7,7 +7,7 @@ from aiodocker import Docker, DockerError
 from tljh_repo2docker.database.model import DockerImageSQL
 from tljh_repo2docker.database.schemas import BuildStatusType
 
-from ..utils import add_environment, remove_environment, wait_for_image
+from ..utils import add_environment, api_request, remove_environment, wait_for_image
 
 
 def _insert_image_row(*, uid, name, status, display_name=None, repo="https://example.com/repo", ref="HEAD"):
@@ -230,3 +230,24 @@ async def test_rebuild_existing_env_reuses_uid(app, minimal_repo, image_name):
     # Confirm the DB row was kept in place rather than duplicated.
     row = _read_image_row(UUID(uid))
     assert row is not None
+
+
+@pytest.mark.asyncio
+async def test_get_environments_returns_json(app, minimal_repo, image_name):
+    name, ref = image_name.split(":")
+    r = await add_environment(app, repo=minimal_repo, name=name, ref=ref)
+    assert r.status_code == 200
+    await wait_for_image(image_name=image_name)
+
+    r = await api_request(app, "environments", method="get")
+    assert r.status_code == 200
+    payload = r.json()
+    assert "images" in payload
+    assert isinstance(payload["images"], list)
+    entries_with_name = [
+        img for img in payload["images"] if img.get("display_name") == name
+    ]
+    assert entries_with_name, payload
+    entry = entries_with_name[0]
+    for field in ("image_name", "status", "repo", "ref"):
+        assert field in entry

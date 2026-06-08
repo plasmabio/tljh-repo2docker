@@ -72,6 +72,7 @@ export interface IEnvironmentDialogConfigProps {
 export interface IEnvironmentFormDialogProps extends IEnvironmentDialogConfigProps {
   open: boolean;
   onClose: () => void;
+  onRefresh?: () => void;
   initialValues?: Partial<IFormValues>;
   rebuildUid?: string;
 }
@@ -82,10 +83,6 @@ const commonInputProps: OutlinedTextFieldProps = {
   margin: 'dense',
   fullWidth: true,
   variant: 'outlined'
-};
-
-const reload = () => {
-  window.location.reload();
 };
 
 function _EnvironmentFormDialog(props: IEnvironmentFormDialogProps) {
@@ -321,7 +318,7 @@ function _EnvironmentFormDialog(props: IEnvironmentFormDialogProps) {
               data
             });
             if (response?.status === 200) {
-              reload();
+              props.onRefresh?.();
             }
             props.onClose();
           } catch (err) {
@@ -496,17 +493,21 @@ function _EnvironmentFormDialog(props: IEnvironmentFormDialogProps) {
 
 export const EnvironmentFormDialog = memo(_EnvironmentFormDialog);
 
-export type INewEnvironmentDialogProps = IEnvironmentDialogConfigProps;
+export interface INewEnvironmentDialogProps extends IEnvironmentDialogConfigProps {
+  onRefresh?: () => void;
+}
 
 function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
+  const { onRefresh } = props;
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = useCallback(() => setOpen(false), []);
+  const handleRefreshClick = useCallback(() => onRefresh?.(), [onRefresh]);
 
   return (
     <Fragment>
       <Box sx={{ display: 'flex', flexDirection: 'row-reverse' }}>
-        <Button onClick={reload} variant="outlined">
+        <Button onClick={handleRefreshClick} variant="outlined">
           <RefreshIcon />
         </Button>
         <Button onClick={handleOpen} variant="contained">
@@ -517,6 +518,7 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
       <EnvironmentFormDialog
         open={open}
         onClose={handleClose}
+        onRefresh={props.onRefresh}
         default_cpu_limit={props.default_cpu_limit}
         default_mem_limit={props.default_mem_limit}
         machine_profiles={props.machine_profiles}
