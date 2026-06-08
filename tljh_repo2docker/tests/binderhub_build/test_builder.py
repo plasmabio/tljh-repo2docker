@@ -1,13 +1,36 @@
 import asyncio
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import pytest
 import sqlalchemy as sa
 from aiodocker import Docker, DockerError
 
 from tljh_repo2docker.database.model import DockerImageSQL
+from tljh_repo2docker.database.schemas import BuildStatusType
 
 from ..utils import add_environment, remove_environment, wait_for_image
+
+
+def _insert_image_row(db_session, *, uid, name, status, display_name=None):
+    db_session.execute(
+        sa.insert(DockerImageSQL).values(
+            uid=uid,
+            name=name,
+            status=status.value if hasattr(status, "value") else status,
+            log="",
+            image_meta={
+                "display_name": display_name or name.split(":")[0],
+                "repo": "https://example.com/repo",
+                "ref": "HEAD",
+                "creation_date": "01/01/2025",
+                "owner": "admin",
+                "cpu_limit": "",
+                "mem_limit": "",
+                "node_selector": {},
+            },
+        )
+    )
+    db_session.commit()
 
 
 @pytest.mark.asyncio
@@ -130,3 +153,72 @@ async def test_wrong_name(app, minimal_repo):
 async def test_missing_provider(app, minimal_repo):
     r = await add_environment(app, repo=minimal_repo, name="foobar")
     assert r.status_code == 500
+
+
+@pytest.mark.asyncio
+async def test_rebuild_unknown_uid_returns_404(app, minimal_repo):
+    r = await add_environment(
+        app,
+        repo=minimal_repo,
+        name="ghost",
+        ref="HEAD",
+        provider="git",
+        uid=str(uuid4()),
+    )
+    assert r.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_rebuild_with_mismatched_name_returns_400(
+    app, minimal_repo, db_session
+):
+    uid = uuid4()
+    _insert_image_row(
+        db_session,
+        uid=uid,
+        name="original:HEAD",
+        display_name="original",
+        status=BuildStatusType.BUILT,
+    )
+    try:
+        r = await add_environment(
+            app,
+            repo=minimal_repo,
+            name="otherword",
+            ref="HEAD",
+            provider="git",
+            uid=str(uid),
+        )
+        assert r.status_code == 400
+    finally:
+        db_session.execute(
+            sa.delete(DockerImageSQL).where(DockerImageSQL.uid == uid)
+        )
+        db_session.commit()
+
+
+@pytest.mark.asyncio
+async def test_rebuild_while_building_returns_409(app, minimal_repo, db_session):
+    uid = uuid4()
+    _insert_image_row(
+        db_session,
+        uid=uid,
+        name="busy:HEAD",
+        display_name="busy",
+        status=BuildStatusType.BUILDING,
+    )
+    try:
+        r = await add_environment(
+            app,
+            repo=minimal_repo,
+            name="busy",
+            ref="HEAD",
+            provider="git",
+            uid=str(uid),
+        )
+        assert r.status_code == 409
+    finally:
+        db_session.execute(
+            sa.delete(DockerImageSQL).where(DockerImageSQL.uid == uid)
+        )
+        db_session.commit()

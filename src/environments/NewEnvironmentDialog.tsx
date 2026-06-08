@@ -45,7 +45,20 @@ export interface INodeSelector {
   [key: string]: INodeSelectorOption;
 }
 
-export interface INewEnvironmentDialogProps {
+export interface IFormValues {
+  provider?: string;
+  repo?: string;
+  ref?: string;
+  name?: string;
+  memory?: number | string;
+  cpu?: number | string;
+  buildargs?: string;
+  username?: string;
+  password?: string;
+  node_selector?: { [key: string]: string | undefined };
+}
+
+export interface IEnvironmentDialogConfigProps {
   default_cpu_limit: string;
   default_mem_limit: string;
   machine_profiles: IMachineProfile[];
@@ -54,18 +67,13 @@ export interface INewEnvironmentDialogProps {
   repo_providers?: { label: string; value: string }[];
 }
 
-interface IFormValues {
-  provider?: string;
-  repo?: string;
-  ref?: string;
-  name?: string;
-  memory?: number;
-  cpu?: number;
-  buildargs?: string;
-  username?: string;
-  password?: string;
-  node_selector?: { [key: string]: string | undefined };
+export interface IEnvironmentFormDialogProps extends IEnvironmentDialogConfigProps {
+  open: boolean;
+  onClose: () => void;
+  initialValues?: Partial<IFormValues>;
+  rebuildUid?: string;
 }
+
 const commonInputProps: OutlinedTextFieldProps = {
   autoFocus: true,
   required: true,
@@ -74,12 +82,17 @@ const commonInputProps: OutlinedTextFieldProps = {
   variant: 'outlined'
 };
 
-function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
+const reload = () => {
+  window.location.reload();
+};
+
+function _EnvironmentFormDialog(props: IEnvironmentFormDialogProps) {
   const axios = useAxios();
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => {
-    setOpen(true);
-  };
+  const isRebuild = Boolean(props.rebuildUid);
+  const [formValues, setFormValues] = useState<IFormValues>(
+    () => props.initialValues ?? {}
+  );
+
   const handleClose = (
     event?: any,
     reason?: 'backdropClick' | 'escapeKeyDown'
@@ -87,10 +100,9 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
     if (reason && reason === 'backdropClick') {
       return;
     }
-    setOpen(false);
+    props.onClose();
   };
 
-  const [formValues, setFormValues] = useState<IFormValues>({});
   const updateFormValue = useCallback(
     (
       key: keyof IFormValues,
@@ -162,6 +174,12 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
   );
 
   useEffect(() => {
+    // In rebuild mode, the form is pre-filled with the existing environment
+    // values and must not be overwritten by the default-profile/provider/node
+    // selectors initialization below.
+    if (isRebuild) {
+      return;
+    }
     if (props.machine_profiles.length > 0) {
       onMachineProfileChange(0);
     }
@@ -174,6 +192,7 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
       });
     }
   }, [
+    isRebuild,
     props.machine_profiles,
     props.repo_providers,
     props.node_selector,
@@ -181,6 +200,7 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
     onRepoProviderChange,
     onNodeSelectorChange
   ]);
+
   const MemoryCpuSelector = useMemo(() => {
     return (
       <Fragment>
@@ -194,6 +214,7 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
           helperText="If empty, defaults to 2 GB"
           required={false}
           inputProps={{ min: 0, step: 'any' }}
+          value={formValues.memory ?? ''}
           onChange={e => updateFormValue('memory', e.target.value)}
         />
         <SmallTextField
@@ -206,11 +227,12 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
           helperText="If empty, defaults to 2 cores"
           required={false}
           inputProps={{ min: 0, step: 'any' }}
+          value={formValues.cpu ?? ''}
           onChange={e => updateFormValue('cpu', e.target.value)}
         />
       </Fragment>
     );
-  }, [updateFormValue]);
+  }, [formValues.memory, formValues.cpu, updateFormValue]);
 
   const MachineProfileSelector = useMemo(() => {
     return (
@@ -259,9 +281,196 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
     ));
   }, [props.node_selector, selectedNodeSelectors, onNodeSelectorChange]);
 
-  const reload = () => {
-    window.location.reload();
-  };
+  return (
+    <Dialog
+      open={props.open}
+      onClose={handleClose}
+      fullWidth
+      maxWidth={'md'}
+      className="tljh-form-dialog"
+      PaperProps={{
+        component: 'form',
+        onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+          const data: any = { ...formValues };
+          data.repo = data.repo.trim();
+          data.name =
+            data.name ??
+            (data.repo as string)
+              .replace('http://', '')
+              .replace('https://', '')
+              .replace(/\//g, '-')
+              .replace(/\./g, '-');
+          data.ref = data.ref && data.ref.length > 0 ? data.ref : 'HEAD';
+          data.cpu = data.cpu ?? '2';
+          data.memory = data.memory ?? '2';
+          data.username = data.username ?? '';
+          data.password = data.password ?? '';
+          if (props.rebuildUid) {
+            data.uid = props.rebuildUid;
+          }
+          const response = await axios.serviceClient.request({
+            method: 'post',
+            path: ENV_PREFIX,
+            data
+          });
+          if (response?.status === 200) {
+            reload();
+          }
+          props.onClose();
+        }
+      }}
+    >
+      <DialogTitle>
+        {isRebuild ? 'Rebuild environment' : 'Create a new environment'}
+      </DialogTitle>
+      <DialogContent>
+        {props.use_binderhub && props.repo_providers && (
+          <FormControl fullWidth sx={{ marginTop: '8px' }}>
+            <InputLabel id="git-provider-select-label">
+              Repository provider
+            </InputLabel>
+            <Select
+              labelId="git-provider-select-label"
+              id="git-provider-select"
+              value={selectedProvider}
+              label="Repository provider"
+              size="small"
+              onChange={e => onRepoProviderChange(e.target.value)}
+            >
+              {props.repo_providers.map((it, idx) => {
+                return (
+                  <MenuItem key={idx} value={idx}>
+                    {it.label}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+        )}
+        <SmallTextField
+          {...commonInputProps}
+          id="repo"
+          size="small"
+          name="repo"
+          label="Repository URL"
+          type="text"
+          onChange={e => updateFormValue('repo', e.target.value)}
+          value={formValues.repo ?? ''}
+        />
+        <SmallTextField
+          {...commonInputProps}
+          id="ref"
+          name="ref"
+          size="small"
+          label="Reference (git commit)"
+          type="text"
+          placeholder="HEAD"
+          required={false}
+          onChange={e => updateFormValue('ref', e.target.value)}
+          value={formValues.ref ?? ''}
+        />
+        <SmallTextField
+          {...commonInputProps}
+          id="name"
+          name="name"
+          size="small"
+          label="Environment name"
+          type="text"
+          required={false}
+          placeholder="Example: course-python-101-B37"
+          disabled={isRebuild}
+          value={formValues.name ?? ''}
+          onChange={e => updateFormValue('name', e.target.value)}
+        />
+        {props.machine_profiles.length > 0
+          ? MachineProfileSelector
+          : MemoryCpuSelector}
+        {props.node_selector && NodeSelectorDropdown}
+        {!props.use_binderhub && (
+          <Accordion sx={{ mt: 1 }} elevation={0}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography sx={{ fontWeight: 500, fontSize: '1.4rem' }}>
+                Advanced
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <SmallTextField
+                {...commonInputProps}
+                id="build_args"
+                name="build_args"
+                label="Build arguments"
+                type="text"
+                size="small"
+                multiline
+                rows={4}
+                required={false}
+                placeholder="Build arguments in the form of arg1=val1..."
+                value={formValues.buildargs ?? ''}
+                onChange={e => updateFormValue('buildargs', e.target.value)}
+              />
+            </AccordionDetails>
+          </Accordion>
+        )}
+        {!props.use_binderhub && (
+          <Accordion sx={{ mt: 1 }} elevation={0}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography sx={{ fontWeight: 500, fontSize: '1.4rem' }}>
+                Credentials
+              </Typography>
+            </AccordionSummary>
+
+            <AccordionDetails>
+              <SmallTextField
+                {...commonInputProps}
+                id="git_user"
+                name="git_user"
+                size="small"
+                label="Git user name"
+                type="text"
+                required={false}
+                onChange={e => updateFormValue('username', e.target.value)}
+              />
+
+              <SmallTextField
+                {...commonInputProps}
+                id="git_password"
+                name="git_password"
+                size="small"
+                label="Git password"
+                type="password"
+                required={false}
+                onChange={e => updateFormValue('password', e.target.value)}
+              />
+            </AccordionDetails>
+          </Accordion>
+        )}
+      </DialogContent>
+      <DialogActions>
+        <Button variant="contained" color="error" onClick={handleClose}>
+          Cancel
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          disabled={!validated}
+          type="submit"
+        >
+          {isRebuild ? 'Rebuild Environment' : 'Create Environment'}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
+export const EnvironmentFormDialog = memo(_EnvironmentFormDialog);
+
+export type INewEnvironmentDialogProps = IEnvironmentDialogConfigProps;
+
+function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = useCallback(() => setOpen(false), []);
 
   return (
     <Fragment>
@@ -274,176 +483,16 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
         </Button>
       </Box>
 
-      <Dialog
+      <EnvironmentFormDialog
         open={open}
         onClose={handleClose}
-        fullWidth
-        maxWidth={'md'}
-        className="tljh-form-dialog"
-        PaperProps={{
-          component: 'form',
-          onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
-            event.preventDefault();
-            const data: any = { ...formValues };
-            data.repo = data.repo.trim();
-            data.name =
-              data.name ??
-              (data.repo as string)
-                .replace('http://', '')
-                .replace('https://', '')
-                .replace(/\//g, '-')
-                .replace(/\./g, '-');
-            data.ref = data.ref && data.ref.length > 0 ? data.ref : 'HEAD';
-            data.cpu = data.cpu ?? '2';
-            data.memory = data.memory ?? '2';
-            data.username = data.username ?? '';
-            data.password = data.password ?? '';
-            const response = await axios.serviceClient.request({
-              method: 'post',
-              path: ENV_PREFIX,
-              data
-            });
-            if (response?.status === 200) {
-              reload();
-            }
-            handleClose();
-          }
-        }}
-      >
-        <DialogTitle>Create a new environment</DialogTitle>
-        <DialogContent>
-          {props.use_binderhub && props.repo_providers && (
-            <FormControl fullWidth sx={{ marginTop: '8px' }}>
-              <InputLabel id="git-provider-select-label">
-                Repository provider
-              </InputLabel>
-              <Select
-                labelId="git-provider-select-label"
-                id="git-provider-select"
-                value={selectedProvider}
-                label="Repository provider"
-                size="small"
-                onChange={e => onRepoProviderChange(e.target.value)}
-              >
-                {props.repo_providers.map((it, idx) => {
-                  return (
-                    <MenuItem key={idx} value={idx}>
-                      {it.label}
-                    </MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>
-          )}
-          <SmallTextField
-            {...commonInputProps}
-            id="repo"
-            size="small"
-            name="repo"
-            label="Repository URL"
-            type="text"
-            onChange={e => updateFormValue('repo', e.target.value)}
-            value={formValues.repo ?? ''}
-          />
-          <SmallTextField
-            {...commonInputProps}
-            id="ref"
-            name="ref"
-            size="small"
-            label="Reference (git commit)"
-            type="text"
-            placeholder="HEAD"
-            required={false}
-            onChange={e => updateFormValue('ref', e.target.value)}
-            value={formValues.ref ?? ''}
-          />
-          <SmallTextField
-            {...commonInputProps}
-            id="name"
-            name="name"
-            size="small"
-            label="Environment name"
-            type="text"
-            required={false}
-            placeholder="Example: course-python-101-B37"
-            onChange={e => updateFormValue('name', e.target.value)}
-          />
-          {props.machine_profiles.length > 0
-            ? MachineProfileSelector
-            : MemoryCpuSelector}
-          {props.node_selector && NodeSelectorDropdown}
-          {!props.use_binderhub && (
-            <Accordion sx={{ mt: 1 }} elevation={0}>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography sx={{ fontWeight: 500, fontSize: '1.4rem' }}>
-                  Advanced
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <SmallTextField
-                  {...commonInputProps}
-                  id="build_args"
-                  name="build_args"
-                  label="Build arguments"
-                  type="text"
-                  size="small"
-                  multiline
-                  rows={4}
-                  required={false}
-                  placeholder="Build arguments in the form of arg1=val1..."
-                  onChange={e => updateFormValue('buildargs', e.target.value)}
-                />
-              </AccordionDetails>
-            </Accordion>
-          )}
-          {!props.use_binderhub && (
-            <Accordion sx={{ mt: 1 }} elevation={0}>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography sx={{ fontWeight: 500, fontSize: '1.4rem' }}>
-                  Credentials
-                </Typography>
-              </AccordionSummary>
-
-              <AccordionDetails>
-                <SmallTextField
-                  {...commonInputProps}
-                  id="git_user"
-                  name="git_user"
-                  size="small"
-                  label="Git user name"
-                  type="text"
-                  required={false}
-                  onChange={e => updateFormValue('username', e.target.value)}
-                />
-
-                <SmallTextField
-                  {...commonInputProps}
-                  id="git_password"
-                  name="git_password"
-                  size="small"
-                  label="Git password"
-                  type="password"
-                  required={false}
-                  onChange={e => updateFormValue('password', e.target.value)}
-                />
-              </AccordionDetails>
-            </Accordion>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button variant="contained" color="error" onClick={handleClose}>
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            disabled={!validated}
-            type="submit"
-          >
-            Create Environment
-          </Button>
-        </DialogActions>
-      </Dialog>
+        default_cpu_limit={props.default_cpu_limit}
+        default_mem_limit={props.default_mem_limit}
+        machine_profiles={props.machine_profiles}
+        node_selector={props.node_selector}
+        use_binderhub={props.use_binderhub}
+        repo_providers={props.repo_providers}
+      />
     </Fragment>
   );
 }

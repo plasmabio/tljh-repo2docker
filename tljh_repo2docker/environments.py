@@ -57,11 +57,15 @@ class EnvironmentsHandler(BaseHandler):
         db_by_name = {entry.name: entry for entry in all_db_entries}
         docker_names = {img["image_name"] for img in images}
 
-        # Add uid to images that have a matching DB entry
+        # Add uid + buildargs to images that have a matching DB entry. The
+        # buildargs are only persisted in the DB (no Docker label), so they
+        # need to be backfilled here for the rebuild dialog to pre-fill them.
         for image in images:
             entry = db_by_name.get(image["image_name"])
             if entry:
                 image["uid"] = str(entry.uid)
+                if entry.image_meta.buildargs:
+                    image["buildargs"] = entry.image_meta.buildargs
 
         extra = [
             dict(

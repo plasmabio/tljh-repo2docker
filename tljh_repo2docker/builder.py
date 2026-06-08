@@ -85,6 +85,7 @@ class BuildHandler(BaseHandler):
         buildargs = data.get("buildargs", None)
         git_username = data.get("username", None)
         git_password = data.get("password", None)
+        rebuild_uid_raw = data.get("uid")
         owner = self.get_current_user().get("name", "unknow")
 
         if not repo:
@@ -128,32 +129,78 @@ class BuildHandler(BaseHandler):
 
         image_name, ref_norm, name_norm = compute_image_name(repo, ref, name)
 
-        creation_date = datetime.now().strftime("%d/%m/%Y")
-
         db_context = self.settings.get("db_context")
         image_db_manager = self.settings.get("image_db_manager")
 
+        rebuild_uid = None
+        existing_entry = None
+        if rebuild_uid_raw:
+            if not (db_context and image_db_manager):
+                raise web.HTTPError(400, "Rebuild requires the database backend")
+            try:
+                rebuild_uid = UUID(rebuild_uid_raw)
+            except (ValueError, AttributeError, TypeError):
+                raise web.HTTPError(400, "Invalid uid")
+            async with db_context() as db:
+                existing_entry = await image_db_manager.read(db, rebuild_uid)
+            if existing_entry is None:
+                raise web.HTTPError(404, "Environment not found")
+            if existing_entry.status == BuildStatusType.BUILDING.value:
+                raise web.HTTPError(409, "Environment is already building")
+            if existing_entry.image_meta.display_name != name_norm:
+                raise web.HTTPError(
+                    400, "Environment name does not match the rebuilt entry"
+                )
+
         uid = None
         if db_context and image_db_manager:
-            uid = uuid4()
-            image_in = DockerImageCreateSchema(
-                uid=uid,
-                name=image_name,
-                status=BuildStatusType.BUILDING,
-                log="",
-                image_meta=ImageMetadataType(
-                    display_name=name_norm,
-                    repo=repo,
-                    ref=ref_norm,
-                    cpu_limit=cpu or "",
-                    mem_limit=memory or "",
-                    creation_date=creation_date,
-                    owner=owner,
-                    node_selector=node_selector,
-                ),
-            )
-            async with db_context() as db:
-                await image_db_manager.create(db, image_in)
+            if rebuild_uid is not None:
+                assert existing_entry is not None
+                uid = rebuild_uid
+                # Refresh creation_date so the table shows when the current
+                # image was last (re)built, not when it was first created.
+                creation_date = datetime.now().strftime("%d/%m/%Y")
+                update_in = DockerImageUpdateSchema(
+                    uid=uid,
+                    name=image_name,
+                    status=BuildStatusType.BUILDING,
+                    log="",
+                    image_meta=ImageMetadataType(
+                        display_name=name_norm,
+                        repo=repo,
+                        ref=ref_norm,
+                        cpu_limit=cpu or "",
+                        mem_limit=memory or "",
+                        creation_date=creation_date,
+                        owner=existing_entry.image_meta.owner,
+                        node_selector=node_selector,
+                        buildargs=buildargs or None,
+                    ),
+                )
+                async with db_context() as db:
+                    await image_db_manager.update(db, update_in)
+            else:
+                uid = uuid4()
+                creation_date = datetime.now().strftime("%d/%m/%Y")
+                image_in = DockerImageCreateSchema(
+                    uid=uid,
+                    name=image_name,
+                    status=BuildStatusType.BUILDING,
+                    log="",
+                    image_meta=ImageMetadataType(
+                        display_name=name_norm,
+                        repo=repo,
+                        ref=ref_norm,
+                        cpu_limit=cpu or "",
+                        mem_limit=memory or "",
+                        creation_date=creation_date,
+                        owner=owner,
+                        node_selector=node_selector,
+                        buildargs=buildargs or None,
+                    ),
+                )
+                async with db_context() as db:
+                    await image_db_manager.create(db, image_in)
 
         self.set_status(200)
         self.set_header("content-type", "application/json")

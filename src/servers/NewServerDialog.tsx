@@ -137,6 +137,7 @@ function _NewServerDialog(props: INewServerDialogProps) {
           <EnvironmentList
             images={props.images}
             hideRemoveButton={true}
+            hideRebuildButton={true}
             pageSize={10}
             selectable
             rowSelectionModel={rowSelectionModel}
