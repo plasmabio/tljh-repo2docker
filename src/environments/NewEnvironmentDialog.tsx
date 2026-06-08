@@ -2,6 +2,7 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Alert,
   Box,
   Button,
   Dialog,
@@ -16,6 +17,7 @@ import {
   TextField,
   Typography
 } from '@mui/material';
+import axiosLib from 'axios';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import {
@@ -92,6 +94,7 @@ function _EnvironmentFormDialog(props: IEnvironmentFormDialogProps) {
   const [formValues, setFormValues] = useState<IFormValues>(
     () => props.initialValues ?? {}
   );
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleClose = (
     event?: any,
@@ -100,6 +103,7 @@ function _EnvironmentFormDialog(props: IEnvironmentFormDialogProps) {
     if (reason && reason === 'backdropClick') {
       return;
     }
+    setErrorMessage(null);
     props.onClose();
   };
 
@@ -309,15 +313,33 @@ function _EnvironmentFormDialog(props: IEnvironmentFormDialogProps) {
           if (props.rebuildUid) {
             data.uid = props.rebuildUid;
           }
-          const response = await axios.serviceClient.request({
-            method: 'post',
-            path: ENV_PREFIX,
-            data
-          });
-          if (response?.status === 200) {
-            reload();
+          setErrorMessage(null);
+          try {
+            const response = await axios.serviceClient.request({
+              method: 'post',
+              path: ENV_PREFIX,
+              data
+            });
+            if (response?.status === 200) {
+              reload();
+            }
+            props.onClose();
+          } catch (err) {
+            // The backend's write_error returns a JSON body
+            // {status, message}; that's the real reason. statusText is
+            // unreliable (HTTP/2 strips it to "Bad Request").
+            let message = 'Request failed';
+            if (axiosLib.isAxiosError(err) && err.response) {
+              message =
+                err.response.data?.message ||
+                err.response.statusText ||
+                err.message ||
+                message;
+            } else if (err instanceof Error) {
+              message = err.message;
+            }
+            setErrorMessage(message);
           }
-          props.onClose();
         }
       }}
     >
@@ -325,6 +347,15 @@ function _EnvironmentFormDialog(props: IEnvironmentFormDialogProps) {
         {isRebuild ? 'Rebuild environment' : 'Create a new environment'}
       </DialogTitle>
       <DialogContent>
+        {errorMessage && (
+          <Alert
+            severity="error"
+            sx={{ mb: 1 }}
+            onClose={() => setErrorMessage(null)}
+          >
+            {errorMessage}
+          </Alert>
+        )}
         {props.use_binderhub && props.repo_providers && (
           <FormControl fullWidth sx={{ marginTop: '8px' }}>
             <InputLabel id="git-provider-select-label">
