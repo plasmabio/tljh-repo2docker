@@ -10,4 +10,5 @@ export interface IEnvironmentData {
   repo: string;
   status: string;
   uid?: string;
+  buildargs?: string;
 }

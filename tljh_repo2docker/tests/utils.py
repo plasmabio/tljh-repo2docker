@@ -59,8 +59,13 @@ async def add_environment(
     cpu="",
     provider=None,
     node_selector={},
+    uid=None,
 ):
-    """Use the POST endpoint to add a new environment"""
+    """Use the POST endpoint to add or rebuild an environment.
+
+    Pass ``uid`` to trigger an in-place rebuild of an existing entry instead
+    of creating a new one.
+    """
     data = {
         "repo": repo,
         "ref": ref,
@@ -71,6 +76,8 @@ async def add_environment(
     }
     if provider:
         data["provider"] = provider
+    if uid is not None:
+        data["uid"] = uid
     r = await api_request(
         app,
         "environments",

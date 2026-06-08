@@ -123,6 +123,7 @@ class BinderHubBuildHandler(BaseHandler):
         cpu = data["cpu"]
         provider = data["provider"]
         node_selector = data.get("node_selector", {})
+        rebuild_uid_raw = data.get("uid")
         owner = self.get_current_user().get("name", "unknow")
 
         if len(repo) == 0:
@@ -164,27 +165,69 @@ class BinderHubBuildHandler(BaseHandler):
         if not db_context or not image_db_manager:
             return
 
-        creation_date = datetime.now().strftime("%d/%m/%Y")
+        rebuild_uid = None
+        existing_entry = None
+        if rebuild_uid_raw:
+            try:
+                rebuild_uid = UUID(rebuild_uid_raw)
+            except (ValueError, AttributeError, TypeError):
+                raise web.HTTPError(400, "Invalid uid")
+            async with db_context() as db:
+                existing_entry = await image_db_manager.read(db, rebuild_uid)
+            if existing_entry is None:
+                raise web.HTTPError(404, "Environment not found")
+            if existing_entry.status == BuildStatusType.BUILDING.value:
+                raise web.HTTPError(409, "Environment is already building")
+            if existing_entry.image_meta.display_name != name:
+                raise web.HTTPError(
+                    400, "Environment name does not match the rebuilt entry"
+                )
 
-        uid = uuid4()
-        image_in = DockerImageCreateSchema(
-            uid=uid,
-            name=name,
-            status=BuildStatusType.BUILDING,
-            log="",
-            image_meta=ImageMetadataType(
-                display_name=name,
-                repo=repo,
-                ref=ref,
-                cpu_limit=cpu,
-                mem_limit=memory,
-                creation_date=creation_date,
-                owner=owner,
-                node_selector=node_selector,
-            ),
-        )
-        async with db_context() as db:
-            await image_db_manager.create(db, image_in)
+        if rebuild_uid is not None:
+            assert existing_entry is not None
+            uid = rebuild_uid
+            # Refresh creation_date so the table shows when the current image
+            # was last (re)built, not when it was first created.
+            creation_date = datetime.now().strftime("%d/%m/%Y")
+            update_in = DockerImageUpdateSchema(
+                uid=uid,
+                name=name,
+                status=BuildStatusType.BUILDING,
+                log="",
+                image_meta=ImageMetadataType(
+                    display_name=name,
+                    repo=repo,
+                    ref=ref,
+                    cpu_limit=cpu,
+                    mem_limit=memory,
+                    creation_date=creation_date,
+                    owner=existing_entry.image_meta.owner,
+                    node_selector=node_selector,
+                ),
+            )
+            async with db_context() as db:
+                await image_db_manager.update(db, update_in)
+        else:
+            uid = uuid4()
+            creation_date = datetime.now().strftime("%d/%m/%Y")
+            image_in = DockerImageCreateSchema(
+                uid=uid,
+                name=name,
+                status=BuildStatusType.BUILDING,
+                log="",
+                image_meta=ImageMetadataType(
+                    display_name=name,
+                    repo=repo,
+                    ref=ref,
+                    cpu_limit=cpu,
+                    mem_limit=memory,
+                    creation_date=creation_date,
+                    owner=owner,
+                    node_selector=node_selector,
+                ),
+            )
+            async with db_context() as db:
+                await image_db_manager.create(db, image_in)
 
         self.set_status(200)
         self.set_header("content-type", "application/json")

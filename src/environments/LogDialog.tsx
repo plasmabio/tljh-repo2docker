@@ -8,7 +8,14 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import { Fragment, memo, useCallback, useRef, useState } from 'react';
+import {
+  Fragment,
+  memo,
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
 import urlJoin from 'url-join';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
@@ -33,6 +40,9 @@ function _EnvironmentLogButton(props: IEnvironmentLogButton) {
   const [open, setOpen] = useState(false);
   const [buildResult, setBuildResult] = useState<'built' | 'failed' | null>(
     null
+  );
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>(
+    'idle'
   );
   const divRef = useRef<HTMLDivElement>(null);
   const terminalRef = useRef<{ terminal: Terminal; fitAddon: FitAddon }>(
@@ -103,7 +113,7 @@ function _EnvironmentLogButton(props: IEnvironmentLogButton) {
     }
   }, [jhData, props.image]);
 
-  const handleCopy = useCallback(() => {
+  const handleCopy = useCallback(async () => {
     const { terminal } = terminalRef.current;
     const hadSelection = terminal.hasSelection();
     if (!hadSelection) {
@@ -116,8 +126,39 @@ function _EnvironmentLogButton(props: IEnvironmentLogButton) {
     if (!text) {
       return;
     }
-    void navigator.clipboard.writeText(text);
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        // Fallback for non-secure contexts (e.g. JupyterHub served over HTTP
+        // on a non-localhost host) where navigator.clipboard is unavailable.
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(textarea);
+        if (!ok) {
+          throw new Error('execCommand copy failed');
+        }
+      }
+      setCopyState('copied');
+    } catch (err) {
+      console.error('Failed to copy logs', err);
+      setCopyState('error');
+    }
   }, []);
+
+  useEffect(() => {
+    if (copyState === 'idle') {
+      return;
+    }
+    const handle = window.setTimeout(() => setCopyState('idle'), 2000);
+    return () => window.clearTimeout(handle);
+  }, [copyState]);
 
   const handleClose = (
     event?: any,
@@ -214,7 +255,13 @@ function _EnvironmentLogButton(props: IEnvironmentLogButton) {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCopy}>Copy logs</Button>
+          <Button onClick={handleCopy}>
+            {copyState === 'copied'
+              ? 'Copied!'
+              : copyState === 'error'
+                ? 'Copy failed'
+                : 'Copy logs'}
+          </Button>
           <Button variant="contained" onClick={handleClose}>
             Close
           </Button>
