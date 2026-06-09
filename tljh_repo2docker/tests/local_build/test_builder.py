@@ -12,7 +12,7 @@ from ..utils import add_environment, api_request, remove_environment, wait_for_i
 
 def _insert_image_row(*, uid, name, status, display_name=None, repo="https://example.com/repo", ref="HEAD"):
     """Insert an image row directly in the sqlite DB used by the test service."""
-    engine = sa.create_engine("sqlite:///tljh_repo2docker.sqlite")
+    engine = sa.create_engine("sqlite:///test_tljh_repo2docker.sqlite")
     with engine.begin() as conn:
         conn.execute(
             sa.insert(DockerImageSQL).values(
@@ -36,7 +36,7 @@ def _insert_image_row(*, uid, name, status, display_name=None, repo="https://exa
 
 
 def _read_image_row(uid):
-    engine = sa.create_engine("sqlite:///tljh_repo2docker.sqlite")
+    engine = sa.create_engine("sqlite:///test_tljh_repo2docker.sqlite")
     with engine.begin() as conn:
         row = conn.execute(
             sa.select(DockerImageSQL).where(DockerImageSQL.uid == uid)

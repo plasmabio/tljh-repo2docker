@@ -79,7 +79,7 @@ async def test_logs_failed_image(app, image_name):
     uid = uuid4()
     error_msg = "Build failed: invalid Dockerfile"
 
-    engine = create_async_engine("sqlite+aiosqlite:///tljh_repo2docker.sqlite")
+    engine = create_async_engine("sqlite+aiosqlite:///test_tljh_repo2docker.sqlite")
     maker = async_sessionmaker(
         engine,
         class_=AsyncSession,

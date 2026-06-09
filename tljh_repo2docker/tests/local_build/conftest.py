@@ -18,6 +18,9 @@ def image_name():
     return "tljh-repo2docker-test:HEAD"
 
 
+TEST_DB_URL = "sqlite:///test_tljh_repo2docker.sqlite"
+
+
 @pytest.fixture
 async def app(hub_app):
     config = Config()
@@ -36,6 +39,7 @@ async def app(hub_app):
                     "127.0.0.1",
                     "--port",
                     "6789",
+                    f"--TljhRepo2Docker.db_url={TEST_DB_URL}",
                 ],
                 "oauth_no_confirm": True,
             }
@@ -60,7 +64,7 @@ def clean_db():
     """Delete all DB entries after each test to avoid cross-test contamination."""
     yield
     try:
-        engine = sa.create_engine("sqlite:///tljh_repo2docker.sqlite")
+        engine = sa.create_engine(TEST_DB_URL)
         with engine.begin() as conn:
             conn.execute(sa.delete(DockerImageSQL))
         engine.dispose()

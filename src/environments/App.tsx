@@ -93,7 +93,13 @@ export default function App(props: IAppProps) {
         path: ENV_PREFIX
       });
       if (response?.status === 200 && Array.isArray(response.data?.images)) {
-        setImages(response.data.images);
+        const next = response.data.images;
+        // Keep the previous reference when nothing changed so React bails out
+        // of the re-render. Otherwise every poll re-lays out the DataGrid,
+        // briefly collapsing flex columns and flaking screenshot tests.
+        setImages(prev =>
+          JSON.stringify(prev) === JSON.stringify(next) ? prev : next
+        );
       }
     } catch (err) {
       console.warn('Failed to refresh environments list', err);
