@@ -251,3 +251,37 @@ async def test_get_environments_returns_json(app, minimal_repo, image_name):
     entry = entries_with_name[0]
     for field in ("image_name", "status", "repo", "ref"):
         assert field in entry
+
+
+@pytest.mark.asyncio
+async def test_get_environments_serializes_db_only_entries(app):
+    # DB-only rows (no matching Docker image) exercise the _enrich_with_db
+    # `extra` branch. They carry an enum status and image_meta fields that
+    # must all be JSON-serializable.
+    failed_uid = uuid4()
+    building_uid = uuid4()
+    _insert_image_row(
+        uid=failed_uid,
+        name="failed-only:abc",
+        status=BuildStatusType.FAILED,
+        display_name="failed-only",
+    )
+    _insert_image_row(
+        uid=building_uid,
+        name="building-only:abc",
+        status=BuildStatusType.BUILDING,
+        display_name="building-only",
+    )
+
+    r = await api_request(app, "environments", method="get")
+    assert r.status_code == 200
+    payload = r.json()
+
+    by_name = {img.get("display_name"): img for img in payload["images"]}
+    assert "failed-only" in by_name, payload
+    assert "building-only" in by_name, payload
+
+    assert by_name["failed-only"]["status"] == BuildStatusType.FAILED.value
+    assert by_name["failed-only"]["uid"] == str(failed_uid)
+    assert by_name["building-only"]["status"] == BuildStatusType.BUILDING.value
+    assert by_name["building-only"]["uid"] == str(building_uid)
