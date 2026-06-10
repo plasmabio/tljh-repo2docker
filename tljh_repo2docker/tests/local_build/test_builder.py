@@ -7,7 +7,13 @@ from aiodocker import Docker, DockerError
 from tljh_repo2docker.database.model import DockerImageSQL
 from tljh_repo2docker.database.schemas import BuildStatusType
 
-from ..utils import add_environment, api_request, remove_environment, wait_for_image
+from ..utils import (
+    add_environment,
+    api_request,
+    remove_environment,
+    wait_for_build_status,
+    wait_for_image,
+)
 
 
 def _insert_image_row(*, uid, name, status, display_name=None, repo="https://example.com/repo", ref="HEAD"):
@@ -210,6 +216,9 @@ async def test_rebuild_existing_env_reuses_uid(app, minimal_repo, image_name):
     assert r.status_code == 200
     uid = r.json()["uid"]
     await wait_for_image(image_name=image_name)
+    # The image is tagged before the DB status flips to BUILT; wait for the
+    # persisted status so the rebuild below isn't rejected with 409.
+    assert await wait_for_build_status(app, uid=uid) is not None
 
     # Remove the locally built image so wait_for_image after rebuild has
     # something to look for.

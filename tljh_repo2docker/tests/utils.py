@@ -105,6 +105,26 @@ async def wait_for_image(*, image_name):
     return None
 
 
+async def wait_for_build_status(app, *, uid, status="built", retries=120):
+    """Poll the environments API until the entry ``uid`` reaches ``status``.
+
+    ``wait_for_image`` only guarantees the Docker image is tagged, which happens
+    before the build container exits and before the DB status is flipped to
+    ``built``. Triggering a rebuild in that window returns 409 (build in
+    progress), so tests must wait for the persisted status, not just the image.
+    """
+    for _ in range(retries):
+        r = await api_request(app, "environments", method="get")
+        if r.status_code == 200:
+            for img in r.json().get("images", []):
+                if img.get("uid") == uid:
+                    if img.get("status") == status:
+                        return img
+                    break
+        await asyncio.sleep(1)
+    return None
+
+
 async def remove_environment(app, *, image_name):
     """Use the DELETE endpoint to remove an environment"""
     r = await api_request(
