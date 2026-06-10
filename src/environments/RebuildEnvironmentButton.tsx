@@ -2,6 +2,7 @@ import ReplayIcon from '@mui/icons-material/Replay';
 import { IconButton, Tooltip } from '@mui/material';
 import { Fragment, memo, useCallback, useMemo, useState } from 'react';
 
+import { useJupyterhub } from '../common/JupyterhubContext';
 import {
   EnvironmentFormDialog,
   IEnvironmentDialogConfigProps,
@@ -11,9 +12,11 @@ import { IEnvironmentData } from './types';
 
 interface IRebuildEnvironmentButtonProps extends IEnvironmentDialogConfigProps {
   environment: IEnvironmentData;
+  onRefresh?: () => void;
 }
 
 function _RebuildEnvironmentButton(props: IRebuildEnvironmentButtonProps) {
+  const jhData = useJupyterhub();
   const [open, setOpen] = useState(false);
   const handleOpen = useCallback(() => setOpen(true), []);
   const handleClose = useCallback(() => setOpen(false), []);
@@ -34,6 +37,12 @@ function _RebuildEnvironmentButton(props: IRebuildEnvironmentButtonProps) {
     return null;
   }
 
+  // Only the owner of an environment can rebuild it. Admins viewing others'
+  // envs still see the row but not the rebuild action.
+  if (props.environment.owner !== jhData.user) {
+    return null;
+  }
+
   return (
     <Fragment>
       <Tooltip title="Rebuild environment">
@@ -44,6 +53,7 @@ function _RebuildEnvironmentButton(props: IRebuildEnvironmentButtonProps) {
       <EnvironmentFormDialog
         open={open}
         onClose={handleClose}
+        onRefresh={props.onRefresh}
         default_cpu_limit={props.default_cpu_limit}
         default_mem_limit={props.default_mem_limit}
         machine_profiles={props.machine_profiles}

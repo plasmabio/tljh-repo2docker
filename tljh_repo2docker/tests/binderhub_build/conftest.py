@@ -15,7 +15,7 @@ binderhub_service_name = "binder"
 binderhub_config = ROOT / "ui-tests" / "binderhub_config.py"
 tljh_repo2docker_config = ROOT / "ui-tests" / "tljh_repo2docker_binderhub.py"
 
-db_url = "sqlite:///tljh_repo2docker.sqlite"
+db_url = "sqlite:///test_tljh_repo2docker.sqlite"
 
 
 @pytest.fixture(scope="module")
@@ -61,6 +61,7 @@ async def app(hub_app):
                     "6789",
                     "--binderhub_url",
                     "http://localhost:8585/@/space%20word/services/binder/",
+                    f"--TljhRepo2Docker.db_url={db_url}",
                 ],
                 "oauth_no_confirm": True,
             },
@@ -88,6 +89,9 @@ async def app(hub_app):
 @pytest.fixture(scope="session")
 def db_session():
     engine = sa.create_engine(db_url)
+    # This fixture is session-scoped and may run before the service has
+    # created the schema, so ensure the table exists before querying it.
+    DockerImageSQL.metadata.create_all(engine)
     Session = sessionmaker(
         bind=engine,
         expire_on_commit=False,

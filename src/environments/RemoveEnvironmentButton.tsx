@@ -10,25 +10,25 @@ import { ENV_PREFIX } from './types';
 interface IRemoveEnvironmentButton {
   name: string;
   image: string;
+  onRefresh?: () => void;
 }
 
 function _RemoveEnvironmentButton(props: IRemoveEnvironmentButton) {
+  const { image, onRefresh } = props;
   const axios = useAxios();
 
   const removeEnv = useCallback(async () => {
     const response = await axios.serviceClient.request({
       method: 'delete',
       path: ENV_PREFIX,
-      data: { name: props.image }
+      data: { name: image }
     });
     if (response?.status === 200) {
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
+      onRefresh?.();
     } else {
       console.error(response);
     }
-  }, [props.image, axios]);
+  }, [image, onRefresh, axios]);
 
   return (
     <ButtonWithConfirm

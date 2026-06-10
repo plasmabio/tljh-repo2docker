@@ -27,6 +27,7 @@ export interface IEnvironmentListProps {
   repo_providers?: { label: string; value: string }[];
   hideRemoveButton?: boolean;
   hideRebuildButton?: boolean;
+  onRefresh?: () => void;
   pageSize?: number;
   selectable?: boolean;
   rowSelectionModel?: GridRowSelectionModel;
@@ -154,6 +155,7 @@ function _EnvironmentList(props: IEnvironmentListProps) {
           return (
             <RebuildEnvironmentButton
               environment={params.row}
+              onRefresh={props.onRefresh}
               {...dialogConfig}
             />
           );
@@ -171,12 +173,13 @@ function _EnvironmentList(props: IEnvironmentListProps) {
             <RemoveEnvironmentButton
               name={params.row.display_name}
               image={params.row.uid ?? params.row.image_name}
+              onRefresh={props.onRefresh}
             />
           );
         }
       }
     ],
-    [dialogConfig]
+    [dialogConfig, props.onRefresh]
   );
 
   const [columnVisibility, setColumnVisibility] =
