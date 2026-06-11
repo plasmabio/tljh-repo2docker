@@ -34,8 +34,14 @@ function _ButtonWithConfirm(props: IButtonWithConfirm) {
 
   const removeEnv = useCallback(async () => {
     setLoading(true);
-    await props.action();
-    handleClose();
+    try {
+      await props.action();
+    } finally {
+      // Always clear the spinner, otherwise a reused dialog instance (e.g.
+      // recycled by the DataGrid) reopens already showing the loading state.
+      setLoading(false);
+      handleClose();
+    }
   }, [props, setLoading]);
 
   return (

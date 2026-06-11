@@ -515,17 +515,21 @@ function _NewEnvironmentDialog(props: INewEnvironmentDialogProps) {
         </Button>
       </Box>
 
-      <EnvironmentFormDialog
-        open={open}
-        onClose={handleClose}
-        onRefresh={props.onRefresh}
-        default_cpu_limit={props.default_cpu_limit}
-        default_mem_limit={props.default_mem_limit}
-        machine_profiles={props.machine_profiles}
-        node_selector={props.node_selector}
-        use_binderhub={props.use_binderhub}
-        repo_providers={props.repo_providers}
-      />
+      {/* Mount on demand so the form state is reset on every open instead of
+          keeping the values typed during the previous creation. */}
+      {open && (
+        <EnvironmentFormDialog
+          open={open}
+          onClose={handleClose}
+          onRefresh={props.onRefresh}
+          default_cpu_limit={props.default_cpu_limit}
+          default_mem_limit={props.default_mem_limit}
+          machine_profiles={props.machine_profiles}
+          node_selector={props.node_selector}
+          use_binderhub={props.use_binderhub}
+          repo_providers={props.repo_providers}
+        />
+      )}
     </Fragment>
   );
 }
