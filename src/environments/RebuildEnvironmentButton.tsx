@@ -27,7 +27,10 @@ function _RebuildEnvironmentButton(props: IRebuildEnvironmentButtonProps) {
       ref: props.environment.ref,
       name: props.environment.display_name,
       cpu: props.environment.cpu_limit,
-      memory: props.environment.mem_limit,
+      // mem_limit comes from the Docker label formatted as "<n>G" (see
+      // docker.py); the form and backend expect a plain number in GB, so strip
+      // the unit suffix to avoid a "Memory Limit must be a number" error.
+      memory: props.environment.mem_limit?.replace(/G$/, ''),
       buildargs: props.environment.buildargs
     }),
     [props.environment]
