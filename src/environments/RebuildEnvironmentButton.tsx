@@ -53,19 +53,21 @@ function _RebuildEnvironmentButton(props: IRebuildEnvironmentButtonProps) {
           <ReplayIcon />
         </IconButton>
       </Tooltip>
-      <EnvironmentFormDialog
-        open={open}
-        onClose={handleClose}
-        onRefresh={props.onRefresh}
-        default_cpu_limit={props.default_cpu_limit}
-        default_mem_limit={props.default_mem_limit}
-        machine_profiles={props.machine_profiles}
-        node_selector={props.node_selector}
-        use_binderhub={props.use_binderhub}
-        repo_providers={props.repo_providers}
-        initialValues={initialValues}
-        rebuildUid={props.environment.uid}
-      />
+      {open && (
+        <EnvironmentFormDialog
+          open={open}
+          onClose={handleClose}
+          onRefresh={props.onRefresh}
+          default_cpu_limit={props.default_cpu_limit}
+          default_mem_limit={props.default_mem_limit}
+          machine_profiles={props.machine_profiles}
+          node_selector={props.node_selector}
+          use_binderhub={props.use_binderhub}
+          repo_providers={props.repo_providers}
+          initialValues={initialValues}
+          rebuildUid={props.environment.uid}
+        />
+      )}
     </Fragment>
   );
 }

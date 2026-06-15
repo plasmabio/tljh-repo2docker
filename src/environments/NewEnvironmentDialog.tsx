@@ -116,9 +116,25 @@ function _EnvironmentFormDialog(props: IEnvironmentFormDialogProps) {
     },
     [setFormValues]
   );
+  // Reject names that are not valid Docker image references, otherwise the
+  // build fails with "is not a valid docker image name". The name is checked
+  // as typed (we don't silently rewrite the user's input): it must start and
+  // end with a letter or digit and only use . _ - as separators in between.
+  const nameError = useMemo(() => {
+    const raw = (formValues.name ?? '').trim();
+    if (!raw) {
+      // Optional: when left empty the name is derived from the repo URL.
+      return null;
+    }
+    if (!/^[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*$/.test(raw)) {
+      return 'Invalid name: must start and end with a letter or digit and may only contain . _ - in between.';
+    }
+    return null;
+  }, [formValues.name]);
+
   const validated = useMemo(() => {
-    return Boolean(formValues.repo);
-  }, [formValues.repo]);
+    return Boolean(formValues.repo) && !nameError;
+  }, [formValues.repo, nameError]);
 
   const [selectedProfile, setSelectedProfile] = useState<number>(0);
   const [selectedProvider, setSelectedProvider] = useState<number>(0);
@@ -408,6 +424,8 @@ function _EnvironmentFormDialog(props: IEnvironmentFormDialogProps) {
           required={false}
           placeholder="Example: course-python-101-B37"
           disabled={isRebuild}
+          error={Boolean(nameError)}
+          helperText={nameError ?? undefined}
           value={formValues.name ?? ''}
           onChange={e => updateFormValue('name', e.target.value)}
         />

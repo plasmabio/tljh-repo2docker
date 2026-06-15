@@ -84,6 +84,11 @@ def compute_image_name(repo, ref, name):
         ref = ref[:7]
     name = name or urlparse(repo).path.strip("/")
     name = name.lower().replace("/", "-")
+    # Docker image names must start and end with an alphanumeric character. A
+    # trailing slash in the repo URL becomes a trailing "-" here, which
+    # repo2docker rejects ("is not a valid docker image name"), so strip any
+    # leading/trailing separators.
+    name = name.strip("-_.")
     return f"{name}:{ref}", ref, name
 
 

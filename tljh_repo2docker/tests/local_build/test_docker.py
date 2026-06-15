@@ -53,6 +53,18 @@ def test_compute_image_name_lowercases_explicit_name():
     assert name == "myenv"
 
 
+def test_compute_image_name_strips_trailing_separator():
+    # A trailing slash in the name turns into a trailing "-" which Docker
+    # rejects; it must be stripped.
+    image_name, _, name = compute_image_name(
+        "https://github.com/jupyter-xeus/xeus-octave/",
+        "HEAD",
+        "github-com-jupyter-xeus-xeus-octave-",
+    )
+    assert name == "github-com-jupyter-xeus-xeus-octave"
+    assert image_name == "github-com-jupyter-xeus-xeus-octave:HEAD"
+
+
 def test_embed_credentials_https():
     out = _embed_credentials("https://github.com/foo/bar.git", "alice", "s3cret")
     assert out == "https://alice:s3cret@github.com/foo/bar.git"
