@@ -263,6 +263,27 @@ async def test_get_environments_returns_json(app, minimal_repo, image_name):
 
 
 @pytest.mark.asyncio
+async def test_build_image_list_dedupes_rebuilding_image(monkeypatch):
+    from tljh_repo2docker import environments
+
+    async def fake_list_images():
+        return [{"image_name": "env:HEAD", "status": "built"}]
+
+    async def fake_list_containers():
+        return [{"image_name": "env:HEAD", "status": "building"}]
+
+    monkeypatch.setattr(environments, "list_images", fake_list_images)
+    monkeypatch.setattr(environments, "list_containers", fake_list_containers)
+
+    class _Handler:
+        use_binderhub = False
+        settings: dict = {}
+
+    result = await environments.build_image_list(_Handler())
+    assert result == [{"image_name": "env:HEAD", "status": "building"}]
+
+
+@pytest.mark.asyncio
 async def test_get_environments_serializes_db_only_entries(app):
     # DB-only rows (no matching Docker image) exercise the _enrich_with_db
     # `extra` branch. They carry an enum status and image_meta fields that
