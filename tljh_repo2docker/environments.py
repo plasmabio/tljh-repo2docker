@@ -18,6 +18,9 @@ async def build_image_list(handler):
 
     images = await list_images()
     containers = await list_containers()
+
+    building_names = {container["image_name"] for container in containers}
+    images = [img for img in images if img["image_name"] not in building_names]
     all_images = images + containers
 
     db_context = handler.settings.get("db_context")
