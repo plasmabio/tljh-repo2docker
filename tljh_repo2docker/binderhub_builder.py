@@ -129,7 +129,7 @@ class BinderHubBuildHandler(BaseHandler):
         name = data["name"].lower()
         memory = data["memory"]
         cpu = data["cpu"]
-        provider = data["provider"]
+        provider = data.get("provider", "git")
         node_selector = data.get("node_selector", {})
         rebuild_uid_raw = data.get("uid")
         owner = self.get_current_user().get("name", "unknow")

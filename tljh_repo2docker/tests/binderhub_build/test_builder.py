@@ -150,9 +150,10 @@ async def test_wrong_name(app, minimal_repo):
 
 
 @pytest.mark.asyncio
-async def test_missing_provider(app, minimal_repo):
+async def test_missing_provider_defaults_to_git(app, minimal_repo):
+    # A missing provider defaults to "git" server-side, so the build succeeds.
     r = await add_environment(app, repo=minimal_repo, name="foobar")
-    assert r.status_code == 500
+    assert r.status_code == 200
 
 
 @pytest.mark.asyncio

@@ -191,17 +191,15 @@ function _EnvironmentFormDialog(props: IEnvironmentFormDialogProps) {
   );
 
   useEffect(() => {
-    // In rebuild mode, the form is pre-filled with the existing environment
-    // values and must not be overwritten by the default-profile/provider/node
-    // selectors initialization below.
+    // Provider is not carried in rebuild's initialValues, init on both paths.
+    if (props.repo_providers && props.repo_providers.length > 0) {
+      onRepoProviderChange(0);
+    }
     if (isRebuild) {
       return;
     }
     if (props.machine_profiles.length > 0) {
       onMachineProfileChange(0);
-    }
-    if (props.repo_providers && props.repo_providers.length > 0) {
-      onRepoProviderChange(0);
     }
     if (props.node_selector) {
       Object.entries(props.node_selector).forEach(([key, option]) => {
