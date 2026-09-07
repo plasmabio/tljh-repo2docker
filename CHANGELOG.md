@@ -79,6 +79,25 @@ You can find below the list of changes since the creation of the plugin.
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.17
+
+([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v3.0.16...c010d1a810c7d54198ce26ec6b847217ff1bad0a))
+
+### Merged PRs
+
+- Upgrade JavaScript dependencies [#2214](https://github.com/plasmabio/tljh-repo2docker/pull/2214) ([@djangoliv](https://github.com/djangoliv))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2026-07-29&to=2026-09-07&type=c))
+
+@djangoliv ([activity](https://github.com/search?q=repo%3Aplasmabio%2Ftljh-repo2docker+involves%3Adjangoliv+updated%3A2026-07-29..2026-09-07&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.16
 
 ([Full Changelog](https://github.com/plasmabio/tljh-repo2docker/compare/v3.0.15))
@@ -89,8 +108,6 @@ The following people contributed discussions, new ideas, code and documentation 
 See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
 
 ([GitHub contributors page for this release](https://github.com/plasmabio/tljh-repo2docker/graphs/contributors?from=2026-06-15&to=2026-07-29&type=c))
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.15
 
