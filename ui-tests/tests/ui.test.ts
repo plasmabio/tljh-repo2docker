@@ -1,5 +1,10 @@
 import { expect, test, Page } from '@playwright/test';
 
+// How long a repo2docker build may take. Tests waiting this long must raise
+// their own timeout, or playwright.config.js caps the wait and hides the
+// failing locator behind "Test timeout exceeded".
+const BUILD_TIMEOUT = 1600000;
+
 async function login(page: Page, user: string) {
   await page.goto('hub/login');
   await page.getByText('Sign in');
@@ -82,6 +87,7 @@ test.describe('tljh_repo2docker UI Tests', () => {
   });
 
   test('Create new environments', async ({ page }) => {
+    test.setTimeout(BUILD_TIMEOUT + 120000);
     await login(page, 'alice');
     await page.goto('/services/tljh_repo2docker/environments');
     await page.waitForTimeout(1000);
@@ -105,11 +111,11 @@ test.describe('tljh_repo2docker UI Tests', () => {
       .click();
     if (process.env.CONFIG_FILE === 'binderhub') {
       await page.waitForSelector('span:has-text("Successfully tagged")', {
-        timeout: 1600000
+        timeout: BUILD_TIMEOUT
       });
     } else {
       await page.waitForSelector('span:has-text("naming to docker")', {
-        timeout: 1600000
+        timeout: BUILD_TIMEOUT
       });
     }
 
@@ -211,6 +217,9 @@ test.describe('tljh_repo2docker UI Tests', () => {
     // Last test on purpose: it adds an environment, which would change the
     // snapshots of the tests above.
     const isBinderhub = process.env.CONFIG_FILE === 'binderhub';
+    // Only the local backend really builds here, see the repository below.
+    const statusTimeout = isBinderhub ? 120000 : BUILD_TIMEOUT;
+    test.setTimeout(statusTimeout + 120000);
     await login(page, 'alice');
     await page.goto('/services/tljh_repo2docker/environments');
     await page.waitForTimeout(1000);
@@ -223,7 +232,14 @@ test.describe('tljh_repo2docker UI Tests', () => {
     }
     await page
       .getByLabel('Repository URL *')
-      .fill('https://github.com/plasmabio/tljh-repo2docker-test-binder');
+      // Only the dialog pre-fill is under test, so with the GitLab provider
+      // point at a missing GitLab repository: the build fails right away, and
+      // the rebuild action is offered on failed entries too.
+      .fill(
+        isBinderhub
+          ? 'https://gitlab.com/plasmabio/no-such-repository'
+          : 'https://github.com/plasmabio/tljh-repo2docker-test-binder'
+      );
     await page
       .getByPlaceholder('Example: course-python-101-B37')
       .fill('rebuild-check');
@@ -236,13 +252,16 @@ test.describe('tljh_repo2docker UI Tests', () => {
     await page.getByRole('button', { name: 'Create Environment' }).click();
     await page.waitForURL('**/environments');
 
-    // The rebuild action is only offered to the owner. With the local backend
-    // a building environment is listed from its build container, which has no
-    // owner label, so the button shows up once the image is built.
-    await page
-      .getByRole('row', { name: /rebuild-check/ })
-      .getByRole('button', { name: 'Rebuild environment' })
-      .click({ timeout: 1600000 });
+    // With the local backend a building environment is listed from its build
+    // container, which has no owner label, so the rebuild action only shows up
+    // once the build is over: wait for the terminal status first.
+    const row = page.getByRole('row', { name: /rebuild-check/ });
+    await expect(
+      row.getByRole('button', {
+        name: isBinderhub ? 'View error logs' : 'View build logs'
+      })
+    ).toBeVisible({ timeout: statusTimeout });
+    await row.getByRole('button', { name: 'Rebuild environment' }).click();
     await expect(page.locator('#machine-profiles-select')).toHaveText(/Medium/);
     await expect(page.locator('#gpu-select')).toHaveText('no');
     await expect(page.locator('#ssd-select')).toHaveText('no');
