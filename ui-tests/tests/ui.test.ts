@@ -206,4 +206,48 @@ test.describe('tljh_repo2docker UI Tests', () => {
       'environment-removed.png'
     );
   });
+
+  test('Rebuild dialog restores the build settings', async ({ page }) => {
+    // Last test on purpose: it adds an environment, which would change the
+    // snapshots of the tests above.
+    const isBinderhub = process.env.CONFIG_FILE === 'binderhub';
+    await login(page, 'alice');
+    await page.goto('/services/tljh_repo2docker/environments');
+    await page.waitForTimeout(1000);
+    await page.getByRole('button', { name: 'Create new environment' }).click();
+    // Pick non-default values everywhere, so a dialog falling back to the
+    // first option cannot pass.
+    if (isBinderhub) {
+      await page.locator('#git-provider-select').click();
+      await page.getByRole('option', { name: 'GitLab' }).click();
+    }
+    await page
+      .getByLabel('Repository URL *')
+      .fill('https://github.com/plasmabio/tljh-repo2docker-test-binder');
+    await page
+      .getByPlaceholder('Example: course-python-101-B37')
+      .fill('rebuild-check');
+    await page.locator('#machine-profiles-select').click();
+    await page.getByRole('option', { name: /^Medium/ }).click();
+    for (const key of ['gpu', 'ssd']) {
+      await page.locator(`#${key}-select`).click();
+      await page.getByRole('option', { name: 'no', exact: true }).click();
+    }
+    await page.getByRole('button', { name: 'Create Environment' }).click();
+    await page.waitForURL('**/environments');
+
+    // The rebuild action is only offered to the owner. With the local backend
+    // a building environment is listed from its build container, which has no
+    // owner label, so the button shows up once the image is built.
+    await page
+      .getByRole('row', { name: /rebuild-check/ })
+      .getByRole('button', { name: 'Rebuild environment' })
+      .click({ timeout: 1600000 });
+    await expect(page.locator('#machine-profiles-select')).toHaveText(/Medium/);
+    await expect(page.locator('#gpu-select')).toHaveText('no');
+    await expect(page.locator('#ssd-select')).toHaveText('no');
+    if (isBinderhub) {
+      await expect(page.locator('#git-provider-select')).toHaveText('GitLab');
+    }
+  });
 });

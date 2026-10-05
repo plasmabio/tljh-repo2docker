@@ -211,6 +211,7 @@ class BinderHubBuildHandler(BaseHandler):
                     creation_date=creation_date,
                     owner=existing_entry.image_meta.owner,
                     node_selector=node_selector,
+                    provider=provider,
                 ),
             )
             async with db_context() as db:
@@ -232,6 +233,7 @@ class BinderHubBuildHandler(BaseHandler):
                     creation_date=creation_date,
                     owner=owner,
                     node_selector=node_selector,
+                    provider=provider,
                 ),
             )
             async with db_context() as db:
