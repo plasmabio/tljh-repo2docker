@@ -4,7 +4,7 @@ import {
   GridRowSelectionModel,
   GridColumnVisibilityModel
 } from '@mui/x-data-grid';
-import { IEnvironmentData } from './types';
+import { environmentId, IEnvironmentData } from './types';
 import { memo, useMemo, useState } from 'react';
 
 import { Box } from '@mui/system';
@@ -197,8 +197,10 @@ function _EnvironmentList(props: IEnvironmentListProps) {
     });
 
   const rows = useMemo(() => {
-    return props.images.map((it, id) => {
-      const newItem = { ...it, id };
+    // A stable id: the list is polled, and an index would make an open dialog
+    // point at another environment as soon as one is created or removed.
+    return props.images.map(it => {
+      const newItem = { ...it, id: environmentId(it) };
       newItem.cpu_limit =
         newItem.cpu_limit.length > 0
           ? newItem.cpu_limit

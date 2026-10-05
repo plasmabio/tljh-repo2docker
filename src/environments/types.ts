@@ -17,3 +17,11 @@ export interface IEnvironmentData {
   // Docker label (local backend).
   node_selector?: { [key: string]: string } | string;
 }
+
+/**
+ * Stable identifier, used as the grid row id. uid is absent on entries that
+ * only exist as a Docker image.
+ */
+export function environmentId(it: IEnvironmentData): string {
+  return it.uid ?? it.image_name;
+}
