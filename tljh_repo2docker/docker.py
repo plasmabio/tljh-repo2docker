@@ -202,6 +202,10 @@ async def build_image(
     # creation_date
     creation_date = datetime.now().strftime("%d/%m/%Y")
 
+    # repo2docker renders image labels as `LABEL key="value"`, so the value
+    # cannot hold a double quote: a repr of strings, not JSON.
+    repr_node_selector = {str(k): str(v) for k, v in (node_selector or {}).items()}
+
     # add extra labels to set additional image properties
     labels = [
         f"tljh_repo2docker.display_name={name}",
@@ -210,7 +214,7 @@ async def build_image(
         f"tljh_repo2docker.owner={owner}",
         f"tljh_repo2docker.mem_limit={memory}",
         f"tljh_repo2docker.cpu_limit={cpu}",
-        f"tljh_repo2docker.node_selector={node_selector}",
+        f"tljh_repo2docker.node_selector={repr_node_selector}",
     ]
     cmd = [
         "jupyter-repo2docker",

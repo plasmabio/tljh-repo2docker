@@ -20,6 +20,9 @@ class ImageMetadataType(BaseModel):
     mem_limit: str
     node_selector: dict
     buildargs: Optional[str] = None
+    # BinderHub repo provider (e.g. "git", "gl"), so a rebuild can reuse it.
+    # None for entries created before it was persisted.
+    provider: Optional[str] = None
 
 
 class DockerImageCreateSchema(BaseModel):

@@ -26,6 +26,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState
 } from 'react';
 
@@ -92,6 +93,12 @@ function _EnvironmentFormDialog(props: IEnvironmentFormDialogProps) {
     () => props.initialValues ?? {}
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // Snapshot at mount: the environment list is polled every 5 s, which hands
+  // the dialog a new initialValues object; re-applying it would reset the
+  // dropdowns while the user is editing them.
+  const initialValuesRef = useRef<Partial<IFormValues>>(
+    props.initialValues ?? {}
+  );
 
   const handleClose = (
     event?: any,
@@ -191,19 +198,41 @@ function _EnvironmentFormDialog(props: IEnvironmentFormDialogProps) {
   );
 
   useEffect(() => {
-    // Provider is not carried in rebuild's initialValues, init on both paths.
+    // On rebuild, select what the environment was built with. Fall back to
+    // the first option when a value was never stored (provider on older
+    // entries) or is no longer offered, so the dropdowns always show exactly
+    // what will be submitted.
+    const initial = isRebuild ? initialValuesRef.current : {};
     if (props.repo_providers && props.repo_providers.length > 0) {
-      onRepoProviderChange(0);
-    }
-    if (isRebuild) {
-      return;
+      const index = props.repo_providers.findIndex(
+        it => it.value === initial.provider
+      );
+      onRepoProviderChange(Math.max(index, 0));
     }
     if (props.machine_profiles.length > 0) {
-      onMachineProfileChange(0);
+      const index = isRebuild
+        ? props.machine_profiles.findIndex(
+            it =>
+              String(it.cpu) === String(initial.cpu) &&
+              String(it.memory) === String(initial.memory)
+          )
+        : -1;
+      if (index >= 0) {
+        // cpu/memory are already pre-filled: only sync the dropdown.
+        setSelectedProfile(index);
+      } else {
+        // No profile offers these resources any more: apply the first one, as
+        // the memory and CPU fields are hidden when profiles are configured.
+        onMachineProfileChange(0);
+      }
     }
     if (props.node_selector) {
       Object.entries(props.node_selector).forEach(([key, option]) => {
-        onNodeSelectorChange(key, option.values[0]);
+        const saved = initial.node_selector?.[key];
+        onNodeSelectorChange(
+          key,
+          saved && option.values.includes(saved) ? saved : option.values[0]
+        );
       });
     }
   }, [

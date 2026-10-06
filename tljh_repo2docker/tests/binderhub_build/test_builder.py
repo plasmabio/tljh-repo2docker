@@ -8,10 +8,17 @@ from aiodocker import Docker, DockerError
 from tljh_repo2docker.database.model import DockerImageSQL
 from tljh_repo2docker.database.schemas import BuildStatusType
 
-from ..utils import add_environment, remove_environment, wait_for_image
+from ..utils import (
+    add_environment,
+    api_request,
+    remove_environment,
+    wait_for_image,
+)
 
 
-def _insert_image_row(db_session, *, uid, name, status, display_name=None):
+def _insert_image_row(
+    db_session, *, uid, name, status, display_name=None, **extra_meta
+):
     db_session.execute(
         sa.insert(DockerImageSQL).values(
             uid=uid,
@@ -27,6 +34,7 @@ def _insert_image_row(db_session, *, uid, name, status, display_name=None):
                 "cpu_limit": "",
                 "mem_limit": "",
                 "node_selector": {},
+                **extra_meta,
             },
         )
     )
@@ -65,6 +73,7 @@ async def test_add_environment(
     assert images_db.image_meta["display_name"] == name
     assert images_db.image_meta["ref"] == ref
     assert images_db.image_meta["node_selector"] == node_selector
+    assert images_db.image_meta["provider"] == "git"
 
 
 @pytest.mark.asyncio
@@ -221,5 +230,85 @@ async def test_rebuild_while_building_returns_409(app, minimal_repo, db_session)
     finally:
         db_session.execute(
             sa.delete(DockerImageSQL).where(DockerImageSQL.uid == uid)
+        )
+        db_session.commit()
+
+
+def _read_image_meta(db_session, uid):
+    db_session.expire_all()
+    entry = (
+        db_session.execute(sa.select(DockerImageSQL).where(DockerImageSQL.uid == uid))
+        .scalars()
+        .first()
+    )
+    return entry.image_meta
+
+
+@pytest.mark.asyncio
+async def test_rebuild_persists_provider_and_node_selector(
+    app, minimal_repo, db_session
+):
+    # An entry created before the provider was persisted has no "provider"
+    # key; a rebuild must store the one it was submitted with, along with the
+    # node selector, so the next rebuild dialog can pre-fill both.
+    uid = uuid4()
+    _insert_image_row(
+        db_session,
+        uid=uid,
+        name="legacy:HEAD",
+        display_name="legacy",
+        status=BuildStatusType.BUILT,
+    )
+    node_selector = {"key": "value"}
+    try:
+        r = await add_environment(
+            app,
+            repo=minimal_repo,
+            name="legacy",
+            ref="HEAD",
+            provider="git",
+            node_selector=node_selector,
+            uid=str(uid),
+        )
+        assert r.status_code == 200
+        meta = _read_image_meta(db_session, uid)
+        assert meta["provider"] == "git"
+        assert meta["node_selector"] == node_selector
+    finally:
+        db_session.execute(sa.delete(DockerImageSQL).where(DockerImageSQL.uid == uid))
+        db_session.commit()
+
+
+@pytest.mark.asyncio
+async def test_get_environments_returns_provider(app, db_session):
+    # The rebuild dialog reads provider and node_selector from this listing.
+    # Entries without a stored provider must still load (provider = None).
+    with_provider, without_provider = uuid4(), uuid4()
+    _insert_image_row(
+        db_session,
+        uid=with_provider,
+        name="withprovider:HEAD",
+        status=BuildStatusType.FAILED,
+        provider="gl",
+        node_selector={"key": "value"},
+    )
+    _insert_image_row(
+        db_session,
+        uid=without_provider,
+        name="withoutprovider:HEAD",
+        status=BuildStatusType.FAILED,
+    )
+    try:
+        r = await api_request(app, "environments", method="get")
+        assert r.status_code == 200
+        images = {img["uid"]: img for img in r.json()["images"]}
+        assert images[str(with_provider)]["provider"] == "gl"
+        assert images[str(with_provider)]["node_selector"] == {"key": "value"}
+        assert images[str(without_provider)]["provider"] is None
+    finally:
+        db_session.execute(
+            sa.delete(DockerImageSQL).where(
+                DockerImageSQL.uid.in_([with_provider, without_provider])
+            )
         )
         db_session.commit()

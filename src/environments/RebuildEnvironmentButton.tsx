@@ -10,6 +10,32 @@ import {
 } from './NewEnvironmentDialog';
 import { IEnvironmentData } from './types';
 
+/**
+ * An object from the database (BinderHub), or a Python dict repr from the
+ * image label (local, see docker.py). Unreadable means "not set".
+ */
+function parseNodeSelector(
+  raw: IEnvironmentData['node_selector']
+): { [key: string]: string } | undefined {
+  if (!raw) {
+    return undefined;
+  }
+  if (typeof raw === 'object') {
+    return raw;
+  }
+  for (const text of [raw, raw.replace(/'/g, '"')]) {
+    try {
+      const parsed = JSON.parse(text);
+      if (parsed && typeof parsed === 'object') {
+        return parsed;
+      }
+    } catch {
+      // try the next form
+    }
+  }
+  return undefined;
+}
+
 interface IRebuildEnvironmentButtonProps extends IEnvironmentDialogConfigProps {
   environment: IEnvironmentData;
   onRefresh?: () => void;
@@ -31,7 +57,9 @@ function _RebuildEnvironmentButton(props: IRebuildEnvironmentButtonProps) {
       // docker.py); the form and backend expect a plain number in GB, so strip
       // the unit suffix to avoid a "Memory Limit must be a number" error.
       memory: props.environment.mem_limit?.replace(/G$/, ''),
-      buildargs: props.environment.buildargs
+      buildargs: props.environment.buildargs,
+      provider: props.environment.provider,
+      node_selector: parseNodeSelector(props.environment.node_selector)
     }),
     [props.environment]
   );

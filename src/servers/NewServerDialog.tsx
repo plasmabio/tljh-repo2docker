@@ -66,8 +66,8 @@ function _NewServerDialog(props: INewServerDialogProps) {
   );
 
   const createServer = useCallback(async () => {
-    const imageData = props.images[rowSelectionModel[0] as number];
-    const imageName = imageData.uid ?? imageData.image_name;
+    // The grid row id is the environment id, see environmentId().
+    const imageName = rowSelectionModel[0] as string;
     const data: { [key: string]: string } = {
       imageName,
       userName: jhData.user,
@@ -87,7 +87,7 @@ function _NewServerDialog(props: INewServerDialogProps) {
     }
     window.location.reload();
     setOpen(false);
-  }, [serverName, rowSelectionModel, props.images, axios, jhData]);
+  }, [serverName, rowSelectionModel, axios, jhData]);
   const disabled = useMemo(() => {
     if (rowSelectionModel.length === 0) {
       return true;

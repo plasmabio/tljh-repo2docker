@@ -11,6 +11,12 @@ c.TljhRepo2Docker.node_selector = {
     "ssd": {"description": "SSD description", "values": ["yes", "no"]},
 }
 
+# Two providers so the rebuild test can check a non-default one is restored.
+c.TljhRepo2Docker.repo_providers = [
+    {"label": "Git", "value": "git"},
+    {"label": "GitLab", "value": "gl"},
+]
+
 c.TljhRepo2Docker.binderhub_url = "http://localhost:8585/services/binder/"
 
 c.TljhRepo2Docker.logo_url = "/custom/logo/url"

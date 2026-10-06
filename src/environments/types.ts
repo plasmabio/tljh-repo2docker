@@ -11,4 +11,17 @@ export interface IEnvironmentData {
   status: string;
   uid?: string;
   buildargs?: string;
+  // BinderHub backend only, absent on entries built before it was stored.
+  provider?: string;
+  // An object from the DB (BinderHub backend), a serialized string from the
+  // Docker label (local backend).
+  node_selector?: { [key: string]: string } | string;
+}
+
+/**
+ * Stable identifier, used as the grid row id. uid is absent on entries that
+ * only exist as a Docker image.
+ */
+export function environmentId(it: IEnvironmentData): string {
+  return it.uid ?? it.image_name;
 }
