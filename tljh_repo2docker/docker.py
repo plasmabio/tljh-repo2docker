@@ -5,6 +5,7 @@ from urllib.parse import quote, unquote, urlparse
 
 from aiodocker import Docker, DockerError
 from tornado import web
+from tornado.log import app_log
 
 from .database.schemas import BuildStatusType, DockerImageUpdateSchema
 
@@ -117,6 +118,9 @@ async def list_images():
         }
         for image in r2d_images
         if "tljh_repo2docker.image_name" in image["Labels"]
+        # skip the temporary build tag, which carries the same labels
+        and image["Labels"]["tljh_repo2docker.image_name"]
+        in (image.get("RepoTags") or [])
     ]
     return images
 
@@ -173,6 +177,11 @@ async def get_image_metadata(image_name):
         }
 
 
+def build_tag(image_name):
+    """Temporary name of an image while it is being built"""
+    return f"{image_name}-build"
+
+
 async def _delete_image(docker, name):
     try:
         await docker.images.delete(name, force=True)
@@ -183,30 +192,38 @@ async def _delete_image(docker, name):
 
 async def _publish_image(docker, build_name, image_name, exit_code):
     """Move image_name to the image built as build_name, on success only:
-    a failed rebuild keeps the previous image."""
-    if exit_code != 0:
-        await _delete_image(docker, build_name)
-        return
+    a failed rebuild keeps the previous image. Return whether it was moved."""
     try:
-        previous = (await docker.images.inspect(image_name))["Id"]
-    except DockerError as e:
-        if e.status != 404:
-            raise
-        previous = None
-    repository, tag = image_name.rsplit(":", 1)
-    await docker.images.tag(build_name, repository, tag=tag)
-    # only untags: the image is now also tagged image_name
-    await docker.images.delete(build_name)
-    if previous is None:
-        return
-    previous_image = await docker.images.inspect(previous)
-    # free the space of the replaced image, unless something else tags it
-    if not previous_image.get("RepoTags"):
+        if exit_code != 0:
+            await _delete_image(docker, build_name)
+            return False
         try:
-            await docker.images.delete(previous)
-        except DockerError:
-            # still used by a running server: left dangling, for docker image prune
-            pass
+            previous = (await docker.images.inspect(image_name))["Id"]
+        except DockerError as e:
+            if e.status != 404:
+                raise
+            previous = None
+        repository, tag = image_name.rsplit(":", 1)
+        await docker.images.tag(build_name, repository, tag=tag)
+    except DockerError:
+        app_log.exception("Failed to publish the image built for %s", image_name)
+        return False
+
+    # from here on the new image is published: errors are only logged
+    try:
+        # only untags: the image is now also tagged image_name
+        await docker.images.delete(build_name)
+        if previous is not None:
+            previous_image = await docker.images.inspect(previous)
+            # free the space of the replaced image, unless something else tags it
+            if not previous_image.get("RepoTags"):
+                await docker.images.delete(previous)
+    except DockerError as e:
+        # 409: the replaced image is still used by a running server, and is
+        # left dangling for docker image prune
+        if e.status != 409:
+            app_log.exception("Failed to clean up after publishing %s", image_name)
+    return True
 
 
 async def build_image(
@@ -232,7 +249,7 @@ async def build_image(
     image_name, ref, name = compute_image_name(repo, ref, name)
     # repo2docker skips the build when the image already exists, so a rebuild
     # would keep the old image: build under a temporary tag, moved on success.
-    build_name = f"{image_name}-build"
+    build_name = build_tag(image_name)
 
     # memory is specified in GB
     memory = f"{memory}G" if memory else ""
@@ -372,14 +389,25 @@ async def build_image(
 
                 result = await container.wait()
                 exit_code = result.get("StatusCode", -1)
-                await _publish_image(docker, build_name, image_name, exit_code)
-                status = (
-                    BuildStatusType.BUILT if exit_code == 0 else BuildStatusType.FAILED
+                published = await _publish_image(
+                    docker, build_name, image_name, exit_code
                 )
-                async with db_context() as db:
-                    await image_db_manager.update(
-                        db, DockerImageUpdateSchema(uid=uid, status=status)
+                update = DockerImageUpdateSchema(
+                    uid=uid,
+                    status=(
+                        BuildStatusType.BUILT if published else BuildStatusType.FAILED
+                    ),
+                )
+                if exit_code == 0 and not published:
+                    # keep the build log, it is not what failed
+                    tail_parts.append(
+                        f"\nThe image was built but could not be tagged {image_name}."
+                        " See service logs for details.\n"
                     )
+                    truncated = line_count > LOG_HEAD_LINES + LOG_TAIL_LINES
+                    update.log = _build_log(head_parts, tail_parts, truncated)
+                async with db_context() as db:
+                    await image_db_manager.update(db, update)
             else:
                 # No DB context: drain logs to allow the container to finish
                 async for _ in container.log(stdout=True, stderr=True, follow=True):
