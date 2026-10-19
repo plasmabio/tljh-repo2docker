@@ -7,7 +7,8 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Button
+  Button,
+  useMediaQuery
 } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
@@ -25,6 +26,10 @@ interface IImage {
 
 const ImageTable: React.FC<{ rows: IImage[] }> = ({ rows }) => {
   const theme = useTheme();
+  // On narrow screens, keep the room for the display name: the limits and
+  // the creation date are still shown in the info dialog.
+  const isMedium = useMediaQuery(theme.breakpoints.down('md'));
+  const isSmall = useMediaQuery(theme.breakpoints.down('sm'));
   const [openDialog, setOpenDialog] = useState(false);
   const [imageInfo, setImageInfo] = useState<IImage | null>(null);
 
@@ -66,14 +71,15 @@ const ImageTable: React.FC<{ rows: IImage[] }> = ({ rows }) => {
     {
       field: 'action',
       headerName: '',
-      width: 120,
-      minWidth: 90,
+      width: isMedium ? 76 : 120,
       align: 'center',
       renderCell: params =>
         renderButton(
-          <PlayCircleIcon style={{ fontSize: 28, marginRight: '8px' }} />,
+          <PlayCircleIcon
+            style={{ fontSize: 28, marginRight: isMedium ? 0 : '8px' }}
+          />,
           e => handleStartServer(e, params.row.display_name, params.row.ref),
-          'Start'
+          isMedium ? '' : 'Start'
         ),
       disableColumnMenu: true,
       sortable: false,
@@ -84,12 +90,12 @@ const ImageTable: React.FC<{ rows: IImage[] }> = ({ rows }) => {
       field: 'display_name',
       headerName: 'Display Name',
       flex: 1,
-      width: 280,
+      minWidth: 150,
       headerClassName: 'bold-header'
     },
     { field: 'mem_limit', headerName: 'Memory Limit', width: 170 },
     { field: 'cpu_limit', headerName: 'CPU Limit', width: 140 },
-    { field: 'creation_date', headerName: 'Creation Date', width: 170 },
+    { field: 'creation_date', headerName: 'Creation Date', width: 220 },
     {
       field: 'info',
       headerName: '',
@@ -151,6 +157,11 @@ const ImageTable: React.FC<{ rows: IImage[] }> = ({ rows }) => {
       <DataGrid
         rows={rowsFormatted}
         columns={columns}
+        columnVisibilityModel={{
+          mem_limit: !isMedium,
+          cpu_limit: !isMedium,
+          creation_date: !isSmall
+        }}
         disableRowSelectionOnClick
         sx={{
           '& .MuiDataGrid-columnHeader': {
@@ -204,6 +215,15 @@ const ImageTable: React.FC<{ rows: IImage[] }> = ({ rows }) => {
               </p>
               <p>
                 <strong>Owner:</strong> {imageInfo.owner}
+              </p>
+              <p>
+                <strong>Memory Limit:</strong> {imageInfo.mem_limit}
+              </p>
+              <p>
+                <strong>CPU Limit:</strong> {imageInfo.cpu_limit}
+              </p>
+              <p>
+                <strong>Creation Date:</strong> {imageInfo.creation_date}
               </p>
             </div>
           )}
