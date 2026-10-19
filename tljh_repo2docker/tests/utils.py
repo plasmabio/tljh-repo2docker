@@ -108,10 +108,11 @@ async def wait_for_image(*, image_name):
 async def wait_for_build_status(app, *, uid, status="built", retries=120):
     """Poll the environments API until the entry ``uid`` reaches ``status``.
 
-    ``wait_for_image`` only guarantees the Docker image is tagged, which happens
-    before the build container exits and before the DB status is flipped to
-    ``built``. Triggering a rebuild in that window returns 409 (build in
-    progress), so tests must wait for the persisted status, not just the image.
+    ``wait_for_image`` only guarantees the Docker image is tagged: on a rebuild
+    the previous image keeps the tag until the new one is published, and the DB
+    status is flipped to ``built`` only after that. Triggering a rebuild before
+    returns 409 (build in progress), so tests must wait for the persisted
+    status, not just the image.
     """
     for _ in range(retries):
         r = await api_request(app, "environments", method="get")

@@ -216,25 +216,29 @@ async def test_rebuild_existing_env_reuses_uid(app, minimal_repo, image_name):
     assert r.status_code == 200
     uid = r.json()["uid"]
     await wait_for_image(image_name=image_name)
-    # The image is tagged before the DB status flips to BUILT; wait for the
-    # persisted status so the rebuild below isn't rejected with 409.
+    # Wait for the persisted status so the rebuild below isn't rejected with 409.
     assert await wait_for_build_status(app, uid=uid) is not None
 
-    # Remove the locally built image so wait_for_image after rebuild has
-    # something to look for.
+    # Point image_name at another image, which still has its own tag: the
+    # rebuild must replace it rather than reuse it, and must not delete it.
+    sentinel = "quay.io/jupyterhub/repo2docker:2025.12.0"
     async with Docker() as docker:
-        try:
-            await docker.images.delete(image_name, force=True)
-        except DockerError:
-            pass
+        sentinel_id = (await docker.images.inspect(sentinel))["Id"]
+        await docker.images.tag(sentinel, name, tag=ref)
 
     r = await add_environment(
         app, repo=minimal_repo, name=name, ref=ref, uid=uid
     )
     assert r.status_code == 200
     assert r.json()["uid"] == uid
-    image = await wait_for_image(image_name=image_name)
-    assert image is not None
+    assert await wait_for_build_status(app, uid=uid) is not None
+    row = _read_image_row(UUID(uid))
+    assert row.status == BuildStatusType.BUILT.value
+    async with Docker() as docker:
+        assert (await docker.images.inspect(image_name))["Id"] != sentinel_id
+        assert (await docker.images.inspect(sentinel))["Id"] == sentinel_id
+        with pytest.raises(DockerError):
+            await docker.images.inspect(f"{image_name}-build")
 
     # Confirm the DB row was kept in place rather than duplicated.
     row = _read_image_row(UUID(uid))

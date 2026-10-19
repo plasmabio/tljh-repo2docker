@@ -49,6 +49,9 @@ async def _enrich_with_db(images, db_context, image_db_manager):
         entry = db_by_name.get(image["image_name"])
         if entry:
             image["uid"] = str(entry.uid)
+            # a rebuild keeps the previous image until it succeeds: the DB
+            # tells whether it is still building or has failed
+            image["status"] = entry.status
             if entry.image_meta.buildargs:
                 image["buildargs"] = entry.image_meta.buildargs
 

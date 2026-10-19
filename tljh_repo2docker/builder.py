@@ -13,7 +13,12 @@ from .database.schemas import (
     DockerImageUpdateSchema,
     ImageMetadataType,
 )
-from .docker import build_image, compute_image_name, split_url_credentials
+from .docker import (
+    build_image,
+    build_tag,
+    compute_image_name,
+    split_url_credentials,
+)
 from .environments import build_image_list
 
 IMAGE_NAME_RE = r"^[a-z0-9-_]+$"
@@ -69,6 +74,13 @@ class BuildHandler(BaseHandler):
                     self.log.exception(
                         "Failed to delete build container for %s", image_name
                     )
+
+            # left over by a build interrupted before its image was published
+            try:
+                await docker.images.delete(build_tag(image_name), force=True)
+            except DockerError as e:
+                if e.status != 404:
+                    raise web.HTTPError(e.status, e.message)
 
             try:
                 await docker.images.delete(image_name)
