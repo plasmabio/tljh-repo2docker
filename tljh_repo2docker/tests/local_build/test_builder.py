@@ -220,21 +220,21 @@ async def test_rebuild_existing_env_reuses_uid(app, minimal_repo, image_name):
     # persisted status so the rebuild below isn't rejected with 409.
     assert await wait_for_build_status(app, uid=uid) is not None
 
-    # Remove the locally built image so wait_for_image after rebuild has
-    # something to look for.
-    async with Docker() as docker:
-        try:
-            await docker.images.delete(image_name, force=True)
-        except DockerError:
-            pass
-
+    # The image is kept: the rebuild must not reuse it.
     r = await add_environment(
         app, repo=minimal_repo, name=name, ref=ref, uid=uid
     )
     assert r.status_code == 200
     assert r.json()["uid"] == uid
+    assert await wait_for_build_status(app, uid=uid) is not None
+    row = _read_image_row(UUID(uid))
+    assert row.status == BuildStatusType.BUILT.value
+    assert "Reusing existing image" not in row.log
     image = await wait_for_image(image_name=image_name)
     assert image is not None
+    async with Docker() as docker:
+        with pytest.raises(DockerError):
+            await docker.images.inspect(f"{image_name}-build")
 
     # Confirm the DB row was kept in place rather than duplicated.
     row = _read_image_row(UUID(uid))

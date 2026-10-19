@@ -173,6 +173,42 @@ async def get_image_metadata(image_name):
         }
 
 
+async def _delete_image(docker, name):
+    try:
+        await docker.images.delete(name, force=True)
+    except DockerError as e:
+        if e.status != 404:
+            raise
+
+
+async def _publish_image(docker, build_name, image_name, exit_code):
+    """Move image_name to the image built as build_name, on success only:
+    a failed rebuild keeps the previous image."""
+    if exit_code != 0:
+        await _delete_image(docker, build_name)
+        return
+    try:
+        previous = (await docker.images.inspect(image_name))["Id"]
+    except DockerError as e:
+        if e.status != 404:
+            raise
+        previous = None
+    repository, tag = image_name.rsplit(":", 1)
+    await docker.images.tag(build_name, repository, tag=tag)
+    # only untags: the image is now also tagged image_name
+    await docker.images.delete(build_name)
+    if previous is None:
+        return
+    previous_image = await docker.images.inspect(previous)
+    # free the space of the replaced image, unless something else tags it
+    if not previous_image.get("RepoTags"):
+        try:
+            await docker.images.delete(previous)
+        except DockerError:
+            # still used by a running server: left dangling, for docker image prune
+            pass
+
+
 async def build_image(
     repo,
     ref,
@@ -194,6 +230,9 @@ async def build_image(
     the database in real time and the final status (built/failed) is persisted.
     """
     image_name, ref, name = compute_image_name(repo, ref, name)
+    # repo2docker skips the build when the image already exists, so a rebuild
+    # would keep the old image: build under a temporary tag, moved on success.
+    build_name = f"{image_name}-build"
 
     # memory is specified in GB
     memory = f"{memory}G" if memory else ""
@@ -226,7 +265,7 @@ async def build_image(
         "1100",
         "--no-run",
         "--image-name",
-        image_name,
+        build_name,
     ]
 
     for label in labels:
@@ -290,6 +329,8 @@ async def build_image(
             secrets.append(quote(s, safe=""))
 
     async with Docker() as docker:
+        # left over by an interrupted build, it would be reused as is
+        await _delete_image(docker, build_name)
         container = await docker.containers.run(config=config)
 
         try:
@@ -331,6 +372,7 @@ async def build_image(
 
                 result = await container.wait()
                 exit_code = result.get("StatusCode", -1)
+                await _publish_image(docker, build_name, image_name, exit_code)
                 status = (
                     BuildStatusType.BUILT if exit_code == 0 else BuildStatusType.FAILED
                 )
@@ -342,7 +384,9 @@ async def build_image(
                 # No DB context: drain logs to allow the container to finish
                 async for _ in container.log(stdout=True, stderr=True, follow=True):
                     pass
-                await container.wait()
+                result = await container.wait()
+                exit_code = result.get("StatusCode", -1)
+                await _publish_image(docker, build_name, image_name, exit_code)
         finally:
             try:
                 await container.delete()
