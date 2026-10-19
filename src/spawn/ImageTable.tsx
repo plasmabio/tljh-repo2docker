@@ -1,6 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
-import { DataGrid, GridColDef, GridRowsProp } from '@mui/x-data-grid';
+import {
+  DataGrid,
+  GridColDef,
+  GridColumnVisibilityModel,
+  GridRowsProp
+} from '@mui/x-data-grid';
 import {
   Box,
   Dialog,
@@ -30,6 +35,17 @@ const ImageTable: React.FC<{ rows: IImage[] }> = ({ rows }) => {
   // the creation date are still shown in the info dialog.
   const isMedium = useMediaQuery(theme.breakpoints.down('md'));
   const isSmall = useMediaQuery(theme.breakpoints.down('sm'));
+  // Controlled so that a breakpoint change resets it, while the columns
+  // panel can still toggle columns in between.
+  const [columnVisibilityModel, setColumnVisibilityModel] =
+    useState<GridColumnVisibilityModel>({});
+  useEffect(() => {
+    setColumnVisibilityModel({
+      mem_limit: !isMedium,
+      cpu_limit: !isMedium,
+      creation_date: !isSmall
+    });
+  }, [isMedium, isSmall]);
   const [openDialog, setOpenDialog] = useState(false);
   const [imageInfo, setImageInfo] = useState<IImage | null>(null);
 
@@ -82,6 +98,7 @@ const ImageTable: React.FC<{ rows: IImage[] }> = ({ rows }) => {
           isMedium ? '' : 'Start'
         ),
       disableColumnMenu: true,
+      hideable: false,
       sortable: false,
       filterable: false,
       editable: false
@@ -117,6 +134,7 @@ const ImageTable: React.FC<{ rows: IImage[] }> = ({ rows }) => {
         </button>
       ),
       disableColumnMenu: true,
+      hideable: false,
       sortable: false,
       filterable: false,
       editable: false
@@ -157,10 +175,15 @@ const ImageTable: React.FC<{ rows: IImage[] }> = ({ rows }) => {
       <DataGrid
         rows={rowsFormatted}
         columns={columns}
-        columnVisibilityModel={{
-          mem_limit: !isMedium,
-          cpu_limit: !isMedium,
-          creation_date: !isSmall
+        columnVisibilityModel={columnVisibilityModel}
+        onColumnVisibilityModelChange={setColumnVisibilityModel}
+        // the button only reverts the changes made since the panel opened
+        localeText={{ columnsManagementReset: 'Cancel' }}
+        slotProps={{
+          columnsManagement: {
+            getTogglableColumns: columns =>
+              columns.filter(col => col.hideable).map(col => col.field)
+          }
         }}
         disableRowSelectionOnClick
         sx={{
