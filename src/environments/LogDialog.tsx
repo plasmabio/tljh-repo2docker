@@ -50,6 +50,12 @@ function _EnvironmentLogButton(props: IEnvironmentLogButton) {
   );
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
+  // The result read from the log stream is only newer than the polled status
+  // until that status changes, e.g. a failed environment being rebuilt.
+  useEffect(() => {
+    setBuildResult(null);
+  }, [status]);
+
   const handleOpen = useCallback(() => {
     setOpen(true);
     if (divRef.current) {
